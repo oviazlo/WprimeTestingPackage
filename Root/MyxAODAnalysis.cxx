@@ -99,6 +99,9 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
   h_Mt = new TH1F("h_Mt", "h_Mt", 500, 0, 5000); 
   wk()->addOutput (h_Mt);
 
+  h_Mt_muonPtCut = new TH1F("h_Mt_muonPtCut", "h_Mt_muonPtCut", 500, 0, 5000); 
+  wk()->addOutput (h_Mt_muonPtCut);
+
   // get the output file, create a new TTree and connect it to that output
   // define what branches will go in that tree
   TFile *outputFile = wk()->getOutputFile (outputName);
@@ -377,6 +380,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		double phi_mu = (*muon_itr)->phi();
 		double Mt = sqrt( 2*(*muon_itr)->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
 		h_Mt->Fill(Mt * 0.001);
+		if (( (*muon_itr)->pt()) * 0.001 >= 50.0)
+			h_Mt_muonPtCut->Fill(Mt * 0.001);
 	}
 	
   } /// end for loop over muons
