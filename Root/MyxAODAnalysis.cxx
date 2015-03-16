@@ -262,26 +262,29 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   */
   
   
-  /// get muon container of interest
-  const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
-    Error("execute()", "Failed to retrieve Muons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+	/// get muon container of interest
+	const xAOD::MuonContainer* muons = 0;
+	if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
+		Error("execute()", "Failed to retrieve Muons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
   
-	/// create a shallow copy of the muons container
+	// create a shallow copy of the muons container
 	std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
-  
-	/// iterate over our shallow copy
+
+	// iterate over our shallow copy
 	xAOD::MuonContainer::iterator muonSC_itr = (muons_shallowCopy.first)->begin();
 	xAOD::MuonContainer::iterator muonSC_end = (muons_shallowCopy.first)->end();
-  
-	for( ; muonSC_itr != muonSC_end; ++muonSC_itr ) {
-		m_muonCalibrationAndSmearingTool->applyCorrection(**muonSC_itr);
-		if(!m_muonSelection->accept(**muonSC_itr)) continue;
-		Info("execute()", "corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() * 0.001));  
-	} // end for loop over shallow copied muons
 
+	for( ; muonSC_itr != muonSC_end; ++muonSC_itr ) {
+	 if(m_muonCalibrationAndSmearingTool->applyCorrection(**muonSC_itr) == CP::CorrectionCode::Error){ // apply correction and check return code
+		   // Can have CorrectionCode values of Ok, OutOfValidityRange, or Error. Here only checking for Error.
+		   // If OutOfValidityRange is returned no modification is made and the original muon values are taken.
+		   Error("execute()", "MuonCalibrationAndSmearingTool returns Error CorrectionCode");
+	 }
+	 if(!m_muonSelection->accept(**muonSC_itr)) continue;
+	 Info("execute()", "  corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() * 0.001));  
+	} // end for loop over shallow copied muons
 	delete muons_shallowCopy.first;
 	delete muons_shallowCopy.second;
   
