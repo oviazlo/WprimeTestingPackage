@@ -4,21 +4,24 @@
 #include <MyAnalysis/MyxAODAnalysis.h>
 #include "CPAnalysisExamples/errorcheck.h"
 
-// EDM includes:
+/// EDM includes:
 #include "xAODEventInfo/EventInfo.h"
 
-// GRL
+/// GRL
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetResolution/JERTool.h"
-#include <TSystem.h> // used to define JERTool calibration path 
+#include <TSystem.h> /// used to define JERTool calibration path 
+
+/// Muons
+#include "MuonSelectorTools/MuonSelectionTool.h"
 
 #include <TFile.h>
 
-// this is needed to distribute the algorithm to the workers
+/// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
 
 
@@ -153,19 +156,19 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 
 EL::StatusCode MyxAODAnalysis :: execute ()
 {
-  // Here you do everything that needs to be done on every single
-  // events, e.g. read input variables, apply cuts, and fill
-  // histograms and trees.  This is where most of your actual analysis
-  // code will go.
+  /// Here you do everything that needs to be done on every single
+  /// events, e.g. read input variables, apply cuts, and fill
+  /// histograms and trees.  This is where most of your actual analysis
+  /// code will go.
   
   const char* APP_NAME = "MyxAODAnalysis";
 
   if( (m_eventCounter % 100) ==0 ) Info("execute()", "Event number = %i", m_eventCounter );
   m_eventCounter++;
 
-  //----------------------------
-  // Event information
-  //--------------------------- 
+  ///----------------------------
+  /// Event information
+  ///--------------------------- 
 
   const xAOD::EventInfo* eventInfo = 0;
   if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
@@ -173,40 +176,42 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       return EL::StatusCode::FAILURE;
   }
 
-  // fill the branches of our trees
+  /// fill the branches of our trees
   EventNumber = eventInfo->eventNumber();  
 
-  // check if the event is data or MC
-  // (many tools are applied either to data or MC)
+  /// check if the event is data or MC
+  /// (many tools are applied either to data or MC)
   bool isMC = false;
-  // check if the event is MC
+  /// check if the event is MC
   if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-      isMC = true; // can do something with this later
+      isMC = true; /// can do something with this later
   }
 
-  // if data check if event passes GRL
-  if(!isMC){ // it's data!
+  /// if data check if event passes GRL
+  if(!isMC){ /// it's data!
       if(!m_grl->passRunLB(*eventInfo)){
           return EL::StatusCode::SUCCESS; // go to next event
       }
-  } // end if not MC
+  } /// end if not MC
 
-  //------------------------------------------------------------
-  // Apply event cleaning to remove events due to 
-  // problematic regions of the detector, and incomplete events.
-  // Apply to data.
-  //------------------------------------------------------------
-  // reject event if:
+  ///------------------------------------------------------------
+  /// Apply event cleaning to remove events due to 
+  /// problematic regions of the detector, and incomplete events.
+  /// Apply to data.
+  ///------------------------------------------------------------
+  /// reject event if:
   if(!isMC){
     if(   (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
 {
-      return EL::StatusCode::SUCCESS; // go to the next event
-    } // end if event flags check
-  } // end if the event is data
+      return EL::StatusCode::SUCCESS; /// go to the next event
+    } /// end if event flags check
+  } /// end if the event is data
   m_numCleanEvents++;
 
   int numGoodJets = 0;
 
+  /// LOOP OVER JETS
+  /*
   // Loop over all jets in the event
   // get jet container of interest
   const xAOD::JetContainer* jets = 0;
@@ -235,20 +240,31 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   } // end for loop over jets
 
   Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
-
-  // get muon container of interest
+  */
+  
+  
+  /// get muon container of interest
   const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ // retrieve arguments: container$
+  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
     Error("execute()", "Failed to retrieve Muons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
 
-  // loop over the muons in the container
+  /// Get Muon Selector Tool
+  CP::MuonSelectionTool m_muonSelection("MuonSelection");
+  m_muonSelection.msg().setLevel( MSG::VERBOSE );
+  m_muonSelection.setProperty( "MaxEta", 2.4 );
+  m_muonSelection.setProperty( "MuQuality", 1);
+  CHECK (m_muonSelection.initialize().isSuccess());
+  
+  
+  /// loop over the muons in the container
   xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
   xAOD::MuonContainer::const_iterator muon_end = muons->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
-       Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); // just to print out something
-  } // end for loop over muons
+	  if(!m_muonSelection.accept(**mu_itr)) continue;
+	  Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
+  } /// end for loop over muons
 
   tree->Fill();
 
