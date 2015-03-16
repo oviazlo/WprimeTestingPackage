@@ -25,6 +25,7 @@ class JERTool;
 namespace CP{
     class MuonSelectionTool;
     class MuonCalibrationAndSmearingTool; // this tool lives in the namespace CP
+    //~ class MuonEfficiencyCorrections;
 }
 
 class MyxAODAnalysis : public EL::Algorithm
@@ -49,8 +50,10 @@ public:
 
   TH1 *h_jetPt; //!
 
-  TH1 *h_muPt; //!
-  TH1 *h_muPtAll; //!
+  TH1 *h_muPt_uncorr_wSelector; //!
+  TH1 *h_muPt_uncorr_woSelector; //!
+  TH1 *h_muPt_corr_wSelector; //!
+  TH1 *h_muPt_corr_woSelector; //!
 
   // defining the output file name and tree that we will put in the output ntuple, also the one branch that will be in that tree 
   std::string outputName;
@@ -65,6 +68,7 @@ public:
     CP::MuonSelectionTool* m_muonSelection; //!
     /// MuonCalibrationAndSmearing
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
+    //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
   #endif // not __CINT__
 
   // this is a standard constructor

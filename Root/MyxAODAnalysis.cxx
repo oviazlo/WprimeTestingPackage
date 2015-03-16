@@ -67,14 +67,24 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
   // trees.  This method gets called before any input files are
   // connected.
 
+
+
   h_jetPt = new TH1F("h_jetPt", "h_jetPt", 100, 0, 500); // jet pt [GeV]
   wk()->addOutput (h_jetPt);
 
-  h_muPt = new TH1F("h_muPt", "h_muPt", 300, 0, 3000); // jet pt [GeV]
-  wk()->addOutput (h_muPt);
+  /// Muon Pt histograms:
+  h_muPt_uncorr_wSelector = new TH1F("h_muPt_uncorr_wSelector", "h_muPt_uncorr_wSelector", 300, 0, 3000); // jet pt [GeV]
+  wk()->addOutput (h_muPt_uncorr_wSelector);
 
-  h_muPtAll = new TH1F("h_muPtAll", "h_muPtAll", 300, 0, 3000); // jet pt [GeV]
-  wk()->addOutput (h_muPtAll);
+  h_muPt_uncorr_woSelector = new TH1F("h_muPt_uncorr_woSelector", "h_muPt_uncorr_woSelector", 300, 0, 3000); // jet pt [GeV]
+  wk()->addOutput (h_muPt_uncorr_woSelector);
+  
+  h_muPt_corr_wSelector = new TH1F("h_muPt_corr_wSelector", "h_muPt_corr_wSelector", 300, 0, 3000); // jet pt [GeV]
+  wk()->addOutput (h_muPt_corr_wSelector);
+  
+  h_muPt_corr_woSelector = new TH1F("h_muPt_corr_woSelector", "h_muPt_corr_woSelector", 300, 0, 3000); // jet pt [GeV]
+  wk()->addOutput (h_muPt_corr_woSelector);
+
 
   // get the output file, create a new TTree and connect it to that output
   // define what branches will go in that tree
@@ -173,6 +183,11 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 		Error("initialize()", "Failed to properly initialize the MonCalibrationAndSmearingTool Tool. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
+	
+	//~ m_effi_corr = new CP::MuonEfficiencyScaleFactors m_effi_corr("SomeName");
+	//~ m_effi_corr->setProperty("WorkingPoint","CBandST");
+	//~ m_effi_corr->setProperty("DataPeriod","2012");
+	//~ CHECK (m_effi_corr->initialize().isSuccess());
 	
 	return EL::StatusCode::SUCCESS;
 }
@@ -298,10 +313,23 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
   xAOD::MuonContainer::const_iterator muon_end = muons->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
-	  h_muPtAll->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
-	  if(!m_muonSelection->accept(**muon_itr)) continue;
-	  //Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
-	  h_muPt->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
+  
+	h_muPt_uncorr_woSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
+	  
+	xAOD::Muon* mu = 0;
+	if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
+		Error(APP_NAME, "Cannot really apply calibration nor smearing");
+		continue;
+	}
+	
+	h_muPt_corr_woSelector->Fill( ( mu->pt()) * 0.001); // GeV
+	
+	if(m_muonSelection->accept(**muon_itr))
+		h_muPt_uncorr_wSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
+	
+	if(m_muonSelection->accept(mu))
+		h_muPt_corr_wSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
+	
   } /// end for loop over muons
 
   tree->Fill();
@@ -366,6 +394,11 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 		delete m_muonSelection;
 		m_muonSelection = 0;
 	}
+	//~ /// Muon eff.corr. tool
+	//~ if(m_effi_corr){
+		//~ delete m_effi_corr;
+		//~ m_effi_corr = 0;
+	//~ }
   
 	return EL::StatusCode::SUCCESS;
 }
