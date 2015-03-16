@@ -21,7 +21,7 @@ class xAODMuon;
 class JetCleaningTool;
 class JERTool;
 
-class METUtility;
+//class METUtility;
 
 // muon calibration and smearing tool
 namespace CP{
@@ -75,7 +75,7 @@ public:
     /// MuonCalibrationAndSmearing
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
     //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
-    METUtility *m_METUtil;
+    //METUtility *m_METUtil;
   #endif // not __CINT__
 
   // this is a standard constructor

@@ -22,7 +22,8 @@
 
 #include "PATInterfaces/CorrectionCode.h" /// to check the return correction code status of tools
 
-#include "MissingETUtility/METUtility.h" /// METUtils
+//#include "MissingETUtility/METUtility.h" /// METUtils
+#include "xAODMissingET/MissingETContainer.h"
 
 #include <TFile.h>
 #include <TMath.h>
@@ -201,7 +202,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	//~ m_effi_corr->setProperty("DataPeriod","2012");
 	//~ CHECK (m_effi_corr->initialize().isSuccess());
 	
-	m_METUtil = new METUtility;
+	//m_METUtil = new METUtility;
 	//m_METUtil->setVerbosity(true);
 	//m_util->setSoftJetCut(20);
 	
@@ -295,7 +296,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       //~ } // end if MC
   } // end for loop over jets
 
-  Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
+  //Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
   
   	/// get MET_RefFinalFix container of interest
 	const xAOD::MissingETContainer* metcontainer = 0;
@@ -311,12 +312,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	xAOD::MissingETContainer::const_iterator met_it = metcontainer->find("Final"); 
 
     if (met_it == metcontainer->end()) {
-      ATH_MSG_ERROR( "No RefFinal inside MET container" );
+      Error("execute()", "No RefFinal inside MET container" );
     }
 
 	double mpx = (*met_it)->mpx();
     double mpy = (*met_it)->mpy();
-	TLorentzVector *metVec = TLorentzVector();
+	TLorentzVector *metVec = new TLorentzVector();
 	metVec->SetPx(mpx);
 	metVec->SetPy(mpy);
 	metVec->SetPz(0.0);
@@ -373,8 +374,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 	if(m_muonSelection->accept(mu)){
 		h_muPt_corr_wSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
-		double phi_mu = (*muon_itr)->phi()
-		double Mt = sqrt( 2*(*muon_itr)->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - Cos( phi_mu - phi_met )) );
+		double phi_mu = (*muon_itr)->phi();
+		double Mt = sqrt( 2*(*muon_itr)->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
 		h_Mt->Fill(Mt * 0.001);
 	}
 	
@@ -451,10 +452,12 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 		//~ delete m_effi_corr;
 		//~ m_effi_corr = 0;
 	//~ }
-	if(*m_METUtil){
+	/*
+    if(*m_METUtil){
 		delete m_METUtil;
 		m_METUtil = 0;
 	}
+    */
   
 	return EL::StatusCode::SUCCESS;
 }
