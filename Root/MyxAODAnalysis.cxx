@@ -70,6 +70,12 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
   h_jetPt = new TH1F("h_jetPt", "h_jetPt", 100, 0, 500); // jet pt [GeV]
   wk()->addOutput (h_jetPt);
 
+  h_muPt = new TH1F("h_muPt", "h_muPt", 300, 0, 3000); // jet pt [GeV]
+  wk()->addOutput (h_muPt);
+
+  h_muPtAll = new TH1F("h_muPtAll", "h_muPtAll", 300, 0, 3000); // jet pt [GeV]
+  wk()->addOutput (h_muPtAll);
+
   // get the output file, create a new TTree and connect it to that output
   // define what branches will go in that tree
   TFile *outputFile = wk()->getOutputFile (outputName);
@@ -269,32 +275,34 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		return EL::StatusCode::FAILURE;
 	}
   
-	// create a shallow copy of the muons container
-	std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
-
-	// iterate over our shallow copy
-	xAOD::MuonContainer::iterator muonSC_itr = (muons_shallowCopy.first)->begin();
-	xAOD::MuonContainer::iterator muonSC_end = (muons_shallowCopy.first)->end();
-
-	for( ; muonSC_itr != muonSC_end; ++muonSC_itr ) {
-	 if(m_muonCalibrationAndSmearingTool->applyCorrection(**muonSC_itr) == CP::CorrectionCode::Error){ // apply correction and check return code
-		   // Can have CorrectionCode values of Ok, OutOfValidityRange, or Error. Here only checking for Error.
-		   // If OutOfValidityRange is returned no modification is made and the original muon values are taken.
-		   Error("execute()", "MuonCalibrationAndSmearingTool returns Error CorrectionCode");
-	 }
-	 //if(!m_muonSelection->accept(**muonSC_itr)) continue;
-	 Info("execute()", "  corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() * 0.001));  
-	} // end for loop over shallow copied muons
-	delete muons_shallowCopy.first;
-	delete muons_shallowCopy.second;
+	//~ // create a shallow copy of the muons container
+	//~ std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
+//~ 
+	//~ // iterate over our shallow copy
+	//~ xAOD::MuonContainer::iterator muonSC_itr = (muons_shallowCopy.first)->begin();
+	//~ xAOD::MuonContainer::iterator muonSC_end = (muons_shallowCopy.first)->end();
+//~ 
+	//~ for( ; muonSC_itr != muonSC_end; ++muonSC_itr ) {
+	 //~ if(m_muonCalibrationAndSmearingTool->applyCorrection(**muonSC_itr) == CP::CorrectionCode::Error){ // apply correction and check return code
+		   //~ // Can have CorrectionCode values of Ok, OutOfValidityRange, or Error. Here only checking for Error.
+		   //~ // If OutOfValidityRange is returned no modification is made and the original muon values are taken.
+		   //~ Error("execute()", "MuonCalibrationAndSmearingTool returns Error CorrectionCode");
+	 //~ }
+	 //~ //if(!m_muonSelection->accept(**muonSC_itr)) continue;
+	 //~ Info("execute()", "  corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() * 0.001));  
+	//~ } // end for loop over shallow copied muons
+	//~ delete muons_shallowCopy.first;
+	//~ delete muons_shallowCopy.second;
   
-  //~ /// loop over the muons in the container
-  //~ xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
-  //~ xAOD::MuonContainer::const_iterator muon_end = muons->end();
-  //~ for( ; muon_itr != muon_end; ++muon_itr ) {
-	  //~ if(!m_muonSelection->accept(**muon_itr)) continue;
-	  //~ Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
-  //~ } /// end for loop over muons
+  /// loop over the muons in the container
+  xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
+  xAOD::MuonContainer::const_iterator muon_end = muons->end();
+  for( ; muon_itr != muon_end; ++muon_itr ) {
+	  h_muPtAll->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
+	  if(!m_muonSelection->accept(**muon_itr)) continue;
+	  Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
+	  h_muPt->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
+  } /// end for loop over muons
 
   tree->Fill();
 
