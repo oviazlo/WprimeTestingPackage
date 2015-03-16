@@ -18,6 +18,7 @@
 
 /// Muons
 #include "MuonSelectorTools/MuonSelectionTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
 #include <TFile.h>
 
@@ -149,6 +150,14 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     return EL::StatusCode::FAILURE;
   }
 
+  /// Get Muon Selector Tool
+  m_muonSelection = new CP::MuonSelectionTool("MuonSelection");
+  m_muonSelection->msg().setLevel( MSG::VERBOSE );
+  m_muonSelection->setProperty( "MaxEta", 2.4 );
+  m_muonSelection->setProperty( "MuQuality", 1);
+  CHECK (m_muonSelection->initialize().isSuccess());
+
+
   return EL::StatusCode::SUCCESS;
 }
 
@@ -249,20 +258,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     Error("execute()", "Failed to retrieve Muons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
-
-  /// Get Muon Selector Tool
-  CP::MuonSelectionTool m_muonSelection("MuonSelection");
-  m_muonSelection.msg().setLevel( MSG::VERBOSE );
-  m_muonSelection.setProperty( "MaxEta", 2.4 );
-  m_muonSelection.setProperty( "MuQuality", 1);
-  CHECK (m_muonSelection.initialize().isSuccess());
-  
   
   /// loop over the muons in the container
   xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
   xAOD::MuonContainer::const_iterator muon_end = muons->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
-	  if(!m_muonSelection.accept(**mu_itr)) continue;
+	  if(!m_muonSelection->accept(**muon_itr)) continue;
 	  Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
   } /// end for loop over muons
 

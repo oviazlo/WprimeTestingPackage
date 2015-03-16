@@ -18,6 +18,12 @@ class xAODMuon;
 class JetCleaningTool;
 class JERTool;
 
+// muon calibration and smearing tool
+namespace CP{
+    class MuonSelectionTool;
+    class MuonCalibrationAndSmearingTool; // this tool lives in the namespace CP
+}
+
 class MyxAODAnalysis : public EL::Algorithm
 {
   // put your configuration variables here as public variables.
@@ -49,6 +55,10 @@ public:
     GoodRunsListSelectionTool *m_grl; //!
     JetCleaningTool *m_jetCleaning; //!  
     JERTool *m_JERTool; //!
+    /// Muson Selector Tool
+    CP::MuonSelectionTool* m_muonSelection; //!
+    /// MuonCalibrationAndSmearing
+    CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
   #endif // not __CINT__
 
   // this is a standard constructor
