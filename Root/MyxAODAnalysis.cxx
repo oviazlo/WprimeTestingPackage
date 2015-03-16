@@ -20,6 +20,8 @@
 #include "MuonSelectorTools/MuonSelectionTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
+#include "PATInterfaces/CorrectionCode.h" /// to check the return correction code status of tools
+
 #include <TFile.h>
 
 /// this is needed to distribute the algorithm to the workers
@@ -158,7 +160,15 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   CHECK (m_muonSelection->initialize().isSuccess());
 
 
-  return EL::StatusCode::SUCCESS;
+	/// initialize the muon calibration and smearing tool
+	m_muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool( "MuonCorrectionTool" );
+	//m_muonCalibrationAndSmearingTool->msg().setLevel( MSG::DEBUG );
+	if (! m_muonCalibrationAndSmearingTool->initialize().isSuccess() ){
+		Error("initialize()", "Failed to properly initialize the MonCalibrationAndSmearingTool Tool. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	
+	return EL::StatusCode::SUCCESS;
 }
 
 
@@ -259,13 +269,29 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::FAILURE;
   }
   
-  /// loop over the muons in the container
-  xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
-  xAOD::MuonContainer::const_iterator muon_end = muons->end();
-  for( ; muon_itr != muon_end; ++muon_itr ) {
-	  if(!m_muonSelection->accept(**muon_itr)) continue;
-	  Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
-  } /// end for loop over muons
+	/// create a shallow copy of the muons container
+	std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
+  
+	/// iterate over our shallow copy
+	xAOD::MuonContainer::iterator muonSC_itr = (muons_shallowCopy.first)->begin();
+	xAOD::MuonContainer::iterator muonSC_end = (muons_shallowCopy.first)->end();
+  
+	for( ; muonSC_itr != muonSC_end; ++muonSC_itr ) {
+		m_muonCalibrationAndSmearingTool->applyCorrection(**muonSC_itr);
+		if(!m_muonSelection->accept(**muonSC_itr)) continue;
+		Info("execute()", "corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() * 0.001));  
+	} // end for loop over shallow copied muons
+
+	delete muons_shallowCopy.first;
+	delete muons_shallowCopy.second;
+  
+  //~ /// loop over the muons in the container
+  //~ xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
+  //~ xAOD::MuonContainer::const_iterator muon_end = muons->end();
+  //~ for( ; muon_itr != muon_end; ++muon_itr ) {
+	  //~ if(!m_muonSelection->accept(**muon_itr)) continue;
+	  //~ Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
+  //~ } /// end for loop over muons
 
   tree->Fill();
 
@@ -286,35 +312,51 @@ EL::StatusCode MyxAODAnalysis :: postExecute ()
 
 EL::StatusCode MyxAODAnalysis :: finalize ()
 {
-  // This method is the mirror image of initialize(), meaning it gets
-  // called after the last event has been processed on the worker node
-  // and allows you to finish up any objects you created in
-  // initialize() before they are written to disk.  This is actually
-  // fairly rare, since this happens separately for each worker node.
-  // Most of the time you want to do your post-processing on the
-  // submission node after all your histogram outputs have been
-  // merged.  This is different from histFinalize() in that it only
-  // gets called on worker nodes that processed input events.
+	// This method is the mirror image of initialize(), meaning it gets
+	// called after the last event has been processed on the worker node
+	// and allows you to finish up any objects you created in
+	// initialize() before they are written to disk.  This is actually
+	// fairly rare, since this happens separately for each worker node.
+	// Most of the time you want to do your post-processing on the
+	// submission node after all your histogram outputs have been
+	// merged.  This is different from histFinalize() in that it only
+	// gets called on worker nodes that processed input events.
+	
+	const char* APP_NAME = "MyxAODAnalysis";  
+	
+	///*************************
+	///
+	/// deleting of all tools
+	///
+	/// ************************
+	
+	/// GRL
+	if( m_grl ) {
+		delete m_grl;
+		m_grl = 0;
+	}
+	/// Jet cleaning tool
+	if( m_jetCleaning ) {
+		delete m_jetCleaning;
+		m_jetCleaning = 0;
+	}
+	if(m_JERTool){
+		delete m_JERTool;
+		m_JERTool = 0;
+	}
+	Info("finalize()", "Number of clean events = %i", m_numCleanEvents);
+	/// Muon calibration and smearing tool
+	if(m_muonCalibrationAndSmearingTool){
+		delete m_muonCalibrationAndSmearingTool;
+		m_muonCalibrationAndSmearingTool = 0;
+	}
+	/// Muon selector tool
+	if(m_muonSelection){
+		delete m_muonSelection;
+		m_muonSelection = 0;
+	}
   
-  const char* APP_NAME = "MyxAODAnalysis";  
-    
-  // GRL
-  if( m_grl ) {
-      delete m_grl;
-      m_grl = 0;
-  }
-
-  if( m_jetCleaning ) {
-      delete m_jetCleaning;
-      m_jetCleaning = 0;
-  }
-  if(m_JERTool){
-      delete m_JERTool;
-      m_JERTool = 0;
-  }
-  Info("finalize()", "Number of clean events = %i", m_numCleanEvents);
-
-  return EL::StatusCode::SUCCESS;
+	return EL::StatusCode::SUCCESS;
 }
 
 
