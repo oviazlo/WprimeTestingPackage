@@ -11,6 +11,9 @@
 #include <TH1.h>
 #include <TTree.h>
 
+// shallow copy
+#include "xAODCore/ShallowCopy.h"
+
 // GRL
 class GoodRunsListSelectionTool;
 class xAODJet;

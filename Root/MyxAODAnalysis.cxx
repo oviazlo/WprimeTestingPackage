@@ -282,7 +282,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		   // If OutOfValidityRange is returned no modification is made and the original muon values are taken.
 		   Error("execute()", "MuonCalibrationAndSmearingTool returns Error CorrectionCode");
 	 }
-	 if(!m_muonSelection->accept(**muonSC_itr)) continue;
+	 //if(!m_muonSelection->accept(**muonSC_itr)) continue;
 	 Info("execute()", "  corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() * 0.001));  
 	} // end for loop over shallow copied muons
 	delete muons_shallowCopy.first;
