@@ -22,7 +22,11 @@
 
 #include "PATInterfaces/CorrectionCode.h" /// to check the return correction code status of tools
 
+#include "MissingETUtility/METUtility.h" /// METUtils
+
 #include <TFile.h>
+#include <TMath.h>
+#include <TLorentzVector.h>
 
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
@@ -85,6 +89,14 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
   h_muPt_corr_woSelector = new TH1F("h_muPt_corr_woSelector", "h_muPt_corr_woSelector", 300, 0, 3000); // jet pt [GeV]
   wk()->addOutput (h_muPt_corr_woSelector);
 
+  h_MET_RefFinalFix = new TH1F("h_MET_RefFinalFix", "h_MET_RefFinalFix", 500, 0, 5000); 
+  wk()->addOutput (h_MET_RefFinalFix);
+  
+  h_MET_RefFinalFix_test = new TH1F("h_MET_RefFinalFix_test", "h_MET_RefFinalFix_test", 500, 0, 5000); 
+  wk()->addOutput (h_MET_RefFinalFix_test);
+  
+  h_Mt = new TH1F("h_Mt", "h_Mt", 500, 0, 5000); 
+  wk()->addOutput (h_Mt);
 
   // get the output file, create a new TTree and connect it to that output
   // define what branches will go in that tree
@@ -189,6 +201,10 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	//~ m_effi_corr->setProperty("DataPeriod","2012");
 	//~ CHECK (m_effi_corr->initialize().isSuccess());
 	
+	m_METUtil = new METUtility;
+	//m_METUtil->setVerbosity(true);
+	//m_util->setSoftJetCut(20);
+	
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -251,7 +267,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   int numGoodJets = 0;
 
   /// LOOP OVER JETS
-  /*
+  
   // Loop over all jets in the event
   // get jet container of interest
   const xAOD::JetContainer* jets = 0;
@@ -266,22 +282,50 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   for( ; jet_itr != jet_end; ++jet_itr ) {
       if( !m_jetCleaning->accept( **jet_itr )) continue; //only keep good clean jets
       numGoodJets++;
-      Info("execute()", " clean jet pt = %.2f GeV", ((*jet_itr)->pt() * 0.001)); // just to print out something
+      //Info("execute()", " clean jet pt = %.2f GeV", ((*jet_itr)->pt() * 0.001)); // just to print out something
       h_jetPt->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
       
-      // JER and uncert
-      if(isMC){ // assuming isMC flag has been set based on eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) 
-         // Get the MC resolution
-         double mcRes = m_JERTool->getRelResolutionMC((*jet_itr));
-         // Get the resolution uncertainty
-         double uncert = m_JERTool->getUncertainty((*jet_itr), false, false); // getUncertainty(const xAOD::Jet* jet, bool alt2, bool isAFII)
-         Info("execute()", "jet mcRes = %f , uncert = %f", mcRes, uncert);
-      } // end if MC
+      //~ // JER and uncert
+      //~ if(isMC){ // assuming isMC flag has been set based on eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) 
+         //~ // Get the MC resolution
+         //~ double mcRes = m_JERTool->getRelResolutionMC((*jet_itr));
+         //~ // Get the resolution uncertainty
+         //~ double uncert = m_JERTool->getUncertainty((*jet_itr), false, false); // getUncertainty(const xAOD::Jet* jet, bool alt2, bool isAFII)
+         //~ Info("execute()", "jet mcRes = %f , uncert = %f", mcRes, uncert);
+      //~ } // end if MC
   } // end for loop over jets
 
   Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
-  */
   
+  	/// get MET_RefFinalFix container of interest
+	const xAOD::MissingETContainer* metcontainer = 0;
+	
+	/// we need to use MET_RefFinalFix, according to:
+	/// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2xAODMissingET
+	if ( !m_event->retrieve( metcontainer, "MET_RefFinalFix" ).isSuccess() ){ /// retrieve arguments: container$
+		Error("execute()", "Failed to retrieve MET_RefFinalFix container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+
+	/// We want to check default Final MET, wo any recalibration first
+	xAOD::MissingETContainer::const_iterator met_it = metcontainer->find("Final"); 
+
+    if (met_it == metcontainer->end()) {
+      ATH_MSG_ERROR( "No RefFinal inside MET container" );
+    }
+
+	double mpx = (*met_it)->mpx();
+    double mpy = (*met_it)->mpy();
+	TLorentzVector *metVec = TLorentzVector();
+	metVec->SetPx(mpx);
+	metVec->SetPy(mpy);
+	metVec->SetPz(0.0);
+	metVec->SetE(sqrt(mpx*mpx + mpy*mpy));
+	
+	h_MET_RefFinalFix->Fill(sqrt(mpx*mpx + mpy*mpy)* 0.001);
+	h_MET_RefFinalFix_test->Fill(metVec->Pt() * 0.001);
+
+	double phi_met = metVec->Phi();
   
 	/// get muon container of interest
 	const xAOD::MuonContainer* muons = 0;
@@ -327,10 +371,18 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	if(m_muonSelection->accept(**muon_itr))
 		h_muPt_uncorr_wSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
 	
-	if(m_muonSelection->accept(mu))
+	if(m_muonSelection->accept(mu)){
 		h_muPt_corr_wSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
+		double phi_mu = (*muon_itr)->phi()
+		double Mt = sqrt( 2*(*muon_itr)->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - Cos( phi_mu - phi_met )) );
+		h_Mt->Fill(Mt * 0.001);
+	}
 	
   } /// end for loop over muons
+
+
+	
+
 
   tree->Fill();
 
@@ -399,6 +451,10 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 		//~ delete m_effi_corr;
 		//~ m_effi_corr = 0;
 	//~ }
+	if(*m_METUtil){
+		delete m_METUtil;
+		m_METUtil = 0;
+	}
   
 	return EL::StatusCode::SUCCESS;
 }

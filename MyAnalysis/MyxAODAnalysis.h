@@ -21,6 +21,8 @@ class xAODMuon;
 class JetCleaningTool;
 class JERTool;
 
+class METUtility;
+
 // muon calibration and smearing tool
 namespace CP{
     class MuonSelectionTool;
@@ -55,6 +57,10 @@ public:
   TH1 *h_muPt_corr_wSelector; //!
   TH1 *h_muPt_corr_woSelector; //!
 
+  TH1 *h_MET_RefFinalFix; //!
+  TH1 *h_MET_RefFinalFix_test; //!
+  TH1 *h_Mt; //!
+
   // defining the output file name and tree that we will put in the output ntuple, also the one branch that will be in that tree 
   std::string outputName;
   TTree *tree; //!
@@ -69,6 +75,7 @@ public:
     /// MuonCalibrationAndSmearing
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
     //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
+    METUtility *m_METUtil;
   #endif // not __CINT__
 
   // this is a standard constructor
