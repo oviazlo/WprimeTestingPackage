@@ -25,7 +25,8 @@ int main( int argc, char* argv[] ) {
    const char* inputFilePath = gSystem->ExpandPathName ("/afs/cern.ch/work/o/oviazlo/Wprime/datasets");
    //const char* inputFilePath = gSystem->ExpandPathName ("$ALRB_TutorialData/r5591"); // using $ALRB_TutorialData previously defined
    SH::DiskListLocal list (inputFilePath);
-   SH::scanDir (sh, list, "DAOD_EXOT9.04655450._000002.pool.root.1");
+   SH::scanDir (sh, list, "DAOD_EXOT9*root*");
+   //SH::scanDir (sh, list, "DAOD_EXOT9.04655450._000002.pool.root.1");
    //SH::scanDir (sh, list, "AOD.01494882._113691.pool.root.1"); // specifying one particular file for testing
 
    // Set the name of the input TTree. It's always "CollectionTree"
@@ -40,7 +41,7 @@ int main( int argc, char* argv[] ) {
    job.sampleHandler( sh );
 
    // Specify that we only want to run on 1k events
-   job.options()->setDouble(EL::Job::optMaxEvents, 1000);
+   //job.options()->setDouble(EL::Job::optMaxEvents, 1000);
 
    // define an output and an ntuple associated to that output 
    EL::OutputStream output  ("myOutput");

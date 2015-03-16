@@ -160,7 +160,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 
   /// Get Muon Selector Tool
   m_muonSelection = new CP::MuonSelectionTool("MuonSelection");
-  m_muonSelection->msg().setLevel( MSG::VERBOSE );
+  m_muonSelection->msg().setLevel( MSG::ERROR );
   m_muonSelection->setProperty( "MaxEta", 2.4 );
   m_muonSelection->setProperty( "MuQuality", 1);
   CHECK (m_muonSelection->initialize().isSuccess());
@@ -300,7 +300,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   for( ; muon_itr != muon_end; ++muon_itr ) {
 	  h_muPtAll->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
 	  if(!m_muonSelection->accept(**muon_itr)) continue;
-	  Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
+	  //Info("execute()", "  original muon pt = %.2f GeV", ((*muon_itr)->pt() * 0.001)); /// just to print out something
 	  h_muPt->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
   } /// end for loop over muons
 
