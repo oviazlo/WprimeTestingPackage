@@ -61,7 +61,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   job.useXAOD ();
   xAOD::Init( "MyxAODAnalysis" ).ignore(); // call before opening first file
 
-  useHistObjectDumper = true;
+  m_useHistObjectDumper = true;
   
   return EL::StatusCode::SUCCESS;
 }
