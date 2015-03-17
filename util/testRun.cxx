@@ -49,8 +49,10 @@ int main( int argc, char* argv[] ) {
    EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
    job.algsAdd (ntuple);
 
-   // Add our analysis to the job:
+   /// Add our analysis to the job:
    MyxAODAnalysis* alg = new MyxAODAnalysis();
+   /// don't dump object hists 
+   alg->m_useHistObjectDumper = false;
    job.algsAdd( alg );
 
    alg->outputName = "myOutput"; // give the name of the output to our algorithm
