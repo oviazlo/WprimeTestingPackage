@@ -371,7 +371,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::MuonContainer::const_iterator muon_end = muons->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
   
-	if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
+	if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((**muon_itr),"noCuts");
   
 	xAOD::Muon* mu = 0;
 	if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
