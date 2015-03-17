@@ -51,11 +51,11 @@ int main( int argc, char* argv[] ) {
 
    /// Add our analysis to the job:
    MyxAODAnalysis* alg = new MyxAODAnalysis();
-   /// don't dump object hists 
-   alg->m_useHistObjectDumper = false;
    job.algsAdd( alg );
+   /// all configuration to the algorithm should be passed after attachment to the job (practically after this comment)
 
    alg->outputName = "myOutput"; // give the name of the output to our algorithm
+   alg->m_useHistObjectDumper = false;
 
    // Run the job using the local/direct driver:
    EL::DirectDriver driver;

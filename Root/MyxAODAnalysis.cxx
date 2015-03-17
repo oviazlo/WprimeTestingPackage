@@ -43,6 +43,9 @@ MyxAODAnalysis :: MyxAODAnalysis ()
   // called on both the submission and the worker node.  Most of your
   // initialization code will go into histInitialize() and
   // initialize().
+  
+  //m_useHistObjectDumper = true;
+
 }
 
 
@@ -62,7 +65,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   xAOD::Init( "MyxAODAnalysis" ).ignore(); // call before opening first file
 
   m_useHistObjectDumper = true;
-  
+
   return EL::StatusCode::SUCCESS;
 }
 
@@ -473,7 +476,7 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 	}
     */
   
-    if(m_HistObjectDumper){
+    if(m_useHistObjectDumper && m_HistObjectDumper){
         delete m_HistObjectDumper;
         m_HistObjectDumper = 0;
     }
