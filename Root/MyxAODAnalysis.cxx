@@ -386,7 +386,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 		if (( mu->pt()) * 0.001 >= 50.0){
 			h_Mt_muonPtCut->Fill(Mt * 0.001);
-			if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
+			if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(*mu,"allCuts");
 		}
 	}
 	
