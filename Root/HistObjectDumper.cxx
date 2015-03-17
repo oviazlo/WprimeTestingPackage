@@ -81,7 +81,7 @@ void HistObjectDumper::plotMuon(const xAOD::Muon& mu, string stage_tag){
 	if (m_StageNameDict[stage_tag]==false)
 		InitNewStageHists(stage_tag);
 	
-	m_muonHistMap["pt"][stage_tag]->Fill(mu.>pt()*0.001);
+	m_muonHistMap["pt"][stage_tag]->Fill(mu.pt()*0.001);
 	m_muonHistMap["eta"][stage_tag]->Fill(mu.eta());
 	m_muonHistMap["phi"][stage_tag]->Fill(mu.phi());
 	m_muonHistMap["quality"][stage_tag]->Fill(mu.quality());
