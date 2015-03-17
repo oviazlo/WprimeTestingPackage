@@ -1,7 +1,9 @@
 #ifndef HistObjectDumper_H
 #define HistObjectDumper_H
 
+#include "EventLoop/Algorithm.h"
 #include "xAODMuon/MuonContainer.h"
+
 #include <TH1.h>
 #include <iostream>
 #include <map>
@@ -12,22 +14,22 @@ class HistObjectDumper
 {
 
 public:
-	HistObjectDumper();
+	HistObjectDumper(Worker *wk);
 	~HistObjectDumper();
 
-	void plotMuon(xAOD::Muon* mu, string stage_tag = "");
+	void plotMuon(xAOD::Muon* mu, string stage_tag);
 	
 private:
 	
-	int InitNewStageHists(string stage_tag = "");
+	int InitNewStageHists(string stage_tag);
 	
-	vector<TH1*> muon_pt_; //!
-	vector<TH1*> muon_eta_; //!
-
-	///
+	/// link to EventLoop worker;
+	Worker *m_wk; //!
+	
 	/// string - variable name
-	///
-	map<string,vector<TH1*> > muonHistMap_; //!
+	map<string,map<string,TH1*> > m_muonHistMap; //!
+	
+	map<string,bool> m_StageNameDict; //!
 	
 	/// this is needed to distribute the algorithm to the workers
 	ClassDef(HistObjectDumper, 1);
