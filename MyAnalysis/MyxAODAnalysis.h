@@ -14,12 +14,15 @@
 // shallow copy
 #include "xAODCore/ShallowCopy.h"
 
+#include <MyAnalysis/HistObjectDumper.h>
+
 // GRL
 class GoodRunsListSelectionTool;
 class xAODJet;
 class xAODMuon;
 class JetCleaningTool;
 class JERTool;
+//class HistObjectDumper;
 
 //class METUtility;
 
@@ -78,6 +81,8 @@ public:
     //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
     //METUtility *m_METUtil;
   #endif // not __CINT__
+
+  HistObjectDumper *m_HistObjectDumper; //!
 
   // this is a standard constructor
   MyxAODAnalysis ();

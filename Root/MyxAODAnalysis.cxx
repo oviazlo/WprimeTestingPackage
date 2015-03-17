@@ -2,6 +2,7 @@
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/Worker.h>
 #include <MyAnalysis/MyxAODAnalysis.h>
+//#include <MyAnalysis/HistObjectDumper.h>
 #include "CPAnalysisExamples/errorcheck.h"
 
 /// EDM includes:
@@ -208,7 +209,9 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	//m_METUtil = new METUtility;
 	//m_METUtil->setVerbosity(true);
 	//m_util->setSoftJetCut(20);
-	
+
+    m_HistObjectDumper = new HistObjectDumper();
+
 	return EL::StatusCode::SUCCESS;
 }
 
@@ -380,8 +383,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		double phi_mu = (*muon_itr)->phi();
 		double Mt = sqrt( 2*(*muon_itr)->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
 		h_Mt->Fill(Mt * 0.001);
-		if (( (*muon_itr)->pt()) * 0.001 >= 50.0)
+		if (( mu->pt()) * 0.001 >= 50.0){
 			h_Mt_muonPtCut->Fill(Mt * 0.001);
+            m_HistObjectDumper->plotMuon(mu,"allCuts");
+        }
 	}
 	
   } /// end for loop over muons
@@ -464,6 +469,11 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 	}
     */
   
+    if(m_HistObjectDumper){
+        delete m_HistObjectDumper;
+        m_HistObjectDumper = 0;
+    }
+
 	return EL::StatusCode::SUCCESS;
 }
 

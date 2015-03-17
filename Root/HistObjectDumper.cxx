@@ -45,10 +45,10 @@ int HistObjectDumper::InitNewStageHists(string stage_tag){
 	
 }
 
-void plotMuon(xAOD::Muon* mu, string stage_tag){
+void HistObjectDumper::plotMuon(xAOD::Muon* mu, string stage_tag){
 	
 	InitNewStageHists(stage_tag);
-	muonHistMap_["pt"]->back()->Fill(mu->pt());
-	muonHistMap_["eta"]->back()->Fill(mu->eta());
+	muonHistMap_["pt"].back()->Fill(mu->pt());
+	muonHistMap_["eta"].back()->Fill(mu->eta());
 	
 }

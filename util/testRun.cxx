@@ -41,7 +41,7 @@ int main( int argc, char* argv[] ) {
    job.sampleHandler( sh );
 
    // Specify that we only want to run on 1k events
-   //job.options()->setDouble(EL::Job::optMaxEvents, 1000);
+   job.options()->setDouble(EL::Job::optMaxEvents, 10000);
 
    // define an output and an ntuple associated to that output 
    EL::OutputStream output  ("myOutput");
