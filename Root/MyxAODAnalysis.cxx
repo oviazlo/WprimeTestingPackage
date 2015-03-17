@@ -371,29 +371,23 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::MuonContainer::const_iterator muon_end = muons->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
   
-	h_muPt_uncorr_woSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
-	  
+	if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"noCuts");
+  
 	xAOD::Muon* mu = 0;
 	if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
 		Error(APP_NAME, "Cannot really apply calibration nor smearing");
 		continue;
 	}
-	
-	h_muPt_corr_woSelector->Fill( ( mu->pt()) * 0.001); // GeV
-	
-	if(m_muonSelection->accept(**muon_itr))
-		h_muPt_uncorr_wSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
-	
+
 	if(m_muonSelection->accept(mu)){
-		h_muPt_corr_wSelector->Fill( ( (*muon_itr)->pt()) * 0.001); // GeV
 		double phi_mu = (*muon_itr)->phi();
 		double Mt = sqrt( 2*(*muon_itr)->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
 		h_Mt->Fill(Mt * 0.001);
-        if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"noPtCut");
+
 		if (( mu->pt()) * 0.001 >= 50.0){
 			h_Mt_muonPtCut->Fill(Mt * 0.001);
-            if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
-        }
+			if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
+		}
 	}
 	
   } /// end for loop over muons

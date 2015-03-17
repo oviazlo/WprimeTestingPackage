@@ -4,20 +4,35 @@
 ClassImp(HistObjectDumper)
 
 HistObjectDumper::HistObjectDumper(EL::Worker *wk){
-	
+/// **************************************************************
+///
+/// Init all histograms here...
+///
+/// **************************************************************
+	/// copy pointer to EventLoop worker
 	m_wk = wk;
-	
+
+	/// Prepare reference histograms
+	/// (they will not be saved to the output)
 	TH1* muon_pt_original = new TH1F("pt","muon_pt", 300, 0, 3000);
-	TH1* muon_eta_original = new TH1F("eta","muon_eta", 48, -3.0,3.0);
-	
 	map<string,TH1*> map_muon_pt;
-	map<string,TH1*> map_muon_eta;
-	
 	map_muon_pt["reference"] = muon_pt_original;
-	map_muon_eta["reference"] = muon_eta_original;
-	
 	m_muonHistMap["pt"] = map_muon_pt;
+	
+	TH1* muon_eta_original = new TH1F("eta","muon_eta", 48, -3.0,3.0);
+	map<string,TH1*> map_muon_eta;
+	map_muon_eta["reference"] = muon_eta_original;
 	m_muonHistMap["eta"] = map_muon_eta;
+	
+	TH1* muon_phi_original = new TH1F("phi","muon_phi", 60, -TMath::Pi(),TMath::Pi());
+	map<string,TH1*> map_muon_phi;
+	map_muon_phi["reference"] = muon_phi_original;
+	m_muonHistMap["phi"] = map_muon_phi;
+	
+	TH1* muon_quality_original = new TH1F("quality","muon_quality", 4, -0.5, 3.5);
+	map<string,TH1*> map_muon_quality;
+	map_muon_quality["reference"] = muon_quality_original;
+	m_muonHistMap["quality"] = map_muon_quality;
 }
 
 HistObjectDumper::~HistObjectDumper(){
@@ -57,11 +72,17 @@ int HistObjectDumper::InitNewStageHists(string stage_tag){
 }
 
 void HistObjectDumper::plotMuon(xAOD::Muon* mu, string stage_tag){
+/// **************************************************************
+///
+/// Filling all histograms...
+///	
+/// **************************************************************
 	
 	if (m_StageNameDict[stage_tag]==false)
 		InitNewStageHists(stage_tag);
 	
 	m_muonHistMap["pt"][stage_tag]->Fill(mu->pt()*0.001);
 	m_muonHistMap["eta"][stage_tag]->Fill(mu->eta());
-	
+	m_muonHistMap["phi"][stage_tag]->Fill(mu->phi());
+	m_muonHistMap["quality"][stage_tag]->Fill(mu->quality());
 }

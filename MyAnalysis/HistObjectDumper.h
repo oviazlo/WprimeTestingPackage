@@ -7,6 +7,7 @@
 #include <TH1.h>
 #include <iostream>
 #include <map>
+#include <TMath.h>
 
 using namespace std;
 
