@@ -3,7 +3,7 @@
 /// this is needed to distribute the algorithm to the workers
 ClassImp(HistObjectDumper)
 
-HistObjectDumper::HistObjectDumper(Worker *wk){
+HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	
 	m_wk = wk;
 	

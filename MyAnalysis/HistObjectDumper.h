@@ -14,7 +14,7 @@ class HistObjectDumper
 {
 
 public:
-	HistObjectDumper(Worker *wk);
+	HistObjectDumper(EL::Worker *wk);
 	~HistObjectDumper();
 
 	void plotMuon(xAOD::Muon* mu, string stage_tag);
@@ -24,7 +24,7 @@ private:
 	int InitNewStageHists(string stage_tag);
 	
 	/// link to EventLoop worker;
-	Worker *m_wk; //!
+	EL::Worker *m_wk; //!
 	
 	/// string - variable name
 	map<string,map<string,TH1*> > m_muonHistMap; //!
