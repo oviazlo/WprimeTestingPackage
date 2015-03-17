@@ -2,6 +2,9 @@
 #define HistObjectDumper_H
 
 #include "xAODMuon/MuonContainer.h"
+#include <TH1.h>
+#include <iostream>
+#include <map>
 
 using namespace std;
 
