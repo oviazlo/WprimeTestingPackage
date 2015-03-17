@@ -71,7 +71,7 @@ int HistObjectDumper::InitNewStageHists(string stage_tag){
 	
 }
 
-void HistObjectDumper::plotMuon(const xAOD::Muon& mu, string stage_tag){
+void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 /// **************************************************************
 ///
 /// Filling all histograms...
