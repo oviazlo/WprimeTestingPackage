@@ -8,11 +8,11 @@ HistObjectDumper::HistObjectDumper(){
 	TH1* muon_pt_original = new TH1F("muon_pt","muon_pt", 300, 0, 3000);
 	TH1* muon_eta_original = new TH1F("muon_eta","muon_eta", 300, 0, 3000);
 	
-	muon_pt.push_back(muon_pt_original);
-	muon_eta.push_back(muon_eta_original);
+	muon_pt_.push_back(muon_pt_original);
+	muon_eta_.push_back(muon_eta_original);
 	
-	muonHistMap["pt"] = muon_pt;
-	muonHistMap["eta"] = muon_eta;
+	muonHistMap_["pt"] = muon_pt_;
+	muonHistMap_["eta"] = muon_eta_;
 }
 
 HistObjectDumper::~HistObjectDumper(){
@@ -24,7 +24,7 @@ int HistObjectDumper::InitNewStageHists(string stage_tag){
     int iStage;
 
 	typedef map<string,vector<TH1*> >::iterator it_type;
-	for(it_type iterator = muonHistMap.begin(); iterator != muonHistMap.end(); iterator++) {
+	for(it_type iterator = muonHistMap_.begin(); iterator != muonHistMap_.end(); iterator++) {
 		
 		/// convert int to string
 		iStage = iterator->second.size();
@@ -45,3 +45,10 @@ int HistObjectDumper::InitNewStageHists(string stage_tag){
 	
 }
 
+void plotMuon(xAOD::Muon* mu, string stage_tag){
+	
+	InitNewStageHists(stage_tag);
+	muonHistMap_["pt"]->back()->Fill(mu->pt());
+	muonHistMap_["eta"]->back()->Fill(mu->eta());
+	
+}
