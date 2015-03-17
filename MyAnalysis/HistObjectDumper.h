@@ -1,7 +1,7 @@
 #ifndef HistObjectDumper_H
 #define HistObjectDumper_H
 
-#include "EventLoop/Algorithm.h"
+#include "EventLoop/Worker.h"
 #include "xAODMuon/MuonContainer.h"
 
 #include <TH1.h>

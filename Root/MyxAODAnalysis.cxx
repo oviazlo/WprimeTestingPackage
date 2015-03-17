@@ -210,7 +210,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	//m_METUtil->setVerbosity(true);
 	//m_util->setSoftJetCut(20);
 
-    m_HistObjectDumper = new HistObjectDumper();
+    m_HistObjectDumper = new HistObjectDumper(wk());
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -383,6 +383,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		double phi_mu = (*muon_itr)->phi();
 		double Mt = sqrt( 2*(*muon_itr)->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
 		h_Mt->Fill(Mt * 0.001);
+        m_HistObjectDumper->plotMuon(mu,"noPtCut");
 		if (( mu->pt()) * 0.001 >= 50.0){
 			h_Mt_muonPtCut->Fill(Mt * 0.001);
             m_HistObjectDumper->plotMuon(mu,"allCuts");
