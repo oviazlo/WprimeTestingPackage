@@ -42,11 +42,11 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 /// 	Muon_v1::SiliconAssociatedForwardMuon - 4
 
 	TH1* muon_type_original = new TH1F("type","muon_type", 4, -0.5, 4.5);
-	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::Combined),"Combined");
-	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::SegmentTagged),"SegmentTagged");
-	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::CaloTagged),"CaloTagged");
-	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::SiliconAssociatedForwardMuon),"SiliconAssociatedForwardMuon");
-	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuonStandAlone),"MuonStandAlone");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::Combined),"Combined");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::SegmentTagged),"SegmentTagged");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::CaloTagged),"CaloTagged");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::SiliconAssociatedForwardMuon),"SiliconAssociatedForwardMuon");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::MuonStandAlone),"MuonStandAlone");
 	map<string,TH1*> map_muon_type;
 	map_muon_type["reference"] = muon_type_original;
 	m_muonHistMap["type"] = map_muon_type;
