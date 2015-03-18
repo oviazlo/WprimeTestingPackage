@@ -85,16 +85,16 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 	wk()->addOutput (h_jetPt);
 
 	/// Muon Pt histograms:
-	h_MET_RefFinalFix = new TH1F("h_MET_RefFinalFix", "h_MET_RefFinalFix", 500, 0, 5000); 
+	h_MET_RefFinalFix = new TH1F("h_MET_RefFinalFix", "h_MET_RefFinalFix", 1000, 0, 10000); 
 	wk()->addOutput (h_MET_RefFinalFix);
 	
-	h_MET_RefFinalFix_test = new TH1F("h_MET_RefFinalFix_test", "h_MET_RefFinalFix_test", 500, 0, 5000); 
+	h_MET_RefFinalFix_test = new TH1F("h_MET_RefFinalFix_test", "h_MET_RefFinalFix_test", 1000, 0, 10000); 
 	wk()->addOutput (h_MET_RefFinalFix_test);
 	
-	h_Mt = new TH1F("h_Mt", "h_Mt", 500, 0, 5000); 
+	h_Mt = new TH1F("h_Mt", "h_Mt", 1000, 0, 10000); 
 	wk()->addOutput (h_Mt);
 
-	h_Mt_muonPtCut = new TH1F("h_Mt_muonPtCut", "h_Mt_muonPtCut", 500, 0, 5000); 
+	h_Mt_muonPtCut = new TH1F("h_Mt_muonPtCut", "h_Mt_muonPtCut", 1000, 0, 10000); 
 	wk()->addOutput (h_Mt_muonPtCut);
 
 	h_nSelectedMuons = new TH1I("h_nSelectedMuons", "h_nSelectedMuons", 5, 0, 5); 

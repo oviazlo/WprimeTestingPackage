@@ -35,18 +35,27 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_quality["reference"] = muon_quality_original;
 	m_muonHistMap["quality"] = map_muon_quality;
 	
+/// 	Muon_v1::Combined - 0
+/// 	Muon_v1::MuonStandAlone - 1
+/// 	Muon_v1::SegmentTagged - 2
+/// 	Muon_v1::CaloTagged - 3
+/// 	Muon_v1::SiliconAssociatedForwardMuon - 4
+
 	TH1* muon_type_original = new TH1F("type","muon_type", 4, -0.5, 4.5);
-	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::Combined,"Combined");
-	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::SegmentTagged,"SegmentTagged");
-	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::CaloTagged,"CaloTagged");
-	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::SiliconAssociatedForwardMuon,"SiliconAssociatedForwardMuon");
-	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuonStandAlone,"MuonStandAlone");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::Combined),"Combined");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::SegmentTagged),"SegmentTagged");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::CaloTagged),"CaloTagged");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::SiliconAssociatedForwardMuon),"SiliconAssociatedForwardMuon");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuonStandAlone),"MuonStandAlone");
 	map<string,TH1*> map_muon_type;
 	map_muon_type["reference"] = muon_type_original;
 	m_muonHistMap["type"] = map_muon_type;
+
+/// 	xAOD::Muon_v1::MuidCo = 1
+/// 	xAOD::Muon_v1::STACO = 2
+/// 	xAOD::Muon_v1::MuTag = 3
 	
 	TH1* muon_author_original = new TH1F("author","muon_author", 13, -1.5, 11.5);
-	
 	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(-1),"non-defined");
 	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::unknown),"unknown");
 	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuidCo),"MuidCo");
