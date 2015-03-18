@@ -169,7 +169,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	// initialize and configure the jet cleaning tool
 	m_jetCleaning = new JetCleaningTool("JetCleaning");
 	m_jetCleaning->msg().setLevel( MSG::INFO ); 
-	CHECK(m_jetCleaning->setProperty( "CutLevel", "MediumBad"));
+	CHECK(m_jetCleaning->setProperty( "CutLevel", "VeryLooseBad"));
 	m_jetCleaning->initialize();
 
 	// initialize JER 
