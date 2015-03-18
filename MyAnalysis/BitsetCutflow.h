@@ -38,7 +38,7 @@ private:
 // 	TH1I* m_cutflowHist; //!
 // 	
 // 	/// this is needed to distribute the algorithm to the workers
-// 	ClassDef(BitsetCutflow, 1);
+	ClassDef(BitsetCutflow, 1);
 
 };
 
