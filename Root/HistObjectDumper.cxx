@@ -45,9 +45,11 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_type["reference"] = muon_type_original;
 	m_muonHistMap["type"] = map_muon_type;
 	
-	TH1* muon_author_original = new TH1F("author","muon_author", 12, -1.5, 10.5);
-	muon_author_original->GetXaxis()->SetBinLabel(-1,"non-defined");
-	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::unknown,"unknown");
+	cout << "xAOD::Muon_v1::MuidCo = " << xAOD::Muon_v1::MuidCo << endl;
+	cout << "xAOD::Muon_v1::STACO = " << xAOD::Muon_v1::STACO << endl;
+	cout << "xAOD::Muon_v1::MuTag = " << xAOD::Muon_v1::MuTag << endl;
+	
+	TH1* muon_author_original = new TH1F("author","muon_author", 13, -1.5, 11.5);
 	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuidCo,"MuidCo");
 	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::STACO,"STACO");
 	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuTag,"MuTag");
