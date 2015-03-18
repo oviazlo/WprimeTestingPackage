@@ -19,21 +19,21 @@ void BitsetCutflow::PushBitSet(){
 	/// All events
 	m_cutflowHist->Fill(0);
 	
-	for (unsigned i=1; i<=m_StageNameDict.size(); i++){
+	for (unsigned i=1; i<=m_mapCutflowSteps.size(); i++){
 		/// first bit is always zero
 		if (m_bitset[i]!=m_bitset[0]) m_cutflowHist->Fill(i); 
 	}
 	
 	/// clean bit for next event
-	m_bitset.reset()
+	m_bitset.reset();
 }
 
-BitsetCutflow::void FillCutflow(string cutflowStepName){
+void BitsetCutflow::FillCutflow(string cutflowStepName){
 	/// check if there is a slot already created for this cutflow step
-	int slotPosition = m_StageNameDict[cutflowStepName];
+	int slotPosition = m_mapCutflowSteps[cutflowStepName];
 	if (slotPosition==0){
 		m_cutflowStepCounter++;
-		m_StageNameDict[cutflowStepName] = m_cutflowStepCounter;
+		m_mapCutflowSteps[cutflowStepName] = m_cutflowStepCounter;
 		slotPosition = m_cutflowStepCounter;
 		m_cutflowHist->GetXaxis()->SetBinLabel(m_cutflowStepCounter,cutflowStepName.c_str());
 	}
