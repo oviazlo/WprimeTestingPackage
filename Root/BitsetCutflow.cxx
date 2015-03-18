@@ -4,10 +4,10 @@
 ClassImp(BitsetCutflow)
 
 BitsetCutflow::BitsetCutflow(EL::Worker *wk){
-	m_wk = wk;
-	m_cutflowHist = new TH1I("cutflow_hist","Cutflow",99,0,99);
-	m_wk->addOutput(m_cutflowHist);
-	m_cutflowStepCounter = 0;
+// 	m_wk = wk;
+// 	m_cutflowHist = new TH1I("cutflow_hist","Cutflow",99,0,99);
+// 	m_wk->addOutput(m_cutflowHist);
+// 	m_cutflowStepCounter = 0;
 }
 
 BitsetCutflow::~BitsetCutflow(){

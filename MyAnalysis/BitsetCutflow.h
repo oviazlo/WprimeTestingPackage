@@ -24,21 +24,21 @@ public:
 	
 private:
 	
-	unsigned int m_cutflowStepCounter; //!
-	
-	/// link to EventLoop worker;
-	EL::Worker *m_wk; //!
-	
-	/// actual bitset were we will store cutflow on event-by-event basis
-	bitset<99> m_bitset; //!
-	
-	/// map with cutflow steps
+// 	unsigned int m_cutflowStepCounter; //!
+// 	
+// 	/// link to EventLoop worker;
+// 	EL::Worker *m_wk; //!
+// 	
+// 	/// actual bitset were we will store cutflow on event-by-event basis
+// 	bitset<99> m_bitset; //!
+// 	
+// 	/// map with cutflow steps
 // 	map<string,unsigned int> m_mapCutflowSteps; //!
-	
-	TH1I* m_cutflowHist; //!
-	
-	/// this is needed to distribute the algorithm to the workers
-	ClassDef(BitsetCutflow, 1);
+// 	
+// 	TH1I* m_cutflowHist; //!
+// 	
+// 	/// this is needed to distribute the algorithm to the workers
+// 	ClassDef(BitsetCutflow, 1);
 
 };
 
