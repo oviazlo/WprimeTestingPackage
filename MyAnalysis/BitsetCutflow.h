@@ -19,7 +19,8 @@ public:
 
 	void FillCutflow(string cutflowStepName);
 	
-	/// WARNING call this function on the END of EVENT!!!
+	/// WARNING call this function on the BEGIN of EVENT!!!
+	/// WARNING call this function in the finalize () function!!!
 	void PushBitSet();
 	
 private:

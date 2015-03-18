@@ -40,6 +40,7 @@ class MyxAODAnalysis : public EL::Algorithm
   /// that way they can be set directly from CINT and python.
 public:
   bool m_useHistObjectDumper;
+  bool m_useBitsetCutflow;
   bool m_useMuonCalibrationAndSmearingTool;
 
   // variables that don't get filled at submission time should be
@@ -83,6 +84,7 @@ public:
   #endif // not __CINT__
 
   HistObjectDumper *m_HistObjectDumper; //!
+  BitsetCutflow* m_BitsetCutflow; //!
 
   // this is a standard constructor
   MyxAODAnalysis ();

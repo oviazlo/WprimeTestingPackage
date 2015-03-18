@@ -65,6 +65,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
 	xAOD::Init( "MyxAODAnalysis" ).ignore(); // call before opening first file
 
 	m_useHistObjectDumper = true;
+	m_useBitsetCutflow = true;
 	m_useMuonCalibrationAndSmearingTool = true;
 
 	return EL::StatusCode::SUCCESS;
@@ -217,6 +218,10 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 
 	if (m_useHistObjectDumper)
 		m_HistObjectDumper = new HistObjectDumper(wk());
+	
+	if (m_BitsetCutflow)
+		m_BitsetCutflow = new m_BitsetCutflow(wk());
+	
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -232,6 +237,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 	const char* APP_NAME = "MyxAODAnalysis";
 
+	/// push cutflow bitset to cutflow hist
+	m_BitsetCutflow->PushBitSet();
+	
 	if( (m_eventCounter % 100) ==0 ) Info("execute()", "Event number = %i", m_eventCounter );
 	m_eventCounter++;
 
@@ -323,6 +331,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	if (nVeryLooseBadJets!=nLooseBadJets){
 		return EL::StatusCode::SUCCESS;
 	}
+	
+	m_BitsetCutflow->FillCutflow("JetCleaning");
 	
 	//Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
   
@@ -441,6 +451,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	h_MET_RefFinalFix->Fill(sqrt(mpx*mpx + mpy*mpy)* 0.001);
 	h_MET_RefFinalFix_test->Fill(metVec->Pt() * 0.001);
 
+	m_BitsetCutflow->FillCutflow("End");
+	
 // 	tree->Fill();
 
 	return EL::StatusCode::SUCCESS;
@@ -471,6 +483,9 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 	// gets called on worker nodes that processed input events.
 	
 	const char* APP_NAME = "MyxAODAnalysis";  
+
+	/// push cutflow for last event
+	m_BitsetCutflow->PushBitSet();
 	
 	///*************************
 	///
@@ -524,6 +539,11 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 	if(m_useHistObjectDumper && m_HistObjectDumper){
 		delete m_HistObjectDumper;
 		m_HistObjectDumper = 0;
+	}
+	
+	if(m_useBitsetCutflow && m_BitsetCutflow){
+		delete m_BitsetCutflow;
+		m_BitsetCutflow = 0;
 	}
 
 	return EL::StatusCode::SUCCESS;
