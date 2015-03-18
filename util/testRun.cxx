@@ -16,6 +16,9 @@ int main( int argc, char* argv[] ) {
    std::string submitDir = "submitDir";
    if( argc > 1 ) submitDir = argv[ 1 ];
 
+   int nEvent = -1;
+   if( argc > 2 ) nEvent = atoi(argv[ 2 ]);
+   
    // Set up the job for xAOD access:
    xAOD::Init().ignore();
 
@@ -41,7 +44,8 @@ int main( int argc, char* argv[] ) {
    job.sampleHandler( sh );
 
    // Specify that we only want to run on 1k events
-   job.options()->setDouble(EL::Job::optMaxEvents, 10000);
+   if (nEvent!=-1)
+	   job.options()->setDouble(EL::Job::optMaxEvents, nEvent);
 
    // define an output and an ntuple associated to that output 
    EL::OutputStream output  ("myOutput");
