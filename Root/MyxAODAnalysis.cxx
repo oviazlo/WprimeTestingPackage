@@ -371,7 +371,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::MuonContainer::const_iterator muon_end = muons->end();
   for( ; muon_itr != muon_end; ++muon_itr ) {
   
-	if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((**muon_itr),"noCuts");
+	if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
   
 	xAOD::Muon* mu = 0;
 	if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
@@ -386,7 +386,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 		if (( mu->pt()) * 0.001 >= 50.0){
 			h_Mt_muonPtCut->Fill(Mt * 0.001);
-			if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(*mu,"allCuts");
+			if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
 		}
 	}
 	
