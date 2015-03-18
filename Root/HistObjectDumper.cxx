@@ -125,13 +125,13 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	m_muonHistMap["type"][stage_tag]->Fill(mu->muonType());
 	m_muonHistMap["author"][stage_tag]->Fill(mu->author());
 	
-	int nMSPrecLayers = -1;
-	int nLayersWithPhiHit = -1;
+	uint8_t nMSPrecLayers = -1;
+	uint8_t nLayersWithPhiHit = -1;
 	
 	mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
 	mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 	
-	m_muonHistMap["precMSLayers"][stage_tag]->Fill(mu->muonType());
-	m_muonHistMap["phiMSLayers"][stage_tag]->Fill(mu->author());
+	m_muonHistMap["precMSLayers"][stage_tag]->Fill(nMSPrecLayers);
+	m_muonHistMap["phiMSLayers"][stage_tag]->Fill(nLayersWithPhiHit);
 	
 }
