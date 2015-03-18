@@ -20,7 +20,7 @@ public:
 // 	void FillCutflow(string cutflowStepName);
 	
 	/// WARNING call this function on the END of EVENT!!!
-	void PushBitSet();
+// 	void PushBitSet();
 	
 private:
 	
@@ -33,7 +33,7 @@ private:
 	bitset<99> m_bitset; //!
 	
 	/// map with cutflow steps
-	map<string,unsigned int> m_mapCutflowSteps; //!
+// 	map<string,unsigned int> m_mapCutflowSteps; //!
 	
 	TH1I* m_cutflowHist; //!
 	

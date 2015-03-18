@@ -14,19 +14,19 @@ BitsetCutflow::~BitsetCutflow(){
 	
 }
 
-void BitsetCutflow::PushBitSet(){
-	
-	/// All events
-	m_cutflowHist->Fill(0);
-	
-	for (unsigned i=1; i<=m_mapCutflowSteps.size(); i++){
-		/// first bit is always zero
-		if (m_bitset[i]!=m_bitset[0]) m_cutflowHist->Fill(i); 
-	}
-	
-	/// clean bit for next event
-	m_bitset.reset();
-}
+// void BitsetCutflow::PushBitSet(){
+// 	
+// 	/// All events
+// 	m_cutflowHist->Fill(0);
+// 	
+// 	for (unsigned i=1; i<=m_mapCutflowSteps.size(); i++){
+// 		/// first bit is always zero
+// 		if (m_bitset[i]!=m_bitset[0]) m_cutflowHist->Fill(i); 
+// 	}
+// 	
+// 	/// clean bit for next event
+// 	m_bitset.reset();
+// }
 
 // void BitsetCutflow::FillCutflow(string cutflowStepName){
 // 	/// check if there is a slot already created for this cutflow step
