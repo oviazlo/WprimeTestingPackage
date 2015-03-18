@@ -1,5 +1,6 @@
 #include <MyAnalysis/HistObjectDumper.h>
 #include <xAODTracking/TrackingPrimitives.h>
+#include <xAODPrimitives/IsolationType.h>
 
 /// this is needed to distribute the algorithm to the workers
 ClassImp(HistObjectDumper)
@@ -82,7 +83,12 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_phiMSLayers["reference"] = muon_phiMSLayers_original;
 	m_muonHistMap["phiMSLayers"] = map_muon_phiMSLayers;
 	
-	TH1* muon_ptCone30_original = new TH1F("ptCone30","ptCone30/pt", 100, 0.0, 1.0);
+	TH1* muon_ptCone30OverPt_original = new TH1F("ptCone30OverPt","ptCone30/pt", 100, 0.0, 1.0);
+	map<string,TH1*> map_muon_ptCone30OverPt;
+	map_muon_ptCone30OverPt["reference"] = muon_ptCone30OverPt_original;
+	m_muonHistMap["ptCone30OverPt"] = map_muon_ptCone30OverPt;
+	
+	TH1* muon_ptCone30_original = new TH1F("ptCone30","ptCone30", 30000, 0, 3000);
 	map<string,TH1*> map_muon_ptCone30;
 	map_muon_ptCone30["reference"] = muon_ptCone30_original;
 	m_muonHistMap["ptCone30"] = map_muon_ptCone30;
@@ -153,5 +159,6 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	float muPtCone30 = 0.; /// your variable that will be filled after calling the isolation function
 	mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
 	
-	m_muonHistMap["ptCone30"][stage_tag]->Fill(muPtCone30);
+	m_muonHistMap["ptCone30"][stage_tag]->Fill(muPtCone30*0.001);
+	m_muonHistMap["ptCone30OverPt"][stage_tag]->Fill(muPtCone30/mu->pt());
 }
