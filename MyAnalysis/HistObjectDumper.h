@@ -22,7 +22,7 @@ public:
 	
 private:
 	
-	int InitNewStageHists(map<string,map<string,TH1*> > inMap, string folderName, string stage_tag);
+	int InitNewStageHists(map<string,map<string,TH1*> >& inMap, string folderName, string stage_tag);
 	
 	/// link to EventLoop worker;
 	EL::Worker *m_wk; //!

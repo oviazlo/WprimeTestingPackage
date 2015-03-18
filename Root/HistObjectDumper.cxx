@@ -39,7 +39,7 @@ HistObjectDumper::~HistObjectDumper(){
 	
 }
 
-int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> > inMap, string folderName, string stage_tag){
+int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap, string folderName, string stage_tag){
 
 	int iStage;
 
