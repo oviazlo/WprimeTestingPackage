@@ -15,6 +15,7 @@
 #include "xAODCore/ShallowCopy.h"
 
 #include <MyAnalysis/HistObjectDumper.h>
+#include <MyAnalysis/BitsetCutflow.h>
 
 // GRL
 class GoodRunsListSelectionTool;
