@@ -14,8 +14,6 @@
 #include "boost/program_options.hpp"
 #include <boost/algorithm/string.hpp>
 
-int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
-
 namespace 
 { 
   const size_t ERROR_IN_COMMAND_LINE = 1; 
@@ -26,6 +24,8 @@ namespace
   namespace po = boost::program_options;
  
 } /// namespace 
+
+int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
 
 int main( int argc, char* argv[] ) {
 
