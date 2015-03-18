@@ -1,7 +1,7 @@
 #ifndef BitsetCutflow_H
 #define BitsetCutflow_H
 
-#include <TH1I.h>
+#include <TH1F.h>
 #include <iostream>
 #include <map>
 #include <bitset>
@@ -36,7 +36,7 @@ private:
 	/// map with cutflow steps
 	map<string,unsigned int> m_mapCutflowSteps; //!
 	
-	TH1I* m_cutflowHist; //!
+	TH1F* m_cutflowHist; //!
 	
 	/// this is needed to distribute the algorithm to the workers
 	ClassDef(BitsetCutflow, 1);
