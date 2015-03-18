@@ -175,6 +175,11 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	CHECK(m_jetCleaning->setProperty( "CutLevel", "VeryLooseBad"));
 	m_jetCleaning->initialize();
 	
+	m_jetCleaning_LooseBad = new JetCleaningTool("JetCleaning_LooseBad");
+	m_jetCleaning_LooseBad->msg().setLevel( MSG::INFO ); 
+	CHECK(m_jetCleaning_LooseBad->setProperty( "CutLevel", "LooseBad"));
+	m_jetCleaning_LooseBad->initialize();
+	
 	// initialize JER 
 	const char* jerFilePath = "$ROOTCOREBIN/data/JetResolution/JERProviderPlots_2012.root";
 	const char* fullJERFilePath = gSystem->ExpandPathName (jerFilePath);
@@ -299,7 +304,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		h_jetPt_VeryLooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
 		
 		/// check for LooseBad jets
-		if( !m_jetCleaning->accept( **jet_itr )) continue; //only keep good clean jets
+		if( !m_jetCleaning_LooseBad->accept( **jet_itr )) continue; //only keep good clean jets
 		nLooseBadJets++;
 		h_jetPt_LooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
 
@@ -483,6 +488,12 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 		delete m_jetCleaning;
 		m_jetCleaning = 0;
 	}
+	if( m_jetCleaning_LooseBad ) {
+		delete m_jetCleaning_LooseBad;
+		m_jetCleaning_LooseBad = 0;
+	}
+	
+	
 	if(m_JERTool){
 		delete m_JERTool;
 		m_JERTool = 0;

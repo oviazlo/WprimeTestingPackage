@@ -71,6 +71,7 @@ public:
   #ifndef __CINT__
     GoodRunsListSelectionTool *m_grl; //!
     JetCleaningTool *m_jetCleaning; //!  
+    JetCleaningTool *m_jetCleaning_LooseBad; //!
     JERTool *m_JERTool; //!
     /// Muson Selector Tool
     CP::MuonSelectionTool* m_muonSelection; //!
