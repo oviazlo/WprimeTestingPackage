@@ -35,11 +35,11 @@ namespace CP{
 
 class MyxAODAnalysis : public EL::Algorithm
 {
-  // put your configuration variables here as public variables.
-  // that way they can be set directly from CINT and python.
+  /// put your configuration variables here as public variables.
+  /// that way they can be set directly from CINT and python.
 public:
-  // float cutValue;
   bool m_useHistObjectDumper;
+  bool m_useMuonCalibrationAndSmearingTool;
 
   // variables that don't get filled at submission time should be
   // protected from being send from the submission node to the worker

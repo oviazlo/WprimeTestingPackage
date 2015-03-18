@@ -45,7 +45,8 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_type["reference"] = muon_type_original;
 	m_muonHistMap["type"] = map_muon_type;
 	
-	TH1* muon_author_original = new TH1F("author","muon_author", 12, -0.5, 11.5);
+	TH1* muon_author_original = new TH1F("author","muon_author", 12, -1.5, 10.5);
+	muon_author_original->GetXaxis()->SetBinLabel(-1,"non-defined");
 	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::unknown,"unknown");
 	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuidCo,"MuidCo");
 	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::STACO,"STACO");
@@ -61,12 +62,12 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_author["reference"] = muon_author_original;
 	m_muonHistMap["author"] = map_muon_author;
 	
-	TH1* muon_precMSLayers_original = new TH1F("precMSLayers","muon_precMSLayers", 11, -0.5, 10.5);
+	TH1* muon_precMSLayers_original = new TH1F("precMSLayers","number of MS layers with at least 3 hits", 11, -0.5, 10.5);
 	map<string,TH1*> map_muon_precMSLayers;
 	map_muon_precMSLayers["reference"] = muon_precMSLayers_original;
 	m_muonHistMap["precMSLayers"] = map_muon_precMSLayers;
 	
-	TH1* muon_phiMSLayers_original = new TH1F("phiMSLayers","muon_phiMSLayers", 11, -0.5, 10.5);
+	TH1* muon_phiMSLayers_original = new TH1F("phiMSLayers","number of MS layers with a trigger phi hit", 11, -0.5, 10.5);
 	map<string,TH1*> map_muon_phiMSLayers;
 	map_muon_phiMSLayers["reference"] = muon_phiMSLayers_original;
 	m_muonHistMap["phiMSLayers"] = map_muon_phiMSLayers;

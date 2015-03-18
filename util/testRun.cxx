@@ -60,6 +60,7 @@ int main( int argc, char* argv[] ) {
 
    alg->outputName = "myOutput"; // give the name of the output to our algorithm
    //alg->m_useHistObjectDumper = false;
+   alg-m_useMuonCalibrationAndSmearingTool = false;
 
    // Run the job using the local/direct driver:
    EL::DirectDriver driver;

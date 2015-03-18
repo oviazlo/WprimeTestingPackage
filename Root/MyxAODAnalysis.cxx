@@ -65,6 +65,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
 	xAOD::Init( "MyxAODAnalysis" ).ignore(); // call before opening first file
 
 	m_useHistObjectDumper = true;
+	m_useMuonCalibrationAndSmearingTool = true;
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -335,9 +336,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	metVec->SetPz(0.0);
 	metVec->SetE(sqrt(mpx*mpx + mpy*mpy));
 	
-	h_MET_RefFinalFix->Fill(sqrt(mpx*mpx + mpy*mpy)* 0.001);
-	h_MET_RefFinalFix_test->Fill(metVec->Pt() * 0.001);
-
 	double phi_met = metVec->Phi();
   
 	/// get muon container of interest
@@ -367,6 +365,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	//~ delete muons_shallowCopy.second;
   
 	/// loop over the muons in the container
+	int muonCounter = 0;
 	xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
 	xAOD::MuonContainer::const_iterator muon_end = muons->end();
 	for( ; muon_itr != muon_end; ++muon_itr ) {
@@ -374,20 +373,35 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
 	
 		xAOD::Muon* mu = 0;
-		if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
-			Error(APP_NAME, "Cannot really apply calibration nor smearing");
-			continue;
+		if (m_useMuonCalibrationAndSmearingTool){
+			if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
+				Error(APP_NAME, "Cannot really apply calibration nor smearing");
+				continue;
+			}
 		}
+		else{
+			mu = (*muon_itr);
+		}
+		
+		if (( mu->pt()) * 0.001 < 55.0) continue;
 
 		if(m_muonSelection->accept(mu)){
+
+			uint8_t nMSPrecLayers = -1;
+			uint8_t nLayersWithPhiHit = -1;
+			
+			mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
+			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
+			
+			if (nMSPrecLayers<3 || nLayersWithPhiHit<1) continue;
+
 			double phi_mu = mu->phi();
 			double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
-			h_Mt->Fill(Mt * 0.001);
-
-			if (( mu->pt()) * 0.001 >= 50.0){
-				h_Mt_muonPtCut->Fill(Mt * 0.001);
-				if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
-			}
+			
+			h_Mt_muonPtCut->Fill(Mt * 0.001);
+			
+			if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
+			muonCounter++;
 		}
 		else{
 			if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"rejectedByMuonSelectorToot");
@@ -395,9 +409,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 	} /// end for loop over muons
 
-
-	
-
+	if (muonCounter==0) continue;
+	/// ************************************************
+	/// Fill other event-based distributions (e.g. MET)
+	/// ************************************************
+	h_MET_RefFinalFix->Fill(sqrt(mpx*mpx + mpy*mpy)* 0.001);
+	h_MET_RefFinalFix_test->Fill(metVec->Pt() * 0.001);
 
 	tree->Fill();
 
