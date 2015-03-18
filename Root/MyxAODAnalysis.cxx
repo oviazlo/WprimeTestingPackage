@@ -385,6 +385,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 			
 			if (nMSPrecLayers<3 || nLayersWithPhiHit<1) continue;
+			
+			if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
 
 			double phi_mu = mu->phi();
 			double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );

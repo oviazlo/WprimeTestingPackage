@@ -64,7 +64,7 @@ int main( int argc, char* argv[] ) {
 
    // Run the job using the local/direct driver:
    EL::ProofDriver driver;
-   //driver.numWorkers = 4;
+   driver.numWorkers = 2;
    //EL::DirectDriver driver;
    driver.submit( job, submitDir );
 
