@@ -81,9 +81,12 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 
 
 
-	h_jetPt = new TH1F("h_jetPt", "h_jetPt", 100, 0, 500); // jet pt [GeV]
-	wk()->addOutput (h_jetPt);
+	h_jetPt_VeryLooseBadJets = new TH1F("h_jetPt_VeryLooseBadJets", "VeryLooseBadJets and better with pt>20", 300, 0, 3000); // jet pt [GeV]
+	wk()->addOutput (h_jetPt_VeryLooseBadJets);
 
+	h_jetPt_LooseBadJets = new TH1F("h_jetPt_LooseBadJets", "LooseBadJets and better with pt>20", 300, 0, 3000); // jet pt [GeV]
+	wk()->addOutput (h_jetPt_LooseBadJets);
+	
 	/// Muon Pt histograms:
 	h_MET_RefFinalFix = new TH1F("h_MET_RefFinalFix", "h_MET_RefFinalFix", 1000, 0, 10000); 
 	wk()->addOutput (h_MET_RefFinalFix);
@@ -171,7 +174,12 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	m_jetCleaning->msg().setLevel( MSG::INFO ); 
 	CHECK(m_jetCleaning->setProperty( "CutLevel", "VeryLooseBad"));
 	m_jetCleaning->initialize();
-
+	
+	JetCleaning2 = new JetCleaningTool("JetCleaning2");
+	JetCleaning2->msg().setLevel( MSG::INFO ); 
+	CHECK(JetCleaning2->setProperty( "CutLevel", "LooseBad"));
+	JetCleaning2->initialize();
+	
 	// initialize JER 
 	const char* jerFilePath = "$ROOTCOREBIN/data/JetResolution/JERProviderPlots_2012.root";
 	const char* fullJERFilePath = gSystem->ExpandPathName (jerFilePath);
@@ -269,26 +277,38 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	} /// end if the event is data
 	m_numCleanEvents++;
 
-  int numGoodJets = 0;
+  int nVeryLooseBadJets = 0;
+  int nLooseBadJets = 0;
 
 	/// LOOP OVER JETS
 	
-	// Loop over all jets in the event
-	// get jet container of interest
+	/// Loop over all jets in the event
+	/// get jet container of interest
 	const xAOD::JetContainer* jets = 0;
 	if ( !m_event->retrieve( jets, "AntiKt4LCTopoJets" ).isSuccess() ){ // retrieve arguments: container type, container key
 		Error("execute()", "Failed to retrieve AntiKt4LCTopoJets container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
 
-	// loop over the jets in the container
+	/// loop over the jets in the container
 	xAOD::JetContainer::const_iterator jet_itr = jets->begin();
 	xAOD::JetContainer::const_iterator jet_end = jets->end();
 	for( ; jet_itr != jet_end; ++jet_itr ) {
+		
+		/// check for Jet pt (not interested in Jets with pt<=20)
+		if (( (*jet_itr)->pt()) * 0.001 <= 20.0) continue;
+		
+		/// check for VeryLooseBad jets
+		if( !m_jetCleaning->accept( **jet_itr )) continue;
+		nVeryLooseBadJets++;
+		h_jetPt_VeryLooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
+		
+		/// check for LooseBad jets
 		if( !m_jetCleaning->accept( **jet_itr )) continue; //only keep good clean jets
-		numGoodJets++;
-		//Info("execute()", " clean jet pt = %.2f GeV", ((*jet_itr)->pt() * 0.001)); // just to print out something
-		h_jetPt->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
+		nLooseBadJets++;
+		h_jetPt_LooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
+
+		
 		
 		//~ // JER and uncert
 		//~ if(isMC){ // assuming isMC flag has been set based on eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) 
@@ -300,6 +320,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		//~ } // end if MC
 	} // end for loop over jets
 
+	if (nVeryLooseBadJets!=nLooseBadJets){
+		continue;
+	}
+	
 	//Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
   
   	/// get MET_RefFinalFix container of interest
@@ -463,6 +487,10 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 	if( m_jetCleaning ) {
 		delete m_jetCleaning;
 		m_jetCleaning = 0;
+	}
+	if( m_jetCleaning2 ) {
+		delete m_jetCleaning2;
+		m_jetCleaning2 = 0;
 	}
 	if(m_JERTool){
 		delete m_JERTool;

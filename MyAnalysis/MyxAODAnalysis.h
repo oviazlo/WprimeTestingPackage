@@ -53,7 +53,8 @@ public:
 
   int m_numCleanEvents; //!
 
-  TH1 *h_jetPt; //!
+  TH1 *h_jetPt_LooseBadJets; //!
+  TH1 *h_jetPt_VeryLooseBadJets; //!
 
   TH1 *h_nSelectedMuons; //!
 
@@ -70,6 +71,7 @@ public:
   #ifndef __CINT__
     GoodRunsListSelectionTool *m_grl; //!
     JetCleaningTool *m_jetCleaning; //!  
+    JetCleaningTool *m_jetCleaning2; //!  
     JERTool *m_JERTool; //!
     /// Muson Selector Tool
     CP::MuonSelectionTool* m_muonSelection; //!
