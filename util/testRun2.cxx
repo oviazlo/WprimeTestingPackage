@@ -3,6 +3,7 @@
 #include "SampleHandler/ToolsDiscovery.h"
 #include "EventLoop/Job.h"
 #include "EventLoop/ProofDriver.h"
+#include "EventLoop/DirectDriver.h"
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
 
