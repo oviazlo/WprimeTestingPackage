@@ -4,6 +4,9 @@
 #include "EventLoop/Worker.h"
 #include "xAODMuon/MuonContainer.h"
 
+/// EDM include(s):
+#include "xAODMuon/Muon.h"
+
 #include <TH1.h>
 #include <iostream>
 #include <map>
