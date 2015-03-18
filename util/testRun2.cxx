@@ -41,17 +41,17 @@ int main( int argc, char* argv[] ) {
    // Specify that we only want to run on 1k events
    //job.options()->setDouble(EL::Job::optMaxEvents, 1000);
 
-   // define an output and an ntuple associated to that output 
-   EL::OutputStream output  ("myOutput");
-   job.outputAdd (output);
-   EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
-   job.algsAdd (ntuple);
+   /// define an output and an ntuple associated to that output 
+//    EL::OutputStream output  ("myOutput");
+//    job.outputAdd (output);
+//    EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
+//    job.algsAdd (ntuple);
 
    // Add our analysis to the job:
    MyxAODAnalysis* alg = new MyxAODAnalysis();
    job.algsAdd( alg );
 
-   alg->outputName = "myOutput"; // give the name of the output to our algorithm
+//    alg->outputName = "myOutput"; // give the name of the output to our algorithm
 
    // Run the job using the local/direct driver:
    EL::ProofDriver driver;
