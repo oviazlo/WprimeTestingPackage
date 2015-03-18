@@ -35,11 +35,11 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	m_muonHistMap["quality"] = map_muon_quality;
 		
 	cout << "[HistObjectDumper::HistObjectDumper]\tMuon types:\n";
-	cout << "Muon_v1::Combined - " << Muon_v1::Combined << endl;
-	cout << "Muon_v1::SegmentTagged - " << Muon_v1::SegmentTagged << endl;
-	cout << "Muon_v1::CaloTagged - " << Muon_v1::CaloTagged << endl;
-	cout << "Muon_v1::SiliconAssociatedForwardMuon - " << Muon_v1::SiliconAssociatedForwardMuon << endl;
-	cout << "Muon_v1::MuonStandAlone - " << Muon_v1::MuonStandAlone << endl;
+	cout << "Muon_v1::Combined - " << xAOD::Muon_v1::Combined << endl;
+	cout << "Muon_v1::SegmentTagged - " << xAOD::Muon_v1::SegmentTagged << endl;
+	cout << "Muon_v1::CaloTagged - " << xAOD::Muon_v1::CaloTagged << endl;
+	cout << "Muon_v1::SiliconAssociatedForwardMuon - " << xAOD::Muon_v1::SiliconAssociatedForwardMuon << endl;
+	cout << "Muon_v1::MuonStandAlone - " << xAOD::Muon_v1::MuonStandAlone << endl;
 	
 	TH1* muon_type_original = new TH1F("type","muon_type", 10, -0.5, 9.5);
 	map<string,TH1*> map_muon_type;
