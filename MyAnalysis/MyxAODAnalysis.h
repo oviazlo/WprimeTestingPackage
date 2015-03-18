@@ -42,7 +42,7 @@ public:
   bool m_useMuonCalibrationAndSmearingTool;
 
   // variables that don't get filled at submission time should be
-  // protected from being send from the submission node to the worker
+//   // protected from being send from the submission node to the worker
   // node (done by the //!)
 public:
   // Tree *myTree; //!
@@ -55,19 +55,16 @@ public:
 
   TH1 *h_jetPt; //!
 
-  TH1 *h_muPt_uncorr_wSelector; //!
-  TH1 *h_muPt_uncorr_woSelector; //!
-  TH1 *h_muPt_corr_wSelector; //!
-  TH1 *h_muPt_corr_woSelector; //!
+  TH1 *h_nSelectedMuons; //!
 
   TH1 *h_MET_RefFinalFix; //!
   TH1 *h_MET_RefFinalFix_test; //!
   TH1 *h_Mt; //!
   TH1 *h_Mt_muonPtCut; //!
 
-  // defining the output file name and tree that we will put in the output ntuple, also the one branch that will be in that tree 
-  std::string outputName;
-  TTree *tree; //!
+  /// defining the output file name and tree that we will put in the output ntuple, also the one branch that will be in that tree 
+//   std::string outputName;
+//   TTree *tree; //!
   int EventNumber; //!
 
   #ifndef __CINT__

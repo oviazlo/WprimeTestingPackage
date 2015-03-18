@@ -85,18 +85,6 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 	wk()->addOutput (h_jetPt);
 
 	/// Muon Pt histograms:
-	h_muPt_uncorr_wSelector = new TH1F("h_muPt_uncorr_wSelector", "h_muPt_uncorr_wSelector", 300, 0, 3000); // jet pt [GeV]
-	wk()->addOutput (h_muPt_uncorr_wSelector);
-
-	h_muPt_uncorr_woSelector = new TH1F("h_muPt_uncorr_woSelector", "h_muPt_uncorr_woSelector", 300, 0, 3000); // jet pt [GeV]
-	wk()->addOutput (h_muPt_uncorr_woSelector);
-	
-	h_muPt_corr_wSelector = new TH1F("h_muPt_corr_wSelector", "h_muPt_corr_wSelector", 300, 0, 3000); // jet pt [GeV]
-	wk()->addOutput (h_muPt_corr_wSelector);
-	
-	h_muPt_corr_woSelector = new TH1F("h_muPt_corr_woSelector", "h_muPt_corr_woSelector", 300, 0, 3000); // jet pt [GeV]
-	wk()->addOutput (h_muPt_corr_woSelector);
-
 	h_MET_RefFinalFix = new TH1F("h_MET_RefFinalFix", "h_MET_RefFinalFix", 500, 0, 5000); 
 	wk()->addOutput (h_MET_RefFinalFix);
 	
@@ -109,12 +97,15 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 	h_Mt_muonPtCut = new TH1F("h_Mt_muonPtCut", "h_Mt_muonPtCut", 500, 0, 5000); 
 	wk()->addOutput (h_Mt_muonPtCut);
 
+	h_nSelectedMuons = new TH1I("h_nSelectedMuons", "h_nSelectedMuons", 5, 0, 5); 
+	wk()->addOutput (h_nSelectedMuons);
+	
 	// get the output file, create a new TTree and connect it to that output
 	// define what branches will go in that tree
-	TFile *outputFile = wk()->getOutputFile (outputName);
-	tree = new TTree ("tree", "tree");
-	tree->SetDirectory (outputFile);
-	tree->Branch("EventNumber", &EventNumber);
+// 	TFile *outputFile = wk()->getOutputFile (outputName);
+// 	tree = new TTree ("tree", "tree");
+// 	tree->SetDirectory (outputFile);
+// 	tree->Branch("EventNumber", &EventNumber);
 
 	return EL::StatusCode::SUCCESS;
 }
@@ -409,6 +400,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 	} /// end for loop over muons
 
+	h_nSelectedMuons->Fill(muonCounter);
+	
 	if (muonCounter==0) continue;
 	/// ************************************************
 	/// Fill other event-based distributions (e.g. MET)
@@ -416,7 +409,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	h_MET_RefFinalFix->Fill(sqrt(mpx*mpx + mpy*mpy)* 0.001);
 	h_MET_RefFinalFix_test->Fill(metVec->Pt() * 0.001);
 
-	tree->Fill();
+// 	tree->Fill();
 
 	return EL::StatusCode::SUCCESS;
 }
