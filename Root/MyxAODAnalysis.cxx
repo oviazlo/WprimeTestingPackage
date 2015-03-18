@@ -176,7 +176,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 
 	// initialize and configure the jet cleaning tool
 	m_jetCleaning = new JetCleaningTool("JetCleaning");
-	m_jetCleaning->msg().setLevel( MSG::DEBUG ); 
+	m_jetCleaning->msg().setLevel( MSG::INFO ); 
 	CHECK(m_jetCleaning->setProperty( "CutLevel", "MediumBad"));
 	m_jetCleaning->initialize();
 
@@ -192,7 +192,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 
 	/// Get Muon Selector Tool
 	m_muonSelection = new CP::MuonSelectionTool("MuonSelection");
-	m_muonSelection->msg().setLevel( MSG::ERROR );
+	m_muonSelection->msg().setLevel( MSG::INFO );
 	m_muonSelection->setProperty( "MaxEta", 2.4 );
 	m_muonSelection->setProperty( "MuQuality", 1);
 	CHECK (m_muonSelection->initialize().isSuccess());
