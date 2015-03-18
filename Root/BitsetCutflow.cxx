@@ -28,15 +28,15 @@ void BitsetCutflow::PushBitSet(){
 	m_bitset.reset();
 }
 
-void BitsetCutflow::FillCutflow(string cutflowStepName){
-	/// check if there is a slot already created for this cutflow step
-	unsigned int slotPosition = m_mapCutflowSteps[cutflowStepName];
-	if (slotPosition==0){
-		m_cutflowStepCounter++;
-		m_mapCutflowSteps[cutflowStepName] = m_cutflowStepCounter;
-		slotPosition = m_cutflowStepCounter;
-		m_cutflowHist->GetXaxis()->SetBinLabel(m_cutflowStepCounter,cutflowStepName.c_str());
-	}
-	m_bitset[slotPosition]=1;
-}
+// void BitsetCutflow::FillCutflow(string cutflowStepName){
+// 	/// check if there is a slot already created for this cutflow step
+// 	unsigned int slotPosition = m_mapCutflowSteps[cutflowStepName];
+// 	if (slotPosition==0){
+// 		m_cutflowStepCounter++;
+// 		m_mapCutflowSteps[cutflowStepName] = m_cutflowStepCounter;
+// 		slotPosition = m_cutflowStepCounter;
+// 		m_cutflowHist->GetXaxis()->SetBinLabel(m_cutflowStepCounter,cutflowStepName.c_str());
+// 	}
+// 	m_bitset[slotPosition]=1;
+// }
 
