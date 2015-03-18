@@ -34,14 +34,19 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_quality["reference"] = muon_quality_original;
 	m_muonHistMap["quality"] = map_muon_quality;
 		
-	cout << "[HistObjectDumper::HistObjectDumper]\tMuon types:\n";
-	cout << "Muon_v1::Combined - " << xAOD::Muon_v1::Combined << endl;
-	cout << "Muon_v1::SegmentTagged - " << xAOD::Muon_v1::SegmentTagged << endl;
-	cout << "Muon_v1::CaloTagged - " << xAOD::Muon_v1::CaloTagged << endl;
-	cout << "Muon_v1::SiliconAssociatedForwardMuon - " << xAOD::Muon_v1::SiliconAssociatedForwardMuon << endl;
-	cout << "Muon_v1::MuonStandAlone - " << xAOD::Muon_v1::MuonStandAlone << endl;
-	
+// 	cout << "[HistObjectDumper::HistObjectDumper]\tMuon types:\n";
+// 	cout << "Muon_v1::Combined - " << xAOD::Muon_v1::Combined << endl;
+// 	cout << "Muon_v1::SegmentTagged - " << xAOD::Muon_v1::SegmentTagged << endl;
+// 	cout << "Muon_v1::CaloTagged - " << xAOD::Muon_v1::CaloTagged << endl;
+// 	cout << "Muon_v1::SiliconAssociatedForwardMuon - " << xAOD::Muon_v1::SiliconAssociatedForwardMuon << endl;
+// 	cout << "Muon_v1::MuonStandAlone - " << xAOD::Muon_v1::MuonStandAlone << endl;
+
 	TH1* muon_type_original = new TH1F("type","muon_type", 10, -0.5, 9.5);
+	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::Combined,"Combined");
+	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::SegmentTagged,"SegmentTagged");
+	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::CaloTagged,"CaloTagged");
+	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::SiliconAssociatedForwardMuon,"SiliconAssociatedForwardMuon");
+	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuonStandAlone,"MuonStandAlone");
 	map<string,TH1*> map_muon_type;
 	map_muon_type["reference"] = muon_type_original;
 	m_muonHistMap["type"] = map_muon_type;
