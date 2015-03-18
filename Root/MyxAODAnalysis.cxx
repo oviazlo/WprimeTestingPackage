@@ -363,7 +363,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 		if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
 	
-		const xAOD::Muon* mu = 0;
+		xAOD::Muon* mu = 0;
 		if (m_useMuonCalibrationAndSmearingTool){
 			if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
 				Error(APP_NAME, "Cannot really apply calibration nor smearing");
@@ -371,7 +371,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			}
 		}
 		else{
-			mu = (*muon_itr);
+			mu = const_cast<xAOD::Muon*> (*muon_itr);
 		}
 		
 		if (( mu->pt()) * 0.001 < 55.0) continue;
