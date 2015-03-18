@@ -41,7 +41,7 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 /// 	Muon_v1::CaloTagged - 3
 /// 	Muon_v1::SiliconAssociatedForwardMuon - 4
 
-	TH1* muon_type_original = new TH1F("type","muon_type", 4, -0.5, 4.5);
+	TH1* muon_type_original = new TH1F("type","muon_type", 5, -0.5, 4.5);
 	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::Combined),"Combined");
 	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::SegmentTagged),"SegmentTagged");
 	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::CaloTagged),"CaloTagged");
