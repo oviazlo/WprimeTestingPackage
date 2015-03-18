@@ -37,12 +37,12 @@ int main( int argc, char* argv[] ) {
 	/// Take the submit directory from the input if provided:
 	std::string submitDir = "submitDir";
 	if ( vm.count("folder") ){
-		submitDir = vm["folder"].as<vector<std::string> >();  
+		submitDir = vm["folder"].as<std::string>();  
 	}
 
 	int nEvents = -1;
 	if ( vm.count("nEvents") ){
-		nEvents = vm["nEvents"].as<vector<unsigned int> >();  
+		nEvents = vm["nEvents"].as<unsigned int>();  
 	}
 	
 	// Set up the job for xAOD access:
@@ -91,7 +91,7 @@ int main( int argc, char* argv[] ) {
 	if ( vm.count("proof") ){/// Run the job using the local/direct driver:
 		EL::ProofDriver driver;
 		if ( vm.count("nWorkers") ){
-			driver.numWorkers = vm["nWorkers"].as<vector<unsigned int> >();  
+			driver.numWorkers = vm["nWorkers"].as<unsigned int>();  
 		}
 		driver.submit( job, submitDir );
 	}
