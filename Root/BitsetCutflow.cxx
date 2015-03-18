@@ -5,11 +5,11 @@ ClassImp(BitsetCutflow)
 
 BitsetCutflow::BitsetCutflow(EL::Worker *wk){
 	m_wk = wk;
-	m_cutflowHist = new TH1F("cutflow_hist","Cutflow",99,-0.5,98.5);
+	m_cutflowHist = new TH1I("cutflow_hist","Cutflow",99,-0.5,98.5);
 	m_wk->addOutput(m_cutflowHist);
 	m_cutflowStepCounter = 1;
 	m_cutflowHist->GetXaxis()->SetBinLabel(m_cutflowStepCounter,"All");
-	m_cutflowHist->Fill(0,-1); /// to compensate for the first event false filling
+	m_cutflowHist->Fill(0.0,-1.0); /// to compensate for the first event false filling
 }
 
 BitsetCutflow::~BitsetCutflow(){
