@@ -316,7 +316,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	} // end for loop over jets
 
 	if (nVeryLooseBadJets!=nLooseBadJets){
-		continue;
+		return EL::StatusCode::SUCCESS;
 	}
 	
 	//Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
