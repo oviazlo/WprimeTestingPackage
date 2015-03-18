@@ -115,7 +115,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
     po::options_description desc("Options"); 
     desc.add_options()
       ("help,h", "Print help messages") 
-      ("folder,f", po::value<std::vector<string> >(), "output working-folder name")
+      ("folder,f", po::value<string>(), "output working-folder name")
       ("nWorkers,w", po::value<unsigned int>(), "number of workers")
       ("proof,p", "enable PROOF-Lite mode") 
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
