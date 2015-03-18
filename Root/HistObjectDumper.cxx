@@ -135,4 +135,5 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	m_muonHistMap["phi"][stage_tag]->Fill(mu->phi());
 	m_muonHistMap["quality"][stage_tag]->Fill(mu->quality());
 	m_muonHistMap["type"][stage_tag]->Fill(mu->muonType());
+	m_muonHistMap["author"][stage_tag]->Fill(mu->author());
 }
