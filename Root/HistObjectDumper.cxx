@@ -1,4 +1,5 @@
 #include <MyAnalysis/HistObjectDumper.h>
+#include <xAODTracking/TrackingPrimitives.h>
 
 /// this is needed to distribute the algorithm to the workers
 ClassImp(HistObjectDumper)
@@ -127,8 +128,8 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	int nMSPrecLayers = -1;
 	int nLayersWithPhiHit = -1;
 	
-	mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
-	mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
+	mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
+	mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 	
 	m_muonHistMap["precMSLayers"][stage_tag]->Fill(mu->muonType());
 	m_muonHistMap["phiMSLayers"][stage_tag]->Fill(mu->author());
