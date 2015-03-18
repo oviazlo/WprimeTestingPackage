@@ -220,7 +220,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 		m_HistObjectDumper = new HistObjectDumper(wk());
 	
 	if (m_BitsetCutflow)
-		m_BitsetCutflow = new m_BitsetCutflow(wk());
+		m_BitsetCutflow = new BitsetCutflow(wk());
 	
 
 	return EL::StatusCode::SUCCESS;
