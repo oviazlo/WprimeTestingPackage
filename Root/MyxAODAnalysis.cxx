@@ -412,6 +412,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 		if(m_muonSelection->accept(mu)){
 
+			m_BitsetCutflow->FillCutflow("MCP_selector");
+			
 			uint8_t nMSPrecLayers = -1;
 			uint8_t nLayersWithPhiHit = -1;
 			
@@ -419,14 +421,17 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 			
 			if (nMSPrecLayers<3 || nLayersWithPhiHit<1) continue;
+			m_BitsetCutflow->FillCutflow("MS_layers");
 			
 			if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
+			m_BitsetCutflow->FillCutflow("Combined");
 			
 			/// Isolation stuff
 			float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
 			mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  // second arg is an enum defined in xAODPrimitives/IsolationType.h
 
 			if (muPtCone30/mu->pt() >= 0.05) continue;
+			m_BitsetCutflow->FillCutflow("Isolation");
 			
 			double phi_mu = mu->phi();
 			double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
