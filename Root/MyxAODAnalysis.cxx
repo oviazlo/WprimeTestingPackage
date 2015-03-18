@@ -410,6 +410,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		
 		if (( mu->pt()) * 0.001 < 55.0) continue;
 
+		m_BitsetCutflow->FillCutflow("mu_pt");
+		
 		if(m_muonSelection->accept(mu)){
 
 			m_BitsetCutflow->FillCutflow("MCP_selector");
