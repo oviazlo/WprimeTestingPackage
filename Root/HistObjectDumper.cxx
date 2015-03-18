@@ -81,6 +81,11 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map<string,TH1*> map_muon_phiMSLayers;
 	map_muon_phiMSLayers["reference"] = muon_phiMSLayers_original;
 	m_muonHistMap["phiMSLayers"] = map_muon_phiMSLayers;
+	
+	TH1* muon_ptCone30_original = new TH1F("ptCone30","ptCone30/pt", 100, 0.0, 1.0);
+	map<string,TH1*> map_muon_ptCone30;
+	map_muon_ptCone30["reference"] = muon_ptCone30_original;
+	m_muonHistMap["ptCone30"] = map_muon_ptCone30;
 }
 
 HistObjectDumper::~HistObjectDumper(){
@@ -145,4 +150,8 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	m_muonHistMap["precMSLayers"][stage_tag]->Fill(nMSPrecLayers);
 	m_muonHistMap["phiMSLayers"][stage_tag]->Fill(nLayersWithPhiHit);
 	
+	float muPtCone30 = 0.; /// your variable that will be filled after calling the isolation function
+	mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
+	
+	m_muonHistMap["ptCone30"][stage_tag]->Fill(muPtCone30);
 }
