@@ -177,7 +177,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	
 	m_jetCleaning_LooseBad = new JetCleaningTool("JetCleaning_LooseBad");
 	m_jetCleaning_LooseBad->msg().setLevel( MSG::INFO ); 
-	CHECK(m_jetCleaning_LooseBad->setProperty( "CutLevel", "LooseBad"));
+	CHECK(m_jetCleaning_LooseBad->setProperty( "CutLevel", "MediumBad"));
 	m_jetCleaning_LooseBad->initialize();
 	
 	// initialize JER 
