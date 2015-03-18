@@ -12,4 +12,5 @@
 #ifdef __CINT__
 #pragma link C++ class MyxAODAnalysis+;
 #pragma link C++ class HistObjectDumper+;
+#pragma link C++ class BitsetCutflow+;
 #endif
