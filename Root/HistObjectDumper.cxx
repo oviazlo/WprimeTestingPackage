@@ -39,12 +39,12 @@ HistObjectDumper::~HistObjectDumper(){
 	
 }
 
-int HistObjectDumper::InitNewStageHists(string stage_tag){
+int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> > inMap, string folderName, string stage_tag){
 
-    int iStage;
+	int iStage;
 
 	typedef map<string,map<string,TH1*> >::iterator it_type;
-	for(it_type iterator = m_muonHistMap.begin(); iterator != m_muonHistMap.end(); iterator++) {
+	for(it_type iterator = inMap.begin(); iterator != inMap.end(); iterator++) {
 		
 		/// convert int to string
 		iStage = iterator->second.size();
@@ -52,10 +52,10 @@ int HistObjectDumper::InitNewStageHists(string stage_tag){
 		tmpStream << iStage;
 		
 		/// construct histName
-		string histName = "muon/stage" + tmpStream.str();
+		string histName = folderName + "/stage" + tmpStream.str();
 		if (stage_tag!="")
 			histName += "_" + stage_tag;
-        histName += "/" + string(iterator->second["reference"]->GetName());
+		histName += "/" + string(iterator->second["reference"]->GetName());
 		
 		/// Clone referance hist with adding to suffix to the name of new hist and push it back to vector
 		iterator->second[stage_tag] = (TH1*)iterator->second["reference"]->Clone(histName.c_str());
@@ -65,9 +65,9 @@ int HistObjectDumper::InitNewStageHists(string stage_tag){
 		
 	}
 
-    m_StageNameDict[stage_tag] = true;
-	
-    return iStage;
+	m_StageNameDict[stage_tag] = true;
+		
+	return iStage;
 	
 }
 
@@ -79,7 +79,7 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 /// **************************************************************
 	
 	if (m_StageNameDict[stage_tag]==false)
-		InitNewStageHists(stage_tag);
+		InitNewStageHists(m_muonHistMap,"muon",stage_tag);
 	
 	m_muonHistMap["pt"][stage_tag]->Fill(mu->pt()*0.001);
 	m_muonHistMap["eta"][stage_tag]->Fill(mu->eta());
