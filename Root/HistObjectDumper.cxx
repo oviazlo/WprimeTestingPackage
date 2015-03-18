@@ -41,7 +41,23 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 // 	cout << "Muon_v1::SiliconAssociatedForwardMuon - " << xAOD::Muon_v1::SiliconAssociatedForwardMuon << endl;
 // 	cout << "Muon_v1::MuonStandAlone - " << xAOD::Muon_v1::MuonStandAlone << endl;
 
-	TH1* muon_type_original = new TH1F("type","muon_type", 10, -0.5, 9.5);
+// enum Author {
+//       unknown=0,
+//       MuidCo,
+//       STACO,
+//       MuTag,
+//       MuTagIMO,
+//       MuidSA,
+//       MuGirl,
+//       MuGirlLowBeta,
+//       CaloTag,
+//       CaloLikelihood,
+//       ExtrapolateMuonToIP,
+//       NumberOfMuonAuthors // increase this guy when adding
+//     };
+	
+	
+	TH1* muon_type_original = new TH1F("type","muon_type", 4, -0.5, 4.5);
 	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::Combined,"Combined");
 	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::SegmentTagged,"SegmentTagged");
 	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::CaloTagged,"CaloTagged");
@@ -50,6 +66,22 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map<string,TH1*> map_muon_type;
 	map_muon_type["reference"] = muon_type_original;
 	m_muonHistMap["type"] = map_muon_type;
+	
+	TH1* muon_author_original = new TH1F("author","muon_author", 12, -0.5, 11.5);
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::unknown,"unknown");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuidCo,"MuidCo");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::STACO,"STACO");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuTag,"MuTag");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuTagIMO,"MuTagIMO");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuidSA,"MuidSA");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuGirl,"MuGirl");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::MuGirlLowBeta,"MuGirlLowBeta");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::CaloTag,"CaloTag");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::CaloLikelihood,"CaloLikelihood");
+	muon_author_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::ExtrapolateMuonToIP,"ExtrapolateMuonToIP");
+	map<string,TH1*> map_muon_author;
+	map_muon_author["reference"] = muon_author_original;
+	m_muonHistMap["author"] = map_muon_author;
 }
 
 HistObjectDumper::~HistObjectDumper(){
