@@ -175,11 +175,6 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	CHECK(m_jetCleaning->setProperty( "CutLevel", "VeryLooseBad"));
 	m_jetCleaning->initialize();
 	
-	JetCleaning2 = new JetCleaningTool("JetCleaning2");
-	JetCleaning2->msg().setLevel( MSG::INFO ); 
-	CHECK(JetCleaning2->setProperty( "CutLevel", "LooseBad"));
-	JetCleaning2->initialize();
-	
 	// initialize JER 
 	const char* jerFilePath = "$ROOTCOREBIN/data/JetResolution/JERProviderPlots_2012.root";
 	const char* fullJERFilePath = gSystem->ExpandPathName (jerFilePath);
