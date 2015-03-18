@@ -30,7 +30,7 @@ void BitsetCutflow::PushBitSet(){
 
 void BitsetCutflow::FillCutflow(string cutflowStepName){
 	/// check if there is a slot already created for this cutflow step
-	int slotPosition = m_mapCutflowSteps[cutflowStepName];
+	unsigned int slotPosition = m_mapCutflowSteps[cutflowStepName];
 	if (slotPosition==0){
 		m_cutflowStepCounter++;
 		m_mapCutflowSteps[cutflowStepName] = m_cutflowStepCounter;

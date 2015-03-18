@@ -24,7 +24,7 @@ public:
 	
 private:
 	
-	int m_cutflowStepCounter;
+	unsigned int m_cutflowStepCounter; //!
 	
 	/// link to EventLoop worker;
 	EL::Worker *m_wk; //!
