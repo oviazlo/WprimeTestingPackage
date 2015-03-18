@@ -483,10 +483,6 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 		delete m_jetCleaning;
 		m_jetCleaning = 0;
 	}
-	if( m_jetCleaning2 ) {
-		delete m_jetCleaning2;
-		m_jetCleaning2 = 0;
-	}
 	if(m_JERTool){
 		delete m_JERTool;
 		m_JERTool = 0;
