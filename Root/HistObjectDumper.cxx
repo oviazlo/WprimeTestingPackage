@@ -33,29 +33,6 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map<string,TH1*> map_muon_quality;
 	map_muon_quality["reference"] = muon_quality_original;
 	m_muonHistMap["quality"] = map_muon_quality;
-		
-// 	cout << "[HistObjectDumper::HistObjectDumper]\tMuon types:\n";
-// 	cout << "Muon_v1::Combined - " << xAOD::Muon_v1::Combined << endl;
-// 	cout << "Muon_v1::SegmentTagged - " << xAOD::Muon_v1::SegmentTagged << endl;
-// 	cout << "Muon_v1::CaloTagged - " << xAOD::Muon_v1::CaloTagged << endl;
-// 	cout << "Muon_v1::SiliconAssociatedForwardMuon - " << xAOD::Muon_v1::SiliconAssociatedForwardMuon << endl;
-// 	cout << "Muon_v1::MuonStandAlone - " << xAOD::Muon_v1::MuonStandAlone << endl;
-
-// enum Author {
-//       unknown=0,
-//       MuidCo,
-//       STACO,
-//       MuTag,
-//       MuTagIMO,
-//       MuidSA,
-//       MuGirl,
-//       MuGirlLowBeta,
-//       CaloTag,
-//       CaloLikelihood,
-//       ExtrapolateMuonToIP,
-//       NumberOfMuonAuthors // increase this guy when adding
-//     };
-	
 	
 	TH1* muon_type_original = new TH1F("type","muon_type", 4, -0.5, 4.5);
 	muon_type_original->GetXaxis()->SetBinLabel(xAOD::Muon_v1::Combined,"Combined");
@@ -82,6 +59,16 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map<string,TH1*> map_muon_author;
 	map_muon_author["reference"] = muon_author_original;
 	m_muonHistMap["author"] = map_muon_author;
+	
+	TH1* muon_precMSLayers_original = new TH1F("precMSLayers","muon_precMSLayers", 11, -0.5, 10.5);
+	map<string,TH1*> map_muon_precMSLayers;
+	map_muon_precMSLayers["reference"] = muon_precMSLayers_original;
+	m_muonHistMap["precMSLayers"] = map_muon_precMSLayers;
+	
+	TH1* muon_phiMSLayers_original = new TH1F("phiMSLayers","muon_phiMSLayers", 11, -0.5, 10.5);
+	map<string,TH1*> map_muon_phiMSLayers;
+	map_muon_phiMSLayers["reference"] = muon_phiMSLayers_original;
+	m_muonHistMap["phiMSLayers"] = map_muon_phiMSLayers;
 }
 
 HistObjectDumper::~HistObjectDumper(){
@@ -136,4 +123,14 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	m_muonHistMap["quality"][stage_tag]->Fill(mu->quality());
 	m_muonHistMap["type"][stage_tag]->Fill(mu->muonType());
 	m_muonHistMap["author"][stage_tag]->Fill(mu->author());
+	
+	int nMSPrecLayers = -1;
+	int nLayersWithPhiHit = -1;
+	
+	mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
+	mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
+	
+	m_muonHistMap["precMSLayers"][stage_tag]->Fill(mu->muonType());
+	m_muonHistMap["phiMSLayers"][stage_tag]->Fill(mu->author());
+	
 }
