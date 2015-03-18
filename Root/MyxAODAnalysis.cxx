@@ -402,7 +402,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 	h_nSelectedMuons->Fill(muonCounter);
 	
-	if (muonCounter==0) continue;
+	if (muonCounter==0) return EL::StatusCode::SUCCESS;
 	/// ************************************************
 	/// Fill other event-based distributions (e.g. MET)
 	/// ************************************************
