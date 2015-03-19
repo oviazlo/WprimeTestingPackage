@@ -43,7 +43,7 @@ int main( int argc, char* argv[] ) {
 	SH::SampleHandler sh;
 
 	sh.load ((folder + "/hist").c_str());
-	Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
+	SH::Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
 	TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
 
 	/// Print what we found:
