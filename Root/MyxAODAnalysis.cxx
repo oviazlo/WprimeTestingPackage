@@ -302,12 +302,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	for( ; vtx_itr != vtx_end; ++vtx_itr ) {
 		h_zPrimVtx->Fill((*vtx_itr)->z());
 		//~ if (((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx)&&(abs((*vtx_itr)->z())<200.0))
-		if (abs((*vtx_itr)->z())<200.0)
+		if ((abs((*vtx_itr)->z())<200.0)&&((*vtx_itr)->nTrackParticles()>=3))
 			nGoodVtx++;
 	}
-	if (nGoodVtx==0)
-		return EL::StatusCode::SUCCESS;
-	m_BitsetCutflow->FillCutflow("Primary vertex");
 
 	/// LOOP OVER JETS
 	int nVeryLooseBadJets = 0;
@@ -346,6 +343,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	}
 	
 	m_BitsetCutflow->FillCutflow("JetCleaning");
+	
+	if (nGoodVtx==0)
+		return EL::StatusCode::SUCCESS;
+	m_BitsetCutflow->FillCutflow("Primary vertex");
 	
   	/// get MET_RefFinalFix container of interest
 	const xAOD::MissingETContainer* metcontainer = 0;
