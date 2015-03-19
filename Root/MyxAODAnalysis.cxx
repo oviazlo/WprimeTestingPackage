@@ -353,8 +353,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 	/// we need to use MET_RefFinalFix, according to:
 	/// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2xAODMissingET
-	if ( !m_event->retrieve( metcontainer, "MET_RefFinal" ).isSuccess() ){ /// retrieve arguments: container$
-		Error("execute()", "Failed to retrieve MET_RefFinal container. Exiting." );
+	if ( !m_event->retrieve( metcontainer, "MET_RefFinalFix" ).isSuccess() ){ /// retrieve arguments: container$
+		Error("execute()", "Failed to retrieve MET_RefFinalFix container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
 
