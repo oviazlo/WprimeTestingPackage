@@ -42,7 +42,7 @@ int main( int argc, char* argv[] ) {
 	SH::SampleHandler sh;
 
 	sh.load ((folder + "/hist").c_str());
-	TH1I* cutflowHist = (TH1I*)sh->readHist("cutflow_hist");
+	TH1I* cutflowHist = (TH1I*)sh.readHist("cutflow_hist");
 
 	/// Print what we found:
 	sh.print();
