@@ -64,6 +64,8 @@ public:
   TH1 *h_MET_RefFinalFix_test; //!
   TH1 *h_Mt; //!
   TH1 *h_Mt_muonPtCut; //!
+  
+  TH1 *h_zPrimVtx; //!
 
   /// defining the output file name and tree that we will put in the output ntuple, also the one branch that will be in that tree 
 //   std::string outputName;

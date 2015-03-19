@@ -81,7 +81,8 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 	// trees.  This method gets called before any input files are
 	// connected.
 
-
+	h_zPrimVtx = new TH1F("h_zPrimVtx", "h_zPrimVtx", 6000, -300.0, 300); // jet pt [GeV]
+	wk()->addOutput (h_zPrimVtx);
 
 	h_jetPt_VeryLooseBadJets = new TH1F("h_jetPt_VeryLooseBadJets", "VeryLooseBadJets and better with pt>20", 300, 0, 3000); // jet pt [GeV]
 	wk()->addOutput (h_jetPt_VeryLooseBadJets);
@@ -299,6 +300,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
 	int nGoodVtx = 0;
 	for( ; vtx_itr != vtx_end; ++vtx_itr ) {
+		h_zPrimVtx->Fill((*vtx_itr)->z());
 		//~ if (((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx)&&(abs((*vtx_itr)->z())<200.0))
 		if (abs((*vtx_itr)->z())<200.0)
 			nGoodVtx++;
