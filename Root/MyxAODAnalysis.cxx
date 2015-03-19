@@ -266,6 +266,28 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		isMC = true; /// can do something with this later
 	}
 
+
+	const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
+	CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName));
+	
+	xAOD::TruthEventContainer::const_iterator itr;
+	for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
+		int nVert = (*itr)->numTruthVertices();
+		int nPart = (*itr)->numTruthParticles();
+		
+		//~ for (int iVtx=0; iVtx<nVert; iVtx++){
+			//~ const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
+			//~ 
+		//~ }
+		cout << endl << endl << "i\tpdgId" << endl;
+		
+		for (int iPart=0; iPart<nPart; iPart++){
+			const xAOD::TruthParticle* particle = (*itr)->truthParticle(iPart);
+			int pdgId = particle->pdgId();
+			cout << iPart << ":\t" << pdgId << ednl;
+		}
+	}
+
 	/// if data check if event passes GRL
 	if(!isMC){ /// it's data!
 		if(!m_grl->passRunLB(*eventInfo)){
