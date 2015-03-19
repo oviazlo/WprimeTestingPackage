@@ -271,7 +271,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 
 	const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
-	CHECK(m_event->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName));
+	CHECK(m_event->retrieve( xTruthEventContainer, "TruthEvent"));
 	
 	xAOD::TruthEventContainer::const_iterator itr;
 	for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
