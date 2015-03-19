@@ -41,14 +41,9 @@ int main( int argc, char* argv[] ) {
 	// Construct the samples to run on:
 	SH::SampleHandler sh;
 
-	const char* inputFilePath = gSystem->ExpandPathName (folder);
-
-	SH::DiskListLocal list (inputFilePath);
-	SH::scanDir (sh, list, "*root");
-
-	/// Set the name of the input TTree. It's always "CollectionTree"
-	/// for xAOD files.
-	sh.setMetaString( "nc_tree", "CollectionTree" );
+	SH::SampleHandler sh;
+	sh.load ((folder + "/hist").c_str());
+//	TH1I* cutflowHist = (TH1I*)sh.get ("sampleName")->readHist ("histogramName");
 
 	/// Print what we found:
 	sh.print();
