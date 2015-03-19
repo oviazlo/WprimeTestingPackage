@@ -10,9 +10,9 @@
 #include <TH1F.h>
 #include <TCanvas.h>
 
-#include "AtlasStyle.C"
-#include "AtlasUtils.C"
-#include "AtlasUtils.h"
+//~ #include "AtlasStyle.C"
+//~ #include "AtlasUtils.C"
+//~ #include "AtlasUtils.h"
 
 #include "MyAnalysis/MyxAODAnalysis.h"
 #include <EventLoopAlgs/NTupleSvc.h>
@@ -68,7 +68,7 @@ int main( int argc, char* argv[] ) {
 	}
 	
 
-	SetAtlasStyle()
+	//~ SetAtlasStyle()
 	
 	// read pt, MET, Mt histograms, make them pretty and save them
 	TH1F* h_pt = (TH1F*)mySample->readHist ("muon/stage2_allCuts/pt");
