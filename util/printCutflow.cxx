@@ -95,14 +95,14 @@ int main( int argc, char* argv[] ) {
 	gPad->SetLogy();
 	
 	h_pt->Draw();
-	h_pt->GetXaxis()->SetUserRange(0,5000.0);
+	h_pt->GetXaxis()->SetRangeUser(0,5000.0);
 	can->SaveAs("pT.eps");
 	
-	h_MET->GetXaxis()->SetUserRange(0,5000.0);
+	h_MET->GetXaxis()->SetRangeUser(0,5000.0);
 	h_MET->Draw();
 	can->SaveAs("MET.eps");
 	
-	h_Mt->GetXaxis()->SetUserRange(0,5000.0);
+	h_Mt->GetXaxis()->SetRangeUser(0,5000.0);
 	h_Mt->Draw();
 	can->SaveAs("mT.eps");
 	
