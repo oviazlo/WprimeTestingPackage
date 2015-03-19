@@ -7,6 +7,12 @@
 #include "EventLoop/DirectDriver.h"
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
+#include <TH1F.h>
+#include <TCanvas.h>
+
+#include "AtlasStyle.C"
+#include "AtlasUtils.C"
+#include "AtlasUtils.h"
 
 #include "MyAnalysis/MyxAODAnalysis.h"
 #include <EventLoopAlgs/NTupleSvc.h>
@@ -60,6 +66,34 @@ int main( int argc, char* argv[] ) {
 		string binLabel = cutflowHist->GetXaxis()->GetBinLabel(i);
 		cout << binLabel << ":\t" << binContent << endl;
 	}
+	
+
+	SetAtlasStyle()
+	
+	// read pt, MET, Mt histograms, make them pretty and save them
+	TH1F* h_pt = (TH1F*)mySample->readHist ("muon/stage2_allCuts/pt");
+	TH1F* h_MET = (TH1F*)mySample->readHist ("h_MET_RefFinalFix");
+	TH1F* h_Mt = (TH1F*)mySample->readHist ("h_Mt_muonPtCut");
+	
+	h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
+	h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+	h_Mt->GetXaxis()->SetTitle("m_{T} [GeV]");
+	
+	h_pt->GetYaxis()->SetTitle("Counts");
+	h_MET->GetYaxis()->SetTitle("Counts");
+	h_Mt->GetYaxis()->SetTitle("Counts");
+	
+	h_pt->SetTitle("");
+	h_MET->SetTitle("");
+	h_Mt->SetTitle("");
+	
+	TCanvas *can = new TCanvas();
+	h_pt->Draw();
+	can->SaveAs("pT.eps");
+	h_MET->Draw();
+	can->SaveAs("MET.eps");
+	h_Mt->Draw();
+	can->SaveAs("mT.eps");
 	
 	return 0;
 }
