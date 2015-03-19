@@ -7,6 +7,9 @@
 
 /// EDM includes:
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/TruthEventContainer.h"
 
 /// GRL
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
