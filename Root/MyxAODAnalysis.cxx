@@ -419,7 +419,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		
 		if(m_muonSelection->accept(mu)){
 
-			m_BitsetCutflow->FillCutflow("MCP_selector");
+			m_BitsetCutflow->FillCutflow("MCP selector");
 			
 			uint8_t nMSPrecLayers = -1;
 			uint8_t nLayersWithPhiHit = -1;
@@ -428,10 +428,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 			
 			if (nMSPrecLayers<3) continue;
-			m_BitsetCutflow->FillCutflow("nMSPrecLayers");
+			m_BitsetCutflow->FillCutflow("3 hits in 3 MS layers");
 			
-			if (nLayersWithPhiHit<1) continue;
-			m_BitsetCutflow->FillCutflow("nLayersWithPhiHit");
+			if (nLayersWithPhiHit<2) continue;
+			m_BitsetCutflow->FillCutflow("2 phi layers");
 			
 			
 			
