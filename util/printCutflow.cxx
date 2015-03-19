@@ -1,5 +1,6 @@
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"
+#include "SampleHandler/Sample.h"
 #include "SampleHandler/ToolsDiscovery.h"
 #include "EventLoop/Job.h"
 #include "EventLoop/ProofDriver.h"
