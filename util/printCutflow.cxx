@@ -43,12 +43,22 @@ int main( int argc, char* argv[] ) {
 	SH::SampleHandler sh;
 
 	sh.load ((folder + "/hist").c_str());
-	SH::Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
-	TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
 
 	/// Print what we found:
 	sh.print();
 
+	/// get histogram
+	SH::Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
+	TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+
+	cout << "cutflowHist pointer: " << cutflowHist << endl;
+	
+	for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
+		int binContent = cutflowHist->GetBinContent(i);
+		if (binContent<=0) break;
+		string binLabel = cutflowHist->GetXaxis()->GetBinLabel(i);
+		cout << binLabel << ":\t" << binContent << endl;
+	}
 	
 	return 0;
 }
