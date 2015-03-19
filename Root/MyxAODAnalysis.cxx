@@ -444,7 +444,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			double phi_mu = mu->phi();
 			double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
 			
-			if (Mt * 0.001<700.0) continue
+			if (Mt * 0.001<700.0) continue;
 			m_BitsetCutflow->FillCutflow("Dummy Mt cut");
 			
 			h_Mt_muonPtCut->Fill(Mt * 0.001);
