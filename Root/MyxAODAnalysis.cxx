@@ -432,8 +432,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			
 			if (nLayersWithPhiHit<2) continue;
 			m_BitsetCutflow->FillCutflow("2 phi layers");
-			
-			
+						
 			
 			/// Isolation stuff
 			float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
