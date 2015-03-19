@@ -425,18 +425,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			//~ mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
 			//~ if (nMSPrecLayers<3) continue;
 			//~ m_BitsetCutflow->FillCutflow("3 hits in 3 MS layers");
-
-
-//~ 287	    innerSmallHits = 2,        //!< number of precision hits in the inner small layer
-//~ 288	    innerLargeHits = 3,        //!< number of precision hits in the inner large layer
-//~ 289	    middleSmallHits = 4,      //!< number of precision hits in the middle small layer
-//~ 290	    middleLargeHits = 5,      //!< number of precision hits in the middle large layer
-//~ 291	    outerSmallHits = 6,      //!< number of precision hits in the outer small layer
-//~ 292	    outerLargeHits = 7,       //!< number of precision hits in the outer large layer
-//~ 293	    extendedSmallHits = 8,    //!< number of precision hits in the extended small layer
-//~ 294	    extendedLargeHits = 9,    //!< number of precision hits in the extended large layer	
 			
-				
+			//~ uint8_t nLayersWithPhiHit = -1;
+			//~ mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
+			//~ if (nLayersWithPhiHit<2) continue;
+			//~ m_BitsetCutflow->FillCutflow("2 phi layers");
 			
 			uint8_t n_innerSmallHits = -1;
 			mu->summaryValue(n_innerSmallHits, xAOD::innerSmallHits);
@@ -470,11 +463,26 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			if ((n_innerMDTLayerHits<3)||(n_middleMDTLayerHits<3)||(n_outerMDTLayerHits<3)) continue;
 			m_BitsetCutflow->FillCutflow("3 hits in all 3 MS layers");
 						
-			uint8_t nLayersWithPhiHit = -1;
-			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
-			if (nLayersWithPhiHit<2) continue;
-			m_BitsetCutflow->FillCutflow("2 phi layers");
+			uint8_t n_phiLayer1Hits = -1;
+			mu->summaryValue(n_phiLayer1Hits, xAOD::phiLayer1Hits);
+			
+			uint8_t n_phiLayer2Hits = -1;
+			mu->summaryValue(n_phiLayer2Hits, xAOD::phiLayer2Hits);
+			
+			uint8_t n_phiLayer3Hits = -1;
+			mu->summaryValue(n_phiLayer3Hits, xAOD::phiLayer3Hits);
+			
+			uint8_t n_phiLayer4Hits = -1;
+			mu->summaryValue(n_phiLayer4Hits, xAOD::phiLayer4Hits);
 						
+			int nPhiLayers = 0;
+			if (n_phiLayer1Hits>0) nPhiLayers++;
+			if (n_phiLayer2Hits>0) nPhiLayers++;
+			if (n_phiLayer3Hits>0) nPhiLayers++;
+			if (n_phiLayer4Hits>0) nPhiLayers++;
+			
+			if (nPhiLayers<2) continue;
+			m_BitsetCutflow->FillCutflow("2 phi layers");
 			
 			/// Isolation stuff
 			float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
