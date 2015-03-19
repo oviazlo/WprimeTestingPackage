@@ -52,7 +52,7 @@ int main( int argc, char* argv[] ) {
 	//SH::Sample* mySample = sh.findBySource ("mc14_13TeV*Wprime_emutau_*");
 	TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
 
-	cout << "cutflowHist pointer: " << cutflowHist << endl;
+	//~ cout << "cutflowHist pointer: " << cutflowHist << endl;
 	
 	for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
 		int binContent = cutflowHist->GetBinContent(i);

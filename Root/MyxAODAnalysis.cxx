@@ -285,8 +285,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	} /// end if the event is data
 	m_numCleanEvents++;
 
-  int nVeryLooseBadJets = 0;
-  int nLooseBadJets = 0;
+	int nVeryLooseBadJets = 0;
+	int nLooseBadJets = 0;
 
 	/// LOOP OVER JETS
 	
@@ -397,6 +397,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 		if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
 	
+		m_BitsetCutflow->FillCutflow("oneMuon");
+	
 		xAOD::Muon* mu = 0;
 		if (m_useMuonCalibrationAndSmearingTool){
 			if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
@@ -407,6 +409,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		else{
 			mu = const_cast<xAOD::Muon*> (*muon_itr);
 		}
+		
+		if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
+			m_BitsetCutflow->FillCutflow("Combined");
 		
 		if (( mu->pt()) * 0.001 < 55.0) continue;
 
@@ -422,11 +427,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
 			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 			
-			if (nMSPrecLayers<3 || nLayersWithPhiHit<1) continue;
-			m_BitsetCutflow->FillCutflow("MS_layers");
+			if (nMSPrecLayers<3) continue;
+			m_BitsetCutflow->FillCutflow("nMSPrecLayers");
 			
-			if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
-			m_BitsetCutflow->FillCutflow("Combined");
+			if (nLayersWithPhiHit<1) continue;
+			m_BitsetCutflow->FillCutflow("nLayersWithPhiHit");
+			
+			
 			
 			/// Isolation stuff
 			float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
