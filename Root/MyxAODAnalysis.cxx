@@ -287,7 +287,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		for (int iPart=0; iPart<nPart; iPart++){
 			const xAOD::TruthParticle* particle = (*itr)->truthParticle(iPart);
 			int pdgId = particle->pdgId();
-			cout << iPart << ":\t" << pdgId << endl;
+			if (pdgId==34) cout << iPart << ":\t" << pdgId << endl;
 		}
 	}
 
