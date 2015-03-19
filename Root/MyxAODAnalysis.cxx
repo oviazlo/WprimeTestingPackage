@@ -16,6 +16,7 @@
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetResolution/JERTool.h"
 #include <TSystem.h> /// used to define JERTool calibration path 
+#include "xAODTracking/VertexContainer.h"
 
 /// Muons
 #include "MuonSelectorTools/MuonSelectionTool.h"
@@ -240,7 +241,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	/// push cutflow bitset to cutflow hist
 	m_BitsetCutflow->PushBitSet();
 	
-	if( (m_eventCounter % 100) ==0 ) Info("execute()", "Event number = %i", m_eventCounter );
+	if( (m_eventCounter % 1000) ==0 ) Info("execute()", "Event number = %i", m_eventCounter );
 	m_eventCounter++;
 
 	///----------------------------
@@ -270,6 +271,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			return EL::StatusCode::SUCCESS; // go to next event
 		}
 	} /// end if not MC
+	m_BitsetCutflow->FillCutflow("GRL");
+	
 
 	///------------------------------------------------------------
 	/// Apply event cleaning to remove events due to 
@@ -284,11 +287,29 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		} /// end if event flags check
 	} /// end if the event is data
 	m_numCleanEvents++;
+	m_BitsetCutflow->FillCutflow("LAr_Tile_Core");
 
-	int nVeryLooseBadJets = 0;
-	int nLooseBadJets = 0;
+	const xAOD::VertexContainer* vertices = 0;
+	if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error("execute()", "Failed to retrieve PrimaryVertices container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	
+	xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
+	xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
+	int nGoodVtx = 0;
+	for( ; vtx_itr != vtx_end; ++vtx_itr ) {
+		//~ if (((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx)&&(abs((*vtx_itr)->z())<200.0))
+		if (abs((*vtx_itr)->z())<200.0)
+			nGoodVtx++;
+	}
+	if (nGoodVtx==0)
+		return EL::StatusCode::SUCCESS;
+	m_BitsetCutflow->FillCutflow("Primary vertex");
 
 	/// LOOP OVER JETS
+	int nVeryLooseBadJets = 0;
+	int nLooseBadJets = 0;
 	
 	/// Loop over all jets in the event
 	/// get jet container of interest
@@ -316,16 +337,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		nLooseBadJets++;
 		h_jetPt_LooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
 
-		
-		
-		//~ // JER and uncert
-		//~ if(isMC){ // assuming isMC flag has been set based on eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) 
-			//~ // Get the MC resolution
-			//~ double mcRes = m_JERTool->getRelResolutionMC((*jet_itr));
-			//~ // Get the resolution uncertainty
-			//~ double uncert = m_JERTool->getUncertainty((*jet_itr), false, false); // getUncertainty(const xAOD::Jet* jet, bool alt2, bool isAFII)
-			//~ Info("execute()", "jet mcRes = %f , uncert = %f", mcRes, uncert);
-		//~ } // end if MC
 	} // end for loop over jets
 
 	if (nVeryLooseBadJets!=nLooseBadJets){
@@ -334,8 +345,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	
 	m_BitsetCutflow->FillCutflow("JetCleaning");
 	
-	//Info("execute()", "  number of jets = %lu; number of clean jets = %lu", jets->size(), numGoodJets);
-  
   	/// get MET_RefFinalFix container of interest
 	const xAOD::MissingETContainer* metcontainer = 0;
 	
