@@ -421,14 +421,54 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 			m_BitsetCutflow->FillCutflow("MCP selector");
 			
-			uint8_t nMSPrecLayers = -1;
-			uint8_t nLayersWithPhiHit = -1;
+			//~ uint8_t nMSPrecLayers = -1;
+			//~ mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
+			//~ if (nMSPrecLayers<3) continue;
+			//~ m_BitsetCutflow->FillCutflow("3 hits in 3 MS layers");
+
+
+//~ 287	    innerSmallHits = 2,        //!< number of precision hits in the inner small layer
+//~ 288	    innerLargeHits = 3,        //!< number of precision hits in the inner large layer
+//~ 289	    middleSmallHits = 4,      //!< number of precision hits in the middle small layer
+//~ 290	    middleLargeHits = 5,      //!< number of precision hits in the middle large layer
+//~ 291	    outerSmallHits = 6,      //!< number of precision hits in the outer small layer
+//~ 292	    outerLargeHits = 7,       //!< number of precision hits in the outer large layer
+//~ 293	    extendedSmallHits = 8,    //!< number of precision hits in the extended small layer
+//~ 294	    extendedLargeHits = 9,    //!< number of precision hits in the extended large layer	
 			
-			mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
-			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 			
-			if (nMSPrecLayers<3) continue;
-			m_BitsetCutflow->FillCutflow("3 hits in 3 MS layers");
+			
+			uint8_t n_innerSmallHits = -1;
+			mu->summaryValue(n_innerSmallHits, xAOD::innerSmallHits);
+			
+			uint8_t n_innerLargeHits = -1;
+			mu->summaryValue(n_innerLargeHits, xAOD::innerLargeHits);
+			
+			uint8_t n_middleSmallHits = -1;
+			mu->summaryValue(n_middleSmallHits, xAOD::middleSmallHits);
+			
+			uint8_t n_middleLargeHits = -1;
+			mu->summaryValue(n_middleLargeHits, xAOD::middleLargeHits);
+			
+			uint8_t n_outerSmallHits = -1;
+			mu->summaryValue(n_outerSmallHits, xAOD::outerSmallHits);
+			
+			uint8_t n_outerLargeHits = -1;
+			mu->summaryValue(n_outerLargeHits, xAOD::outerLargeHits);
+			
+			uint8_t n_extendedSmallHits = -1;
+			mu->summaryValue(n_extendedSmallHits, xAOD::extendedSmallHits);
+			
+			uint8_t n_extendedLargeHits = -1;
+			mu->summaryValue(n_extendedLargeHits, xAOD::extendedLargeHits);
+			
+			uint8_t n_innerMDTLayerHits = n_innerSmallHits + n_innerLargeHits;
+			uint8_t n_middleMDTLayerHits = n_middleSmallHits + n_middleLargeHits;
+			uint8_t n_outerMDTLayerHits = n_outerSmallHits + n_outerLargeHits;
+			uint8_t n_extendedMDTLayerHits = n_extendedSmallHits + n_extendedLargeHits;
+			
+			if ((n_innerMDTLayerHits<3)||(n_middleMDTLayerHits<3)||(n_outerMDTLayerHits<3)) continue;
+			m_BitsetCutflow->FillCutflow("3 hits in all 3 MS layers");
 			
 			if (nLayersWithPhiHit<2) continue;
 			m_BitsetCutflow->FillCutflow("2 phi layers");
