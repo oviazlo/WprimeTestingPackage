@@ -41,7 +41,6 @@ int main( int argc, char* argv[] ) {
 	// Construct the samples to run on:
 	SH::SampleHandler sh;
 
-	SH::SampleHandler sh;
 	sh.load ((folder + "/hist").c_str());
 //	TH1I* cutflowHist = (TH1I*)sh.get ("sampleName")->readHist ("histogramName");
 
