@@ -436,7 +436,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //~ 293	    extendedSmallHits = 8,    //!< number of precision hits in the extended small layer
 //~ 294	    extendedLargeHits = 9,    //!< number of precision hits in the extended large layer	
 			
-			
+				
 			
 			uint8_t n_innerSmallHits = -1;
 			mu->summaryValue(n_innerSmallHits, xAOD::innerSmallHits);
@@ -469,7 +469,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			
 			if ((n_innerMDTLayerHits<3)||(n_middleMDTLayerHits<3)||(n_outerMDTLayerHits<3)) continue;
 			m_BitsetCutflow->FillCutflow("3 hits in all 3 MS layers");
-			
+						
+			uint8_t nLayersWithPhiHit = -1;
+			mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
 			if (nLayersWithPhiHit<2) continue;
 			m_BitsetCutflow->FillCutflow("2 phi layers");
 						
