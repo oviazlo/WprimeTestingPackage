@@ -12,6 +12,8 @@
 
 #include "TStyle.h"
 
+#include "TROOT.h"
+
 //~ #include "AtlasStyle.C"
 //~ #include "AtlasUtils.C"
 //~ #include "AtlasUtils.h"
