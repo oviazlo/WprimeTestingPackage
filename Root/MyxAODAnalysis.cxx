@@ -539,8 +539,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		
 		
 	cout << "Event number: " << m_eventCounter << endl;
-	if (m_eventCounter==68) return EL::StatusCode::SUCCESS;
-	if (m_eventCounter==101) return EL::StatusCode::SUCCESS;
+	//~ if (m_eventCounter==68) return EL::StatusCode::SUCCESS;
+	//~ if (m_eventCounter==101) return EL::StatusCode::SUCCESS;
 	xAOD::TruthEventContainer::const_iterator itr;
 	for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 		int nVert = (*itr)->nTruthVertices();
@@ -548,33 +548,39 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		
 		cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
 		
-		//~ for (int iVtx=0; iVtx<nVert; iVtx++){
-			//~ const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
-			//~ 
-		//~ }
-		
-		for (int iPart=0; iPart<nPart; iPart++){
-			const xAOD::TruthParticle* particle = (*itr)->truthParticle(iPart);
-			int pdgId = particle->pdgId();
-			if (abs(pdgId)==34){
-				const xAOD::TruthVertex* decayVtx = particle->decayVtx();
-				int nDecPart = decayVtx->nOutgoingParticles();
-				if (nDecPart<2) continue;
-				cout << endl;
-				if (pdgId==34)
-					cout << "W'+ decays to " << nDecPart << " particles: ";
-				else
-					cout << "W'- decays to " << nDecPart << " particles: ";
-				for (int j=0; j<nDecPart; j++){
-					const xAOD::TruthParticle* decayPart = decayVtx->outgoingParticle(j);
-					double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
-					cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
-				}
-				cout << endl;
-				cout << "Reco MET: " << sqrt(mpx*mpx + mpy*mpy)*0.001 << endl;
-				break; // break loop cause we found our particle
+		for (int iVtx=0; iVtx<nVert; iVtx++){
+			const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
+			int nIn = vertex->nIncomingParticles();
+			for (int j=0;j<nIn;j++){
+					const xAOD::TruthParticle* inPart = vertex->incomingParticle(j);
+					cout << endl << " " << j << ": " << inPart->pdgId() << endl;
+					if (abs(inPart->pdgId())==34) cout << "HURRAY!!!" << endl << endl;
 			}
+			
 		}
+		
+		//~ for (int iPart=0; iPart<nPart; iPart++){
+			//~ const xAOD::TruthParticle* particle = (*itr)->truthParticle(iPart);
+			//~ int pdgId = particle->pdgId();
+			//~ if (abs(pdgId)==34){
+				//~ const xAOD::TruthVertex* decayVtx = particle->decayVtx();
+				//~ int nDecPart = decayVtx->nOutgoingParticles();
+				//~ if (nDecPart<2) continue;
+				//~ cout << endl;
+				//~ if (pdgId==34)
+					//~ cout << "W'+ decays to " << nDecPart << " particles: ";
+				//~ else
+					//~ cout << "W'- decays to " << nDecPart << " particles: ";
+				//~ for (int j=0; j<nDecPart; j++){
+					//~ const xAOD::TruthParticle* decayPart = decayVtx->outgoingParticle(j);
+					//~ double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
+					//~ cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
+				//~ }
+				//~ cout << endl;
+				//~ cout << "Reco MET: " << sqrt(mpx*mpx + mpy*mpy)*0.001 << endl;
+				//~ break; // break loop cause we found our particle
+			//~ }
+		//~ }
 	}
 	
 // 	tree->Fill();
