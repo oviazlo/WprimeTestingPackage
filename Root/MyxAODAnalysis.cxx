@@ -539,6 +539,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		
 		
 	cout << "Event number: " << m_eventCounter << endl;
+	if (m_eventCounter==68) return EL::StatusCode::SUCCESS;
 	xAOD::TruthEventContainer::const_iterator itr;
 	for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 		int nVert = (*itr)->nTruthVertices();
