@@ -534,9 +534,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 	m_BitsetCutflow->FillCutflow("End");
 	
-		const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
+	const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
 	CHECK(m_event->retrieve( xTruthEventContainer, "TruthEvent"));
 		
+		
+	cout << "Event number: " << m_eventCounter << endl;
 	xAOD::TruthEventContainer::const_iterator itr;
 	for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 		int nVert = (*itr)->nTruthVertices();
