@@ -549,7 +549,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		int nVert = (*itr)->nTruthVertices();
 		int nPart = (*itr)->nTruthParticles();
 		
-		//~ cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
+		cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
 		
 		for (int iVtx=0; iVtx<nVert; iVtx++){
 			const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
@@ -595,6 +595,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 							const xAOD::TruthParticle* lowestEnergeticTau = vertex->outgoingParticle(lowestEnergeticTauIndex);
 							const xAOD::TruthVertex* tauDecayVtx = lowestEnergeticTau->decayVtx();
 							int n_tauDaughters = tauDecayVtx->nOutgoingParticles();
+							cout << endl;
 							for (int k=0; k<n_tauDaughters; k++){
 								const xAOD::TruthParticle* tauDaughter = tauDecayVtx->outgoingParticle(k);
 								int tauDaughterAbsPdgId = abs(tauDaughter->pdgId());
