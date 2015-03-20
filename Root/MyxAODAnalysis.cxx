@@ -572,21 +572,19 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 						double tauPt = 9999.9;
 						for (int j=0; j<nDecPart; j++){
 							const xAOD::TruthParticle* decayPart = vertex->outgoingParticle(j);
-							
-							bool fillTauNeutrinoMET = false;
 							if (abs(decayPart->pdgId())==14){ // muon neutrino
 								double truthMET = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
 								h_truthMET->Fill(truthMET);
 								break;
 							}
-							else if (abs(decayPart->pdgId())==16){ // tau neutrino
+							if (abs(decayPart->pdgId())==16){ // tau neutrino
 								tauNeutrinoIndex = j;
 							}
-							else if (abs(decayPart->pdgId())==15){ // tau
+							if (abs(decayPart->pdgId())==15){ // tau
 								double currentTauPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
 								if (tauPt>currentTauPt){
 									tauPt = currentTauPt;
-									currentTauPt = j;
+									lowestEnergeticTauIndex = j;
 								}
 							}
 							//~ cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
