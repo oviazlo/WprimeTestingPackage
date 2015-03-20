@@ -541,7 +541,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	CHECK(m_event->retrieve( xTruthEventContainer, "TruthEvent"));
 		
 		
-	//~ cout << "Event number: " << m_eventCounter << endl;
+	cout << "Event number: " << m_eventCounter << endl;
 	//~ if (m_eventCounter==68) return EL::StatusCode::SUCCESS;
 	//~ if (m_eventCounter==101) return EL::StatusCode::SUCCESS;
 	xAOD::TruthEventContainer::const_iterator itr;
@@ -549,7 +549,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		int nVert = (*itr)->nTruthVertices();
 		int nPart = (*itr)->nTruthParticles();
 		
-		cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
+		//~ cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
 		
 		for (int iVtx=0; iVtx<nVert; iVtx++){
 			const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
