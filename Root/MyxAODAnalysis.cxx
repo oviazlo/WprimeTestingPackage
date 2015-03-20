@@ -551,13 +551,16 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		for (int iVtx=0; iVtx<nVert; iVtx++){
 			const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
 			int nIn = vertex->nIncomingParticles();
+			bool particleIsFound = false;
 			for (int j=0;j<nIn;j++){
 					const xAOD::TruthParticle* inPart = vertex->incomingParticle(j);
 					int pdgId = inPart->pdgId();
 					if (abs(pdgId)==34){
 						int nDecPart = vertex->nOutgoingParticles();
+						if (nDecPart<2) continue;
+						particleIsFound = true;
 						if (pdgId==34)
-						cout << "W'+ decays to " << nDecPart << " particles: ";
+							cout << "W'+ decays to " << nDecPart << " particles: ";
 						else
 							cout << "W'- decays to " << nDecPart << " particles: ";
 						for (int j=0; j<nDecPart; j++){
@@ -565,10 +568,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 							double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
 							cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
 						}
-						break;
+						cout << endl;
 					}
+					if (particleIsFound) break;
 			}
-			
+			if (particleIsFound) break;
 		}
 		
 		//~ for (int iPart=0; iPart<nPart; iPart++){
