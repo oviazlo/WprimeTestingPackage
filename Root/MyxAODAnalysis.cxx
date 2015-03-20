@@ -298,7 +298,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 				for (int j=0; j<nDecPart; j++){
 					const xAOD::TruthParticle* decayPart = decayVtx->outgoingParticle(j);
 					double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
-					cout << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
+					cout << endl << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
 				}
 				cout << endl;
 			}
