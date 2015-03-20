@@ -294,7 +294,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			if (pdgId==34){
 				const xAOD::TruthVertex* decayVtx = particle->decayVtx();
 				int nDecPart = decayVtx->nOutgoingParticles();
-				cout << "W' decays to " << nDecPart << " particles: ";
+				cout << "W' decays to " << nDecPart << " particles: "
 				for (int j=0; j<nDecPart; j++){
 					const xAOD::TruthParticle* decayPart = decayVtx->outgoingParticle(j);
 					cout << j << ": " << decayPart->pdgId() << " ";
