@@ -555,7 +555,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 					const xAOD::TruthParticle* inPart = vertex->incomingParticle(j);
 					int pdgId = inPart->pdgId();
 					if (abs(pdgId)==34){
-						int nDecPart = vertex->nOutcomingParticles();
+						int nDecPart = vertex->nOutgoingParticles();
 						if (pdgId==34)
 						cout << "W'+ decays to " << nDecPart << " particles: ";
 						else
