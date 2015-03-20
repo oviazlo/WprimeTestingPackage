@@ -543,8 +543,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		
 	cout << "Event number: " << m_eventCounter << endl;
 	if (m_eventCounter==4960) return EL::StatusCode::SUCCESS;
+	if (m_eventCounter==9484) return EL::StatusCode::SUCCESS;
 	
-	//~ if (m_eventCounter==101) return EL::StatusCode::SUCCESS;
 	xAOD::TruthEventContainer::const_iterator itr;
 	for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 		int nVert = (*itr)->nTruthVertices();
@@ -607,6 +607,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 								}
 							}
 							h_truthMET->Fill(TMath::Sqrt(met_x*met_x + met_y*met_y)*0.001);
+							cout << "truth MET = " << TMath::Sqrt(met_x*met_x + met_y*met_y)*0.001 << "\t Reco MET = " << metVec->Pt() * 0.001 << endl;
 							break;
 						}
 						//~ if (particleIsFound == false){
