@@ -561,7 +561,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 					if (abs(pdgId)==34){
 						int nDecPart = vertex->nOutgoingParticles();
 						if (nDecPart<2) continue;
-						particleIsFound = true;
 						//~ if (pdgId==34)
 							//~ cout << "W'+ decays to " << nDecPart << " particles: ";
 						//~ else
@@ -571,6 +570,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 							if (abs(decayPart->pdgId())!=14) continue;
 							double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
 							h_truthMET->Fill(decayPartPt);
+							particleIsFound = true;
 							break;
 							//~ cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
 						}
