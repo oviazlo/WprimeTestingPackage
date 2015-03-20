@@ -109,6 +109,9 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 	h_nSelectedMuons = new TH1I("h_nSelectedMuons", "h_nSelectedMuons", 5, 0, 5); 
 	wk()->addOutput (h_nSelectedMuons);
 	
+	h_truthMET = new TH1F("h_truthMET", "Truth MET", 1000, 0, 10000); 
+	wk()->addOutput (h_truthMET);
+	
 	// get the output file, create a new TTree and connect it to that output
 	// define what branches will go in that tree
 // 	TFile *outputFile = wk()->getOutputFile (outputName);
@@ -538,7 +541,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	CHECK(m_event->retrieve( xTruthEventContainer, "TruthEvent"));
 		
 		
-	cout << "Event number: " << m_eventCounter << endl;
+	//~ cout << "Event number: " << m_eventCounter << endl;
 	//~ if (m_eventCounter==68) return EL::StatusCode::SUCCESS;
 	//~ if (m_eventCounter==101) return EL::StatusCode::SUCCESS;
 	xAOD::TruthEventContainer::const_iterator itr;
@@ -546,7 +549,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		int nVert = (*itr)->nTruthVertices();
 		int nPart = (*itr)->nTruthParticles();
 		
-		cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
+		//~ cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
 		
 		for (int iVtx=0; iVtx<nVert; iVtx++){
 			const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
@@ -559,16 +562,19 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 						int nDecPart = vertex->nOutgoingParticles();
 						if (nDecPart<2) continue;
 						particleIsFound = true;
-						if (pdgId==34)
-							cout << "W'+ decays to " << nDecPart << " particles: ";
-						else
-							cout << "W'- decays to " << nDecPart << " particles: ";
+						//~ if (pdgId==34)
+							//~ cout << "W'+ decays to " << nDecPart << " particles: ";
+						//~ else
+							//~ cout << "W'- decays to " << nDecPart << " particles: ";
 						for (int j=0; j<nDecPart; j++){
 							const xAOD::TruthParticle* decayPart = vertex->outgoingParticle(j);
+							if (abs(decayPart->pdgId())!=14) continue;
 							double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
-							cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
+							h_truthMET->Fill(decayPartPt);
+							break;
+							//~ cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
 						}
-						cout << endl;
+						//~ cout << endl;
 					}
 					if (particleIsFound) break;
 			}
