@@ -273,6 +273,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
 	CHECK(m_event->retrieve( xTruthEventContainer, "TruthEvent"));
 	
+	int truthEventCounter = 0;
+	
 	xAOD::TruthEventContainer::const_iterator itr;
 	for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 		int nVert = (*itr)->nTruthVertices();
@@ -282,7 +284,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			//~ const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
 			//~ 
 		//~ }
-		cout << endl << endl << "i\tpdgId" << endl;
+		truthEventCounter++;
+		cout << endl << endl << "Event " << truthEventCounter << endl;
+		cout << "i\tpdgId" << endl;
 		
 		for (int iPart=0; iPart<nPart; iPart++){
 			const xAOD::TruthParticle* particle = (*itr)->truthParticle(iPart);
