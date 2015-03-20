@@ -554,6 +554,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 				const xAOD::TruthVertex* decayVtx = particle->decayVtx();
 				int nDecPart = decayVtx->nOutgoingParticles();
 				if (nDecPart<2) continue;
+				cout << endl;
 				if (pdgId==34)
 					cout << "W'+ decays to " << nDecPart << " particles: ";
 				else
@@ -564,6 +565,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 					cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
 				}
 				cout << endl;
+				cout << "Reco MET: " << sqrt(mpx*mpx + mpy*mpy)*0.001 << endl;
+				break; // break loop cause we found our particle
 			}
 		}
 	}
