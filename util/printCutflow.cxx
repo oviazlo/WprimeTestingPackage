@@ -26,6 +26,8 @@
 #include "boost/program_options.hpp"
 #include <boost/algorithm/string.hpp>
 
+map<string,string> sampleMap;
+
 namespace 
 { 
   const size_t ERROR_IN_COMMAND_LINE = 1; 
@@ -60,8 +62,10 @@ int main( int argc, char* argv[] ) {
 	sh.print();
 
 	/// get histogram
+	SH::Sample* mySample = sh.get (sampleMap[ vm["sample"].as<std::string>() ]);
+	
 	//SH::Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
-	SH::Sample* mySample = sh.get ("mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00");
+	//SH::Sample* mySample = sh.get ("mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00");
 	//SH::Sample* mySample = sh.findBySource ("mc14_13TeV*Wprime_emutau_*");
 	TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
 
@@ -117,6 +121,17 @@ int main( int argc, char* argv[] ) {
 /// parse input arguments
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
   
+  sampleMap["W2"] = "mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00";
+  sampleMap["W3"] = "mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00";
+  
+  string availableSamples = "";
+  
+  typedef map<string,string>::iterator it_type;
+  for(it_type iterator = sampleMap.begin(); iterator != sampleMap.end(); iterator++) {
+	availableSamples = iterator->first() + ", ";
+  }
+  availableSamples.resize (availableSamples.size()-2);
+  
   try 
   { 
     /** Define and parse the program options 
@@ -125,6 +140,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
     desc.add_options()
       ("help,h", "Print help messages") 
       ("folder,f", po::value<string>()->required(), "name of folder to read")
+      ("sample,s", po::value<string>()->required(), ("sample type. Available samples:\n" + availableSamples).c_str())
       ;
     try 
     { 
