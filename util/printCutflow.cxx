@@ -128,7 +128,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
   
   typedef map<string,string>::iterator it_type;
   for(it_type iterator = sampleMap.begin(); iterator != sampleMap.end(); iterator++) {
-	availableSamples += string(iterator->first()) + string(", ");
+	availableSamples += iterator->first + ", ";
   }
   availableSamples.resize (availableSamples.size()-2);
   
