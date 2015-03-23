@@ -184,11 +184,6 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	CHECK(m_jetCleaning->setProperty( "CutLevel", "VeryLooseBad"));
 	m_jetCleaning->initialize();
 	
-	m_jetCleaning_LooseBad = new JetCleaningTool("JetCleaning_LooseBad");
-	m_jetCleaning_LooseBad->msg().setLevel( MSG::INFO ); 
-	CHECK(m_jetCleaning_LooseBad->setProperty( "CutLevel", "LooseBad"));
-	m_jetCleaning_LooseBad->initialize();
-	
 	// initialize JER 
 	const char* jerFilePath = "$ROOTCOREBIN/data/JetResolution/JERProviderPlots_2012.root";
 	const char* fullJERFilePath = gSystem->ExpandPathName (jerFilePath);
@@ -313,9 +308,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	}
 
 	/// LOOP OVER JETS
-	int nVeryLooseBadJets = 0;
-	int nLooseBadJets = 0;
-	
+
 	/// Loop over all jets in the event
 	/// get jet container of interest
 	const xAOD::JetContainer* jets = 0;
@@ -325,6 +318,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	}
 
 	/// loop over the jets in the container
+	bool foundMassyJet = false;
 	xAOD::JetContainer::const_iterator jet_itr = jets->begin();
 	xAOD::JetContainer::const_iterator jet_end = jets->end();
 	for( ; jet_itr != jet_end; ++jet_itr ) {
@@ -332,24 +326,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		/// check for Jet pt (not interested in Jets with pt<=20)
 		if (( (*jet_itr)->pt()) * 0.001 <= 20.0) continue;
 		
-		/// check for VeryLooseBad jets
+		/// check if jet satisfy at least VeryLooseBad jet requirement
+		/// if no - discar event
 		if( !m_jetCleaning->accept( **jet_itr )){
-			m_BitsetCutflow->FillCutflow("VeryBadJet");
-			continue;
+			return EL::StatusCode::SUCCESS;
 		}
-		nVeryLooseBadJets++;
-		h_jetPt_VeryLooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
 		
-		/// check for LooseBad jets
-		if( !m_jetCleaning_LooseBad->accept( **jet_itr )) continue; //only keep good clean jets
-		nLooseBadJets++;
-		h_jetPt_LooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
-
 	} // end for loop over jets
-
-	if (nVeryLooseBadJets!=nLooseBadJets){
-		return EL::StatusCode::SUCCESS;
-	}
 	
 	m_BitsetCutflow->FillCutflow("JetCleaning");
 	
@@ -706,10 +689,6 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 	if( m_jetCleaning ) {
 		delete m_jetCleaning;
 		m_jetCleaning = 0;
-	}
-	if( m_jetCleaning_LooseBad ) {
-		delete m_jetCleaning_LooseBad;
-		m_jetCleaning_LooseBad = 0;
 	}
 	
 	
