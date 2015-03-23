@@ -52,8 +52,8 @@ int main( int argc, char* argv[] ) {
 	// Construct the samples to run on:
 	SH::SampleHandler sh;
 
- 	const char* inputFilePath = gSystem->ExpandPathName ("/afs/cern.ch/work/o/oviazlo/Wprime/datasets");
-	//~ const char* inputFilePath = gSystem->ExpandPathName ("/afs/cern.ch/user/o/oviazlo/eos/atlas/user/o/oviazlo/Wprime/datasets");
+ 	//const char* inputFilePath = gSystem->ExpandPathName ("/afs/cern.ch/work/o/oviazlo/Wprime/datasets");
+	const char* inputFilePath = gSystem->ExpandPathName ("/afs/cern.ch/user/o/oviazlo/eos/atlas/user/o/oviazlo/Wprime/datasets");
 	//const char* inputFilePath = gSystem->ExpandPathName ("$ALRB_TutorialData/r5591"); // using $ALRB_TutorialData previously defined
 	SH::DiskListLocal list (inputFilePath);
 	SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
