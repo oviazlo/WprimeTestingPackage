@@ -333,7 +333,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		if (( (*jet_itr)->pt()) * 0.001 <= 20.0) continue;
 		
 		/// check for VeryLooseBad jets
-		if( !m_jetCleaning->accept( **jet_itr )) continue;
+		if( !m_jetCleaning->accept( **jet_itr )){
+			m_BitsetCutflow->FillCutflow("VeryBadJet");
+			continue;
+		}
 		nVeryLooseBadJets++;
 		h_jetPt_VeryLooseBadJets->Fill( ( (*jet_itr)->pt()) * 0.001); // GeV
 		
