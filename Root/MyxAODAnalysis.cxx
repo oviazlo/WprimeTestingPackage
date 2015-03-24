@@ -491,7 +491,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			/// Isolation stuff
 			float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
 			//mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  // second arg is an enum defined in xAODPrimitives/IsolationType.h
-			muPtCone30 = (*muon_itr)->auxdata< float >("ptcone30");
+			muPtCone30 = (*muon_itr)->auxdata< float >("ptcone30"); 
 
 			if (muPtCone30/mu->pt() >= 0.05) continue;
 			m_BitsetCutflow->FillCutflow("Isolation");
