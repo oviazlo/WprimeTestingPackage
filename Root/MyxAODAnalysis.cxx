@@ -342,6 +342,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	m_BitsetCutflow->FillCutflow("JetCleaning");
 	*/
 	
+	if (nGoodVtx>1)
+		cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " << nGoodVtx << endl;
 	if (nGoodVtx==0)
 		return EL::StatusCode::SUCCESS;
 	m_BitsetCutflow->FillCutflow("Primary vertex");
