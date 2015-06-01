@@ -197,7 +197,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 	/// Get Muon Selector Tool
 	m_muonSelection = new CP::MuonSelectionTool("MuonSelection");
 	m_muonSelection->msg().setLevel( MSG::INFO );
-	m_muonSelection->setProperty( "MaxEta", 2.4 );
+// 	m_muonSelection->setProperty( "MaxEta", 2.4 );
 	m_muonSelection->setProperty( "MuQuality", 1);
 	CHECK (m_muonSelection->initialize().isSuccess());
 
