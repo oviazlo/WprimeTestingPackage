@@ -427,7 +427,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 		m_BitsetCutflow->FillCutflow("mu_pt");
 		
-		if(m_muonSelection->accept(const_cast<xAOD::Muon*> mu)){
+		if(m_muonSelection->accept(const_cast<xAOD::Muon*>(mu))){
 
 			m_BitsetCutflow->FillCutflow("MCP selector");
 			
