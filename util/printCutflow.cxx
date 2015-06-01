@@ -120,8 +120,8 @@ int main( int argc, char* argv[] ) {
 
 /// parse input arguments
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
-  
-  sampleMap["W2"] = "mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00";
+  sampleMap["W2"] = "mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r6092_p1872_tid05283006_00";
+//   sampleMap["W2"] = "mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00";
   sampleMap["W3"] = "mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00";
   
   string availableSamples = "";
