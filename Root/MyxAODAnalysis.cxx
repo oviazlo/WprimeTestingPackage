@@ -427,7 +427,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 		m_BitsetCutflow->FillCutflow("mu_pt");
 		
-		if(m_muonSelection->accept(const_cast<xAOD::Muon*>(mu))){
+		if(m_muonSelection->accept(mu)){
 
 			m_BitsetCutflow->FillCutflow("MCP selector");
 			
@@ -508,7 +508,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			if (abs( z0_vrtPVx*sintheta )<10.0) continue;
 			m_BitsetCutflow->FillCutflow("z0");
 			
-			if (!m_muonSelection->passedHighPtCuts(mu)) continue;
+			if (!m_muonSelection->passedHighPtCuts(const_cast<xAOD::Muon*>(mu))) continue;
 			m_BitsetCutflow->FillCutflow("MS Hits");
 			
 			/// Isolation stuff
