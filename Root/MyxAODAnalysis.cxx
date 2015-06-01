@@ -302,8 +302,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	int nGoodVtx = 0;
 	for( ; vtx_itr != vtx_end; ++vtx_itr ) {
 		//~ h_zPrimVtx->Fill((*vtx_itr)->z());
-		//~ if (((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx)&&(abs((*vtx_itr)->z())<200.0))
-		if ((abs((*vtx_itr)->z())<200.0)&&((*vtx_itr)->nTrackParticles()>=3))
+// 		if ((abs((*vtx_itr)->z())<200.0)&&((*vtx_itr)->nTrackParticles()>=3))
+		if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx)
 			nGoodVtx++;
 	}
 
@@ -318,6 +318,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	}
 
 	/// loop over the jets in the container
+	/// not used in current cutflow
+	/*
 	bool foundMassyJet = false;
 	xAOD::JetContainer::const_iterator jet_itr = jets->begin();
 	xAOD::JetContainer::const_iterator jet_end = jets->end();
@@ -335,7 +337,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	} // end for loop over jets
 	
 	m_BitsetCutflow->FillCutflow("JetCleaning");
+	*/
 	
+	cout << "Found " << nGoodVtx << " vertices of type xAOD::VxType::PriVtx" << endl;
 	if (nGoodVtx==0)
 		return EL::StatusCode::SUCCESS;
 	m_BitsetCutflow->FillCutflow("Primary vertex");
@@ -435,6 +439,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			//~ if (nLayersWithPhiHit<2) continue;
 			//~ m_BitsetCutflow->FillCutflow("2 phi layers");
 			
+			/// not used in current cutflow
+			/*
 			uint8_t n_innerSmallHits = -1;
 			mu->summaryValue(n_innerSmallHits, xAOD::innerSmallHits);
 			
@@ -487,6 +493,16 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			
 			if (nPhiLayers<2) continue;
 			m_BitsetCutflow->FillCutflow("2 phi layers");
+			*/
+			
+			/// do significance 
+			double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) / TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0) + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+			if (d0_sig<3.0) continue;
+			m_BitsetCutflow->FillCutflow("d0");
+			
+			/// zo cut
+// 			double z0_vrtPVx = mu->primaryTrackParticle()->z0() + mu->primaryTrackParticle()->vz() - primary_vertex->z(); 
+// 			double sintheta = 1.0/TMath::CosH(mu->eta());
 			
 			/// Isolation stuff
 			float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
