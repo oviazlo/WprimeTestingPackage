@@ -508,8 +508,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			if (abs( z0_vrtPVx*sintheta )<10.0) continue;
 			m_BitsetCutflow->FillCutflow("z0");
 			
-			const xAOD::Muon &constMuon = mu;
-			if (!m_muonSelection->passedHighPtCuts(constMuon)) continue;
+			const xAOD::Muon constMuon = mu;
+			if (!m_muonSelection->passedHighPtCuts(*constMuon)) continue;
 			m_BitsetCutflow->FillCutflow("MS Hits");
 			
 			/// Isolation stuff
