@@ -292,7 +292,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 				}
 			}
 		}
-		if (!foundMuonFromWprimeDecay) continue;
+		if (!foundMuonFromWprimeDecay) return EL::StatusCode::SUCCESS;
 		m_BitsetCutflow->FillCutflow("Truth muon decay");
 	}
 	
