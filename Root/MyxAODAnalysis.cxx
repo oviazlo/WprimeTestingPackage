@@ -272,10 +272,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		bool foundMuonFromWprimeDecay = false;
 		
 		const xAOD::TruthVertexContainer* truthVertices = 0; /// Create truth vertice container
-		if ( !m_event->retrieve( truthVertices, "TruthVertices" ).isSuccess() ){ /// retrieve arguments: container type, container key
-			Error("execute()", "Failed to retrieve TruthVertices container. Exiting." );
+		if ( !m_event->retrieve( truthVertices, "TruthVertex" ).isSuccess() ){ /// retrieve arguments: container type, container key
+			Error("execute()", "Failed to retrieve TruthVertex container. Exiting." );
 			return EL::StatusCode::FAILURE;
 		}
+		
 		
 		xAOD::TruthVertexContainer::const_iterator truthV_itr; /// Start iterating over truth container
 		for (truthV_itr = truthVertices->begin(); truthV_itr != truthVertices->end(); ++truthV_itr ) {
