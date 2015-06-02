@@ -286,6 +286,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 						break;
 					}
 				}
+				if (foundMuonFromWprimeDecay)
+					break;
 			}
 		}
 		
