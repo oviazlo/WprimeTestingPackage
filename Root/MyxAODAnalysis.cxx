@@ -507,7 +507,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 			/// zo cut
 			double z0_vrtPVx = mu->primaryTrackParticle()->z0() + mu->primaryTrackParticle()->vz() - primVertex->z(); 
 			double sintheta = 1.0/TMath::CosH(mu->eta());
-			if (abs( z0_vrtPVx*sintheta )>7.0) continue;
+			if (abs( z0_vrtPVx*sintheta )>0.5) continue;
 			m_BitsetCutflow->FillCutflow("z0");
 			
 // 			const xAOD::Muon* constMuon = mu;
