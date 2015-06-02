@@ -266,32 +266,27 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
 		isMC = true; /// can do something with this later
 	}
-
-	/// get muon container of interest
-	const xAOD::MuonContainer* muons = 0;
-	if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
-		Error("execute()", "Failed to retrieve Muons container. Exiting." );
-		return EL::StatusCode::FAILURE;
-	}
 	
 	/// Muon Truth matching. Check do we have muon from W' decay
 	if(isMC){
 		bool foundMuonFromWprimeDecay = false;
-		/// loop over the muons in the container
-		int muonCounter = 0;
-		xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
-		xAOD::MuonContainer::const_iterator muon_end = muons->end();
-		for( ; muon_itr != muon_end; ++muon_itr ) {
-			ElementLink<xAOD::TruthParticleContainer> link = (*muon_itr)->primaryTrackParticle()->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink");
-			if(link.isValid()){
-				int pdgId = (*link)->pdgId();
-				int pdgmother = (*link)->parent()->pdgId();
-				if (abs(pdgId)==13 && abs(pdgmother)==34){
-					foundMuonFromWprimeDecay = true;
+		
+		const xAOD::TruthVertexContainer* truthVertices = 0; /// Create truth vertice container
+		m_event->retrieve( truthVertices, "TruthVertices" ); /// Retrieve truth particle collection from event loader
+		
+		xAOD::TruthVertexContainer::const_iterator truthV_itr; /// Start iterating over truth container
+		for (truthV_itr = truthVertices->begin(); truthV_itr != truthVertices->end(); ++truthV_itr ) {
+			if (foundMuonFromWprimeDecay)
+				break;
+			if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) {
+				for (unsigned int iOut=0; iOut < (*truthV_itr)->nOutgoingParticles(); iOut++) {
+					if (TMath::Abs((*truthV_itr)->outgoingParticle(iOut)->pdgId()) == 13)
+						foundMuonFromWprimeDecay = true;
 					break;
 				}
 			}
 		}
+		
 		if (!foundMuonFromWprimeDecay) return EL::StatusCode::SUCCESS;
 		m_BitsetCutflow->FillCutflow("Truth muon decay");
 	}
@@ -423,6 +418,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	//~ delete muons_shallowCopy.first;
 	//~ delete muons_shallowCopy.second;
   
+	/// get muon container of interest
+	const xAOD::MuonContainer* muons = 0;
+	if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
+		Error("execute()", "Failed to retrieve Muons container. Exiting." );
+		return EL::StatusCode::FAILURE;
+	}
+	
 	/// loop over the muons in the container
 	int muonCounter = 0;
 	xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
