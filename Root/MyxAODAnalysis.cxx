@@ -278,11 +278,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		for (truthV_itr = truthVertices->begin(); truthV_itr != truthVertices->end(); ++truthV_itr ) {
 			if (foundMuonFromWprimeDecay)
 				break;
-			if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) {
-				for (unsigned int iOut=0; iOut < (*truthV_itr)->nOutgoingParticles(); iOut++) {
-					if (TMath::Abs((*truthV_itr)->outgoingParticle(iOut)->pdgId()) == 13)
-						foundMuonFromWprimeDecay = true;
-					break;
+			for (unsigned int iIn=0; iIn < (*truthV_itr)->nIncomingParticles(); iIn++) {
+				if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) {
+					for (unsigned int iOut=0; iOut < (*truthV_itr)->nOutgoingParticles(); iOut++) {
+						if (TMath::Abs((*truthV_itr)->outgoingParticle(iOut)->pdgId()) == 13)
+							foundMuonFromWprimeDecay = true;
+						break;
+					}
 				}
 			}
 		}
