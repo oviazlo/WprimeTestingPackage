@@ -272,8 +272,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		bool foundMuonFromWprimeDecay = false;
 		
 		const xAOD::TruthVertexContainer* truthVertices = 0; /// Create truth vertice container
-		if ( !m_event->retrieve( truthVertices, "TruthVertex" ).isSuccess() ){ /// retrieve arguments: container type, container key
-			Error("execute()", "Failed to retrieve TruthVertex container. Exiting." );
+		if ( !m_event->retrieve( truthVertices, "TruthVertices" ).isSuccess() ){ /// retrieve arguments: container type, container key
+			Error("execute()", "Failed to retrieve TruthVertices container. Exiting." );
 			return EL::StatusCode::FAILURE;
 		}
 		
@@ -347,8 +347,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 	/// Loop over all jets in the event
 	/// get jet container of interest
 	const xAOD::JetContainer* jets = 0;
-	if ( !m_event->retrieve( jets, "AntiKt4LCTopoJets" ).isSuccess() ){ // retrieve arguments: container type, container key
-		Error("execute()", "Failed to retrieve AntiKt4LCTopoJets container. Exiting." );
+
+	if ( !m_event->retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess() ){ // retrieve arguments: container type, container key
+		Error("execute()", "Failed to retrieve AntiKt4EMTopoJets container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
 
@@ -383,9 +384,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   	/// get MET_RefFinalFix container of interest
 	const xAOD::MissingETContainer* metcontainer = 0;
 	
-	/// we need to use MET_RefFinalFix, according to:
+	/// we need to use MET_Core_AntiKt4EMTopo, according to:
 	/// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2xAODMissingET
-	if ( !m_event->retrieve( metcontainer, "MET_RefFinalFix" ).isSuccess() ){ /// retrieve arguments: container$
+	if ( !m_event->retrieve( metcontainer, "MET_Core_AntiKt4EMTopo" ).isSuccess() ){ /// retrieve arguments: container$
 		Error("execute()", "Failed to retrieve MET_RefFinalFix container. Exiting." );
 		return EL::StatusCode::FAILURE;
 	}
