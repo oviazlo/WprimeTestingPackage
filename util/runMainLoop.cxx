@@ -14,6 +14,7 @@
 /// boost
 #include "boost/program_options.hpp"
 #include <boost/algorithm/string.hpp>
+#include "boost/filesystem.hpp"
 
 namespace 
 { 
@@ -87,6 +88,14 @@ int main( int argc, char* argv[] ) {
 	//alg->m_useHistObjectDumper = false;
 	alg->m_useMuonCalibrationAndSmearingTool = true;
 
+	if (vm.count("overwrite")){
+		const boost::filesystem::path path( submitDir); 
+		if ( boost::filesystem::exists( path ) ) 
+		{
+			boost::filesystem::remove_all( path );
+		}
+	}
+	
 	if ( vm.count("proof") ){/// Run the job using the local/direct driver:
 		EL::ProofDriver driver;
 		if ( vm.count("nWorkers") ){
@@ -117,6 +126,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("folder,f", po::value<string>(), "output working-folder name")
       ("nWorkers,w", po::value<unsigned int>(), "number of workers")
       ("proof,p", "enable PROOF-Lite mode") 
+      ("overwrite,o", "overwrite output folder") 
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
     try 
