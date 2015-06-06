@@ -398,7 +398,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 		Error("execute()", "No RefFinal inside MET container" );
 	}
 
-	double mpx = (*met_it)->mpx(); 
+	double mpx = (*met_it)->mpx();  
 	double mpy = (*met_it)->mpy();
 	TLorentzVector *metVec = new TLorentzVector();
 	metVec->SetPx(mpx);
