@@ -693,14 +693,17 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons,
     }
     
     if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
-      m_BitsetCutflow->FillCutflow("Combined",!lookForVetoMuon);
+    m_BitsetCutflow->FillCutflow("Combined",!lookForVetoMuon);
     
     double muPt = (mu->pt()) * 0.001;
-    if (!lookForVetoMuon)
-      if (muPt < 55.0) continue; /// signal muon
-    else
-      if (muPt < 20.0 || muPt>=55.0) continue; /// veto muon
-    
+    double lowPtCut = 55.0; /// GeV
+    double highPtCut = 99999.9; /// GeV
+    if (lookForVetoMuon){
+      lowPtCut = 20.0;
+      highPtCut = 55.0;
+    }
+      
+    if (muPt < lowPtCut || muPt>=highPtCut) continue; /// veto muon
     m_BitsetCutflow->FillCutflow("mu_pt",!lookForVetoMuon);
     
     if(!m_muonSelection->accept(mu)) continue;
