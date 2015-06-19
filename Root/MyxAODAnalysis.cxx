@@ -509,13 +509,14 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::FAILURE;
   }  
   
-  xAOD::IParticle *lep = 0;
+  xAOD::Muon* signalMuon = 0;
+  xAOD::Muon* signalEl = 0;
   
   if (!m_runElectronChannel){
     /// loop over the muons in the container
     /// signal selection
-    lep = SelectMuon(muons,primVertex);
-    if (lep==0)
+    signalMuon = SelectMuon(muons,primVertex);
+    if (signalMuon==0)
       return EL::StatusCode::SUCCESS;
   }
   else{
@@ -530,10 +531,22 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Veto muon");
     
-  double phi_mu = lep->phi();
-  double Mt = sqrt( 2*lep->pt()*sqrt(mpx*mpx + mpy*mpy) * 
-  (1.0 - TMath::Cos( phi_mu - phi_met )) );
+  double phi_mu;
+  double Mt;
 
+  if (m_runElectronChannel){
+    phi_mu = signalEl->phi();
+    Mt = sqrt( 2*signalEl->pt()*sqrt(mpx*mpx + mpy*mpy) * 
+    (1.0 - TMath::Cos( phi_mu - phi_met )) );
+  }
+  else{
+    phi_mu = signalMuon->phi();
+    Mt = sqrt( 2*signalMuon->pt()*sqrt(mpx*mpx + mpy*mpy) * 
+    (1.0 - TMath::Cos( phi_mu - phi_met )) );
+  }
+  
+  
+  
   h_Mt_muonPtCut->Fill(Mt * 0.001);
       
 //   if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
