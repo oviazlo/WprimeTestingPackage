@@ -512,129 +512,24 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
   
   /// loop over the muons in the container
-  int muonCounter = 0;
-  xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
-  xAOD::MuonContainer::const_iterator muon_end = muons->end();
-  for( ; muon_itr != muon_end; ++muon_itr ) {
-  
-    if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
-  
-    m_BitsetCutflow->FillCutflow("oneMuon");
-  
-    xAOD::Muon* mu = 0;
-    if (m_useMuonCalibrationAndSmearingTool){
-      if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
-        Error(APP_NAME, "Cannot really apply calibration nor smearing");
-        continue;
-      }
-    }
-    else{
-      mu = const_cast<xAOD::Muon*> (*muon_itr);
-    }
-    
-    if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
-      m_BitsetCutflow->FillCutflow("Combined");
-    
-    if (( mu->pt()) * 0.001 < 55.0) continue;
+  /// signal selection
+  xAOD::Muon* mu = SelectMuon();
+  if (mu==0)
+    return EL::StatusCode::SUCCESS;
 
-    m_BitsetCutflow->FillCutflow("mu_pt");
-    
-    if(m_muonSelection->accept(mu)){
-
-      m_BitsetCutflow->FillCutflow("MCP selector");
-         
-      if (!m_muonSelection->passedHighPtCuts(*mu)) continue;
-      m_BitsetCutflow->FillCutflow("MS Hits");
-      
-      /// do significance 
-      double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) / 
-      TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-      + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
-      if (d0_sig>3.0) continue;
-      m_BitsetCutflow->FillCutflow("d0");
-      
-      /// zo cut
-      double z0_vrtPVx = mu->primaryTrackParticle()->z0() + 
-      mu->primaryTrackParticle()->vz() - primVertex->z(); 
-      double sintheta = 1.0/TMath::CosH(mu->eta());
-      if (abs( z0_vrtPVx*sintheta )>10.0) continue;
-      m_BitsetCutflow->FillCutflow("z0");
-      
-      /// Isolation stuff
-      if (!m_isolationSelectionTool->accept(*mu)) continue;
-      m_BitsetCutflow->FillCutflow("Isolation");
-      
-      double phi_mu = mu->phi();
-      double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * 
-      (1.0 - TMath::Cos( phi_mu - phi_met )) );
-      
-      //~ if (Mt * 0.001<700.0) continue;
-      //~ m_BitsetCutflow->FillCutflow("Dummy Mt cut");
-      
-      h_Mt_muonPtCut->Fill(Mt * 0.001);
-      
-      if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
-      muonCounter++;
-    }
-    else{
-      if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,
-        "rejectedByMuonSelectorToot");
-    }
-  
-  } /// end for loop over muons
-  
-  h_nSelectedMuons->Fill(muonCounter);
-  
-  if (muonCounter==0) return EL::StatusCode::SUCCESS;
-  
-  /// LOOK FOR VETO MUONS
-  muon_itr = muons->begin();
-  muon_end = muons->end();
-  int nVetoMuons = 0;
-  for( ; muon_itr != muon_end; ++muon_itr ) {
-  
-    xAOD::Muon* mu = 0;
-    if (m_useMuonCalibrationAndSmearingTool){
-      if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
-        Error(APP_NAME, "Cannot really apply calibration nor smearing");
-        continue;
-      }
-    }
-    else{
-      mu = const_cast<xAOD::Muon*> (*muon_itr);
-    }
-    
-    if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
-    
-    if ( ((mu->pt()) * 0.001 < 20.0) || ((mu->pt()) * 0.001 > 55.0)) continue;
-
-    if(m_muonSelection->accept(mu)){
-
-      if (!m_muonSelection->passedHighPtCuts(*mu)) continue;
-
-      /// do significance 
-      double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) / 
-      TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-      + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
-      if (d0_sig>3.0) continue;
-      
-      /// zo cut
-      double z0_vrtPVx = mu->primaryTrackParticle()->z0() + 
-      mu->primaryTrackParticle()->vz() - primVertex->z(); 
-      double sintheta = 1.0/TMath::CosH(mu->eta());
-      if (abs( z0_vrtPVx*sintheta )>10.0) continue;
-      
-      /// Isolation stuff
-      if (!m_isolationSelectionTool->accept(*mu)) continue;
-      
-      nVetoMuons++;
-    }
-    
-  }
-  if (nVetoMuons>0)
+  /// look for veto muon
+  xAOD::Muon* vetoMu = SelectMuon(true);
+  if (vetoMu!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Veto muon");
-  
+    
+  double phi_mu = mu->phi();
+  double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * 
+  (1.0 - TMath::Cos( phi_mu - phi_met )) );
+
+  h_Mt_muonPtCut->Fill(Mt * 0.001);
+      
+  if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
   
   
   /// ************************************************
@@ -644,126 +539,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   h_MET_RefFinalFix_test->Fill(metVec->Pt() * 0.001);
 
   m_BitsetCutflow->FillCutflow("End");
-  /*
-  const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
-  CHECK(m_event->retrieve( xTruthEventContainer, "TruthEvent"));
-    
-    
-  cout << "Event number: " << m_eventCounter << endl;
-  if (m_eventCounter==4960) return EL::StatusCode::SUCCESS;
-  if (m_eventCounter==9484) return EL::StatusCode::SUCCESS;
-  
-  xAOD::TruthEventContainer::const_iterator itr;
-  for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
-    int nVert = (*itr)->nTruthVertices();
-    int nPart = (*itr)->nTruthParticles();
-    
-    //~ cout << "nVert = " << nVert << "\tnPart = " << nPart << endl;
-    
-    for (int iVtx=0; iVtx<nVert; iVtx++){
-      const xAOD::TruthVertex* vertex = (*itr)->truthVertex(iVtx);
-      int nIn = vertex->nIncomingParticles();
-      bool particleIsFound = false;
-      for (int j=0;j<nIn;j++){
-          const xAOD::TruthParticle* inPart = vertex->incomingParticle(j);
-          int pdgId = inPart->pdgId();
-          if (abs(pdgId)==34){
-            int nDecPart = vertex->nOutgoingParticles();
-            if (nDecPart<2) continue;
-            particleIsFound = true;
-            //~ if (pdgId==34)
-              //~ cout << "W'+ decays to " << nDecPart << " particles: ";
-            //~ else
-              //~ cout << "W'- decays to " << nDecPart << " particles: ";
-              
-            int lowestEnergeticTauIndex = -1;
-            int tauNeutrinoIndex = -1;
-            double tauPt = 9999.9;
-            for (int j=0; j<nDecPart; j++){
-              const xAOD::TruthParticle* decayPart = vertex->outgoingParticle(j);
-              if (abs(decayPart->pdgId())==14){ // muon neutrino
-                double truthMET = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
-                h_truthMET->Fill(truthMET);
-                break;
-              }
-              if (abs(decayPart->pdgId())==16){ // tau neutrino
-                tauNeutrinoIndex = j;
-              }
-              if (abs(decayPart->pdgId())==15){ // tau
-                double currentTauPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
-                if (tauPt>currentTauPt){
-                  tauPt = currentTauPt;
-                  lowestEnergeticTauIndex = j;
-                }
-              }
-              //~ cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
-            }
-            if (lowestEnergeticTauIndex!=-1){
-              double met_x = vertex->outgoingParticle(tauNeutrinoIndex)->px();
-              double met_y = vertex->outgoingParticle(tauNeutrinoIndex)->py();
-              const xAOD::TruthParticle* lowestEnergeticTau = vertex->outgoingParticle(lowestEnergeticTauIndex);
-              const xAOD::TruthVertex* tauDecayVtx = lowestEnergeticTau->decayVtx();
-              int n_tauDaughters = tauDecayVtx->nOutgoingParticles();
-              cout << endl;
-              for (int k=0; k<n_tauDaughters; k++){
-                const xAOD::TruthParticle* tauDaughter = tauDecayVtx->outgoingParticle(k);
-                int tauDaughterAbsPdgId = abs(tauDaughter->pdgId());
-                cout << "tau daughter number " << k << ":\t" << tauDaughterAbsPdgId << endl;
-                if (tauDaughterAbsPdgId==12 || tauDaughterAbsPdgId==14 || tauDaughterAbsPdgId==16){
-                  met_x += tauDaughter->px();
-                  met_y += tauDaughter->py();
-                }
-              }
-              h_truthMET->Fill(TMath::Sqrt(met_x*met_x + met_y*met_y)*0.001);
-              cout << "truth MET = " << TMath::Sqrt(met_x*met_x + met_y*met_y)*0.001 << "\t Reco MET = " << metVec->Pt() * 0.001 << endl;
-              break;
-            }
-            //~ if (particleIsFound == false){
-              //~ if (pdgId==34)
-                //~ cout << "W'+ decays to " << nDecPart << " particles: ";
-              //~ else
-                //~ cout << "W'- decays to " << nDecPart << " particles: ";
-              //~ for (int j=0; j<nDecPart; j++){
-                //~ const xAOD::TruthParticle* decayPart = vertex->outgoingParticle(j);
-                //~ double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
-                //~ cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
-              //~ }
-              //~ cout << endl;
-            //~ }
-            //~ particleIsFound = true;
-            //~ cout << endl;
-          }
-          if (particleIsFound) break;
-      }
-      if (particleIsFound) break;
-    }
-    
-    //~ for (int iPart=0; iPart<nPart; iPart++){
-      //~ const xAOD::TruthParticle* particle = (*itr)->truthParticle(iPart);
-      //~ int pdgId = particle->pdgId();
-      //~ if (abs(pdgId)==34){
-        //~ const xAOD::TruthVertex* decayVtx = particle->decayVtx();
-        //~ int nDecPart = decayVtx->nOutgoingParticles();
-        //~ if (nDecPart<2) continue;
-        //~ cout << endl;
-        //~ if (pdgId==34)
-          //~ cout << "W'+ decays to " << nDecPart << " particles: ";
-        //~ else
-          //~ cout << "W'- decays to " << nDecPart << " particles: ";
-        //~ for (int j=0; j<nDecPart; j++){
-          //~ const xAOD::TruthParticle* decayPart = decayVtx->outgoingParticle(j);
-          //~ double decayPartPt = TMath::Sqrt(decayPart->px()*decayPart->px() + decayPart->py()*decayPart->py())*0.001;
-          //~ cout << endl << " " << j << ": " << decayPart->pdgId() << " (pT = " << decayPartPt << " GeV)";
-        //~ }
-        //~ cout << endl;
-        //~ cout << "Reco MET: " << sqrt(mpx*mpx + mpy*mpy)*0.001 << endl;
-        //~ break; // break loop cause we found our particle
-      //~ }
-    //~ }
-  }
-  
-//   tree->Fill();
-*/
+ 
   return EL::StatusCode::SUCCESS;
 }
 
@@ -771,9 +547,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 EL::StatusCode MyxAODAnalysis :: postExecute ()
 {
-  // Here you do everything that needs to be done after the main event
-  // processing.  This is typically very rare, particularly in user
-  // code.  It is mainly used in implementing the NTupleSvc.
+  /// Here you do everything that needs to be done after the main event
+  /// processing.  This is typically very rare, particularly in user
+  /// code.  It is mainly used in implementing the NTupleSvc.
   return EL::StatusCode::SUCCESS;
 }
 
@@ -781,19 +557,20 @@ EL::StatusCode MyxAODAnalysis :: postExecute ()
 
 EL::StatusCode MyxAODAnalysis :: finalize ()
 {
-  // This method is the mirror image of initialize(), meaning it gets
-  // called after the last event has been processed on the worker node
-  // and allows you to finish up any objects you created in
-  // initialize() before they are written to disk.  This is actually
-  // fairly rare, since this happens separately for each worker node.
-  // Most of the time you want to do your post-processing on the
-  // submission node after all your histogram outputs have been
-  // merged.  This is different from histFinalize() in that it only
-  // gets called on worker nodes that processed input events.
+  /// This method is the mirror image of initialize(), meaning it gets
+  /// called after the last event has been processed on the worker node
+  /// and allows you to finish up any objects you created in
+  /// initialize() before they are written to disk.  This is actually
+  /// fairly rare, since this happens separately for each worker node.
+  /// Most of the time you want to do your post-processing on the
+  /// submission node after all your histogram outputs have been
+  /// merged.  This is different from histFinalize() in that it only
+  /// gets called on worker nodes that processed input events.
   
   const char* APP_NAME = "MyxAODAnalysis";  
 
   /// push cutflow for last event
+  /// FIXME probably this breaks possibility to use PROOF
   m_BitsetCutflow->PushBitSet();
   
   ///*************************
@@ -868,15 +645,93 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 
 EL::StatusCode MyxAODAnalysis :: histFinalize ()
 {
-  // This method is the mirror image of histInitialize(), meaning it
-  // gets called after the last event has been processed on the worker
-  // node and allows you to finish up any objects you created in
-  // histInitialize() before they are written to disk.  This is
-  // actually fairly rare, since this happens separately for each
-  // worker node.  Most of the time you want to do your
-  // post-processing on the submission node after all your histogram
-  // outputs have been merged.  This is different from finalize() in
-  // that it gets called on all worker nodes regardless of whether
-  // they processed input events.
+  /// This method is the mirror image of histInitialize(), meaning it
+  /// gets called after the last event has been processed on the worker
+  /// node and allows you to finish up any objects you created in
+  /// histInitialize() before they are written to disk.  This is
+  /// actually fairly rare, since this happens separately for each
+  /// worker node.  Most of the time you want to do your
+  /// post-processing on the submission node after all your histogram
+  /// outputs have been merged.  This is different from finalize() in
+  /// that it gets called on all worker nodes regardless of whether
+  /// they processed input events.
   return EL::StatusCode::SUCCESS;
+}
+
+
+
+xAOD::Muon* MyxAODAnalysis :: SelectMuon(bool lookForVetoMuon){
+
+  xAOD::Muon* outMuon = 0;
+  int muonCounter = 0;
+  xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
+  xAOD::MuonContainer::const_iterator muon_end = muons->end();
+  for( ; muon_itr != muon_end; ++muon_itr ) {
+  
+    if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
+  
+    if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("oneMuon");
+  
+    xAOD::Muon* mu = 0;
+    if (m_useMuonCalibrationAndSmearingTool){
+      if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
+        Error(APP_NAME, "Cannot really apply calibration nor smearing");
+        continue;
+      }
+    }
+    else{
+      mu = const_cast<xAOD::Muon*> (*muon_itr);
+    }
+    
+    if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
+      if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("Combined");
+    
+    double ptCut = 55.0;
+    if (lookForVetoMuon)
+      ptCut = 20.0;
+    
+    if (( mu->pt()) * 0.001 < ptCut) continue;
+    
+    if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("mu_pt");
+    
+    if(m_muonSelection->accept(mu)){
+
+      if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("MCP selector");
+         
+      if (!m_muonSelection->passedHighPtCuts(*mu)) continue;
+      if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("MS Hits");
+      
+      /// do significance 
+      double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) / 
+      TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
+      + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+      if (d0_sig>3.0) continue;
+      if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("d0");
+      
+      /// zo cut
+      double z0_vrtPVx = mu->primaryTrackParticle()->z0() + 
+      mu->primaryTrackParticle()->vz() - primVertex->z(); 
+      double sintheta = 1.0/TMath::CosH(mu->eta());
+      if (abs( z0_vrtPVx*sintheta )>10.0) continue;
+      if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("z0");
+      
+      /// Isolation stuff
+      if (!m_isolationSelectionTool->accept(*mu)) continue;
+      if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("Isolation");
+     
+      outMuon = mu;
+      muonCounter++;
+      
+    }
+    else{
+      if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,
+        "rejectedByMuonSelectorToot");
+    }
+  
+  } /// end for loop over muons
+
+  if (muonCounter==1 || lookForVetoMuon) return outMuon;
+  else
+    return 0;
+
 }

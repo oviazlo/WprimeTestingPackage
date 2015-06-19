@@ -64,7 +64,7 @@ public:
   /// variables that don't get filled at submission time should be
   /// protected from being send from the submission node to the worker
   /// node (done by the //!)
-public:
+private:
   // Tree *myTree; //!
   // TH1 *myHist; //!
   xAOD::TEvent *m_event;  //!
@@ -124,6 +124,9 @@ public:
   virtual EL::StatusCode finalize ();
   virtual EL::StatusCode histFinalize ();
 
+  /// Custom made functions
+  xAOD::Muon* MyxAODAnalysis :: SelectMuon(bool lookForVetoMuon = false);
+  
   /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
 };
