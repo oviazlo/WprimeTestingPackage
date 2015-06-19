@@ -423,7 +423,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
 
   /// We want to check default Final MET, wo any recalibration first
-  xAOD::MissingETContainer::const_iterator met_it = metcontainer->find("Final"); 
+  xAOD::MissingETContainer::const_iterator met_it = metcontainer->find("FinalTrk"); 
 
   if (met_it == metcontainer->end()) {
     Error("execute()", "No RefFinal inside MET container" );
