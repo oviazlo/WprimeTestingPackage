@@ -90,7 +90,7 @@ int main( int argc, char* argv[] ) {
   //    alg->outputName = "myOutput"; // give the name of the output to our algorithm
   //alg->m_useHistObjectDumper = false;
   alg->m_useMuonCalibrationAndSmearingTool = true;
-  alg->m_doWprimeTruthMatching = true;
+  alg->m_doWprimeTruthMatching = false;
 
   /// overwrite output folder
   if (vm.count("overwrite")){
