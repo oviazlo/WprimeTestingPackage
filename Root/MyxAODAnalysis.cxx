@@ -37,8 +37,6 @@
 
 #include "xAODRootAccess/tools/Message.h"
 
-/// IsolationTool
-#include "ElectronIsolationSelection/IsolationSelectionTool.h"
 
 /// Helper macro for checking xAOD::TReturnCode return values
 #define EL_RETURN_CHECK( CONTEXT, EXP )                     \

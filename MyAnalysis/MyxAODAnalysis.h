@@ -21,6 +21,9 @@
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+/// IsolationTool
+#include "ElectronIsolationSelection/IsolationSelectionTool.h"
+
 
 /// GRL
 class GoodRunsListSelectionTool;
@@ -36,7 +39,7 @@ class JERTool;
 namespace CP{
   class MuonSelectionTool;
   class MuonCalibrationAndSmearingTool; /// this tool lives in the namespace CP
-  class IsolationSelectionTool;
+//   class IsolationSelectionTool;
   //~ class MuonEfficiencyCorrections;
 }
 
