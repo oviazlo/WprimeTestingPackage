@@ -259,7 +259,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
   
   ///
-  CP_IsolationSelectionTool m_isolationSelectionTool("iso");
+  CP::IsolationSelectionTool m_isolationSelectionTool("iso");
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool.setProperty(
     "MuonWP","VeryLooseTrackOnly") );
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool.initialize()); 
