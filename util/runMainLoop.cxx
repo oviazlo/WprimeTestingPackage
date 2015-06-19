@@ -31,84 +31,88 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
 
 int main( int argc, char* argv[] ) {
  
-	/// get global input arguments:
-	po::variables_map vm; 
-	const size_t returnedMessage = parseOptionsWithBoost(vm,argc,argv);
-	if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
+  /// get global input arguments:
+  po::variables_map vm; 
+  const size_t returnedMessage = parseOptionsWithBoost(vm,argc,argv);
+  if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 
-	/// Take the submit directory from the input if provided:
-	std::string submitDir = "submitDir";
-	if ( vm.count("folder") ){
-		submitDir = vm["folder"].as<std::string>();  
-	}
+  /// Take the submit directory from the input if provided:
+  std::string submitDir = "submitDir";
+  if ( vm.count("folder") ){
+    submitDir = vm["folder"].as<std::string>();  
+  }
 
-	int nEvents = -1;
-	if ( vm.count("nEvents") ){
-		nEvents = vm["nEvents"].as<unsigned int>();  
-	}
-	
-	/// Set up the job for xAOD access:
-	xAOD::Init().ignore();
+  int nEvents = -1;
+  if ( vm.count("nEvents") ){
+    nEvents = vm["nEvents"].as<unsigned int>();  
+  }
+  
+  /// Set up the job for xAOD access:
+  xAOD::Init().ignore();
 
-	/// Construct the samples to run on:
-	SH::SampleHandler sh;
+  /// Construct the samples to run on:
+  SH::SampleHandler sh;
 
- 	const char* inputFilePath = gSystem->ExpandPathName ("/afs/cern.ch/work/o/oviazlo/Wprime/datasets/mc15");
-// 	const char* inputFilePath = gSystem->ExpandPathName ("/afs/cern.ch/user/o/oviazlo/eos/atlas/user/o/oviazlo/Wprime/datasets");
-	SH::DiskListLocal list (inputFilePath);
-	SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
-	
-	/// Set the name of the input TTree. It's always "CollectionTree"
-	/// for xAOD files.
-	sh.setMetaString( "nc_tree", "CollectionTree" );
+   const char* inputFilePath = gSystem->ExpandPathName 
+   ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data");
+//   const char* inputFilePath = gSystem->ExpandPathName 
+//   ("/afs/cern.ch/user/o/oviazlo/eos/atlas/user/o/oviazlo/Wprime/datasets");
+  SH::DiskListLocal list (inputFilePath);
+  SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
+  
+  /// Set the name of the input TTree. It's always "CollectionTree"
+  /// for xAOD files.
+  sh.setMetaString( "nc_tree", "CollectionTree" );
 
-	/// Print what we found:
-	sh.print();
+  /// Print what we found:
+  sh.print();
 
-	/// Create an EventLoop job:
-	EL::Job job;
-	job.sampleHandler( sh );
+  /// Create an EventLoop job:
+  EL::Job job;
+  job.sampleHandler( sh );
 
-	/// Specify that we only want to run on 1k events
-	if (nEvents!=-1)
-		job.options()->setDouble(EL::Job::optMaxEvents, nEvents);
+  /// Specify that we only want to run on 1k events
+  if (nEvents!=-1)
+    job.options()->setDouble(EL::Job::optMaxEvents, nEvents);
 
-	/// define an output and an ntuple associated to that output 
-	//    EL::OutputStream output  ("myOutput");
-	//    job.outputAdd (output);
-	//    EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
-	//    job.algsAdd (ntuple);
+  /// define an output and an ntuple associated to that output 
+  //    EL::OutputStream output  ("myOutput");
+  //    job.outputAdd (output);
+  //    EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
+  //    job.algsAdd (ntuple);
 
-	/// Add our analysis to the job:
-	MyxAODAnalysis* alg = new MyxAODAnalysis();
-	job.algsAdd( alg );
-	/// all configuration to the algorithm should be passed after attachment to the job (practically after this comment)
+  /// Add our analysis to the job:
+  MyxAODAnalysis* alg = new MyxAODAnalysis();
+  job.algsAdd( alg );
+  /// all configuration to the algorithm should be passed after attachment to 
+  /// the job (practically after this comment)
 
-	//    alg->outputName = "myOutput"; // give the name of the output to our algorithm
-	//alg->m_useHistObjectDumper = false;
-	alg->m_useMuonCalibrationAndSmearingTool = true;
+  //    alg->outputName = "myOutput"; // give the name of the output to our algorithm
+  //alg->m_useHistObjectDumper = false;
+  alg->m_useMuonCalibrationAndSmearingTool = true;
 
-	if (vm.count("overwrite")){
-		const boost::filesystem::path path( submitDir); 
-		if ( boost::filesystem::exists( path ) ) 
-		{
-			boost::filesystem::remove_all( path );
-		}
-	}
-	
-	if ( vm.count("proof") ){/// Run the job using the local/direct driver:
-		EL::ProofDriver driver;
-		if ( vm.count("nWorkers") ){
-			driver.numWorkers = vm["nWorkers"].as<unsigned int>();  
-		}
-		driver.submit( job, submitDir );
-	}
-	else{/// Run the job using the local/direct driver:
-		EL::DirectDriver driver;
-		driver.submit( job, submitDir );
-	}
-	
-	return 0;
+  /// overwrite output folder
+  if (vm.count("overwrite")){
+    const boost::filesystem::path path( submitDir); 
+    if ( boost::filesystem::exists( path ) ) 
+    {
+      boost::filesystem::remove_all( path );
+    }
+  }
+  
+  if ( vm.count("proof") ){/// Run the job using the local/direct driver:
+    EL::ProofDriver driver;
+    if ( vm.count("nWorkers") ){
+      driver.numWorkers = vm["nWorkers"].as<unsigned int>();  
+    }
+    driver.submit( job, submitDir );
+  }
+  else{/// Run the job using the local/direct driver:
+    EL::DirectDriver driver;
+    driver.submit( job, submitDir );
+  }
+  
+  return 0;
 }
 
 

@@ -45,75 +45,75 @@ void SetAtlasStyle();
 
 int main( int argc, char* argv[] ) {
 
-	/// get global input arguments:
-	po::variables_map vm; 
-	const size_t returnedMessage = parseOptionsWithBoost(vm,argc,argv);
-	if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
+  /// get global input arguments:
+  po::variables_map vm; 
+  const size_t returnedMessage = parseOptionsWithBoost(vm,argc,argv);
+  if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 
-	/// Take the submit directory from the input if provided:
-	std::string folder = vm["folder"].as<std::string>();  
+  /// Take the submit directory from the input if provided:
+  std::string folder = vm["folder"].as<std::string>();  
 
-	// Construct the samples to run on:
-	SH::SampleHandler sh;
+  // Construct the samples to run on:
+  SH::SampleHandler sh;
 
-	sh.load ((folder + "/hist").c_str());
+  sh.load ((folder + "/hist").c_str());
 
-	/// Print what we found:
-	sh.print();
+  /// Print what we found:
+  sh.print();
 
-	/// get histogram
-	SH::Sample* mySample = sh.get (sampleMap[ vm["sample"].as<std::string>() ]);
-	
-	//SH::Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
-	//SH::Sample* mySample = sh.get ("mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00");
-	//SH::Sample* mySample = sh.findBySource ("mc14_13TeV*Wprime_emutau_*");
-	TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+  /// get histogram
+  SH::Sample* mySample = sh.get (sampleMap[ vm["sample"].as<std::string>() ]);
+  
+  //SH::Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
+  //SH::Sample* mySample = sh.get ("mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00");
+  //SH::Sample* mySample = sh.findBySource ("mc14_13TeV*Wprime_emutau_*");
+  TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
 
-	//~ cout << "cutflowHist pointer: " << cutflowHist << endl;
-	
-	for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
-		int binContent = cutflowHist->GetBinContent(i);
-		if (binContent<=0) break;
-		string binLabel = cutflowHist->GetXaxis()->GetBinLabel(i);
-		cout << binLabel << ":\t" << binContent << endl;
-	}
-	
+  //~ cout << "cutflowHist pointer: " << cutflowHist << endl;
+  
+  for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
+    int binContent = cutflowHist->GetBinContent(i);
+    if (binContent<=0) break;
+    string binLabel = cutflowHist->GetXaxis()->GetBinLabel(i);
+    cout << binLabel << ":\t" << binContent << endl;
+  }
+  
 
-	SetAtlasStyle();
-	
-	// read pt, MET, Mt histograms, make them pretty and save them
-	TH1F* h_pt = (TH1F*)mySample->readHist ("muon/stage2_allCuts/pt");
-	TH1F* h_MET = (TH1F*)mySample->readHist ("h_MET_RefFinalFix");
-	TH1F* h_Mt = (TH1F*)mySample->readHist ("h_Mt_muonPtCut");
-	
-	h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
-	h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
-	h_Mt->GetXaxis()->SetTitle("m_{T} [GeV]");
-	
-	h_pt->GetYaxis()->SetTitle("Counts");
-	h_MET->GetYaxis()->SetTitle("Counts");
-	h_Mt->GetYaxis()->SetTitle("Counts");
-	
-	h_pt->SetTitle("");
-	h_MET->SetTitle("");
-	h_Mt->SetTitle("");
-	
-	TCanvas *can = new TCanvas();
-	gPad->SetLogy();
-	
-	h_pt->Draw();
-	h_pt->GetXaxis()->SetRangeUser(0,5000.0);
-	can->SaveAs("pT.eps");
-	
-	h_MET->GetXaxis()->SetRangeUser(0,5000.0);
-	h_MET->Draw();
-	can->SaveAs("MET.eps");
-	
-	h_Mt->GetXaxis()->SetRangeUser(0,5000.0);
-	h_Mt->Draw();
-	can->SaveAs("mT.eps");
-	
-	return 0;
+  SetAtlasStyle();
+  
+  // read pt, MET, Mt histograms, make them pretty and save them
+  TH1F* h_pt = (TH1F*)mySample->readHist ("muon/stage2_allCuts/pt");
+  TH1F* h_MET = (TH1F*)mySample->readHist ("h_MET_RefFinalFix");
+  TH1F* h_Mt = (TH1F*)mySample->readHist ("h_Mt_muonPtCut");
+  
+  h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
+  h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+  h_Mt->GetXaxis()->SetTitle("m_{T} [GeV]");
+  
+  h_pt->GetYaxis()->SetTitle("Counts");
+  h_MET->GetYaxis()->SetTitle("Counts");
+  h_Mt->GetYaxis()->SetTitle("Counts");
+  
+  h_pt->SetTitle("");
+  h_MET->SetTitle("");
+  h_Mt->SetTitle("");
+  
+  TCanvas *can = new TCanvas();
+  gPad->SetLogy();
+  
+  h_pt->Draw();
+  h_pt->GetXaxis()->SetRangeUser(0,5000.0);
+  can->SaveAs("pT.eps");
+  
+  h_MET->GetXaxis()->SetRangeUser(0,5000.0);
+  h_MET->Draw();
+  can->SaveAs("MET.eps");
+  
+  h_Mt->GetXaxis()->SetRangeUser(0,5000.0);
+  h_Mt->Draw();
+  can->SaveAs("mT.eps");
+  
+  return 0;
 }
 
 
@@ -128,7 +128,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
   
   typedef map<string,string>::iterator it_type;
   for(it_type iterator = sampleMap.begin(); iterator != sampleMap.end(); iterator++) {
-	availableSamples += iterator->first + ", ";
+    availableSamples += iterator->first + ", ";
   }
   availableSamples.resize (availableSamples.size()-2);
   
