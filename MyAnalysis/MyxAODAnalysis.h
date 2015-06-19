@@ -24,6 +24,7 @@
 /// IsolationTool
 #include "ElectronIsolationSelection/IsolationSelectionTool.h"
 
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 /// GRL
 class GoodRunsListSelectionTool;
@@ -70,6 +71,9 @@ public:
   // TH1 *myHist; //!
   xAOD::TEvent *m_event;  //!
 
+  AsgElectronLikelihoodTool* m_LHToolTight2015; //!
+  AsgElectronLikelihoodTool* m_LHToolMedium2015; //!
+  
   int m_eventCounter; //!
 
   int m_numCleanEvents; //!

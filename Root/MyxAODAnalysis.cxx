@@ -259,11 +259,32 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
   
-  ///
+  /// muon isolation ...
   m_isolationSelectionTool = new CP::IsolationSelectionTool("iso");
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool->setProperty(
     "WorkingPoint","VeryLooseTrackOnly") );
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool->initialize()); 
+  /// ... muon isolation
+  
+  /// LH electron identification ...
+  m_LHToolTight2015    = new AsgElectronLikelihoodTool ("m_LHToolTight2015");
+  m_LHToolMedium2015   = new AsgElectronLikelihoodTool ("m_LHToolMedium2015"); 
+  
+  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty
+  ("primaryVertexContainer","PrimaryVertices"));
+  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty
+  ("primaryVertexContainer","PrimaryVertices"));
+  
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150408/";
+  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty
+  ("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf");
+  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty
+  ("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2015.conf");
+  
+  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->initialize() );
+  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->initialize() );
+  /// ... LH electron identification
+  
   
   if (m_useHistObjectDumper)
     m_HistObjectDumper = new HistObjectDumper(wk());
@@ -507,6 +528,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   const xAOD::MuonContainer* muons = 0;
   if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
     Error("execute()", "Failed to retrieve Muons container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }  
+  
+  const xAOD::ElectronContainer* electrons = 0;
+  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ /// retrieve arguments: container$
+    Error("execute()", "Failed to retrieve Electrons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }  
   
@@ -767,3 +794,97 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons,
     return 0;
 
 }
+
+
+xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronnContainer* electrons, 
+                                         xAOD::Vertex* primVertex, 
+                                         bool lookForVetoElectron){
+
+  const char* APP_NAME = "MyxAODAnalysis";
+  
+  const xAOD::EventInfo* eventInfo = 0;
+  if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
+    Error("execute()", "Failed to retrieve event info collection. Exiting." );
+  }
+  
+  xAOD::Electron* outElectron = 0;
+  int electronCounter = 0;
+  xAOD::ElectronContainer::const_iterator electron_itr = electrons->begin();
+  xAOD::ElectronContainer::const_iterator electron_end = electrons->end();
+  for( ; electron_itr != electron_end; ++electron_itr ) {
+  
+    m_BitsetCutflow->FillCutflow("oneElectron",!lookForVetoElectron);
+  
+    /// Calibration and corrections ...
+    xAOD::Electron* el = 0;
+    if (m_useCalibrationAndSmearingTool){
+//       if( !m_electronCalibrationAndSmearingTool->correctedCopy( **electron_itr, el ) ) {
+//         Error(APP_NAME, "Cannot really apply calibration nor smearing");
+//         continue;
+//       }
+    }
+    else{
+      el = const_cast<xAOD::Electron*> (*electron_itr);
+    }
+    /// ... Calibration and corrections
+    
+    /// Eta
+    double Eta = (*el)->caloCluster()->eta();
+    if ( abs(Eta) > 2.47 || (1.37 > abs(Eta) > 1.52)) continue;
+    m_BitsetCutflow->FillCutflow("Eta",!lookForVetoElectron);
+    
+    /// OQ
+    if ((*el)->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)==false) continue;
+    m_BitsetCutflow->FillCutflow("OQ",!lookForVetoElectron);
+    
+    /// pT cut ...
+    double elPt = (el->pt()) * 0.001;
+    double lowPtCut = 65.0; /// GeV
+    if (lookForVetoElectron){
+      lowPtCut = 20.0;
+    }
+    if (elPt < lowPtCut) continue; /// veto electron
+    m_BitsetCutflow->FillCutflow("el_pt",!lookForVetoElectron);
+    /// ... pT cut
+    
+    /// d0 significance ...
+    double d0_sig = TMath::Abs(el->primaryTrackParticle()->d0()) / 
+    TMath::Sqrt(el->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
+    + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+    if (d0_sig>5.0) continue;
+    m_BitsetCutflow->FillCutflow("d0",!lookForVetoElectron);
+    /// ... d0 significance
+    
+    /// ID ...
+    bool goodID = false;
+    if (lookForVetoElectron)
+      goodID = m_LHToolMedium2015->accept(el) && (!m_LHToolTight2015->accept(el));
+    else
+      goodID = m_LHToolMedium2015->accept(el) && 
+      m_LHToolTight2015->accept(el);
+    
+    if (!goodID) continue;
+    m_BitsetCutflow->FillCutflow("ID",!lookForVetoElectron);
+    /// ... ID
+    
+    /// Isolation
+    if (!m_isolationSelectionTool->accept(*el)) continue;
+    m_BitsetCutflow->FillCutflow("Isolation",!lookForVetoMuon);
+    
+    outElectron = el;
+    electronCounter++;
+    
+  } /// end for loop over electrons
+
+  /// if there are two or more signal electrons - return NULL
+  /// Veto electron is defined to have pT within 20..55 GeV range
+  /// that's why veto electron selection is not overlapping with signal region
+  /// if more than two veto electrons found - return any of them
+  if (electronCounter==1 || lookForVetoElectron) return outElectron;
+  else
+    return 0;
+
+}
+
+
+
