@@ -17,7 +17,7 @@ public:
 	BitsetCutflow(EL::Worker *wk);
 	~BitsetCutflow();
 
-	void FillCutflow(string cutflowStepName);
+	void FillCutflow(string cutflowStepName, bool fillCutflow = true);
 	
 	/// WARNING call this function on the BEGIN of EVENT!!!
 	/// WARNING call this function in the finalize() function!!!
