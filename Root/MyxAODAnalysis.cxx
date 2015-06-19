@@ -78,7 +78,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   
   /// let's initialize the algorithm to use the xAODRootAccess package
   job.useXAOD ();
-  EL_RETURN_CHECK( "setupJob()", xAOD::Init( "MyxAODAnalysis" ).ignore() ); /// call before opening first file
+  xAOD::Init( "MyxAODAnalysis" ).ignore(); /// call before opening first file
 
   m_useHistObjectDumper = true;
   m_useBitsetCutflow = true;
