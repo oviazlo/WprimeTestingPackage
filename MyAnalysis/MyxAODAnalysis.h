@@ -29,11 +29,17 @@ class JERTool;
 
 /// muon calibration and smearing tool
 namespace CP{
-    class MuonSelectionTool;
-    class MuonCalibrationAndSmearingTool; /// this tool lives in the namespace CP
-    class TrigDecisionTool;
-    class xAODConfigTool;
-    //~ class MuonEfficiencyCorrections;
+  class MuonSelectionTool;
+  class MuonCalibrationAndSmearingTool; /// this tool lives in the namespace CP
+  //~ class MuonEfficiencyCorrections;
+}
+
+namespace TrigConf{
+  class TrigDecisionTool;
+}
+
+namespace Trig{
+  class xAODConfigTool;
 }
 
 class MyxAODAnalysis : public EL::Algorithm
@@ -87,8 +93,8 @@ public:
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
     //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
     //METUtility *m_METUtil;
-    CP::xAODConfigTool m_configTool; //!
-    CP::TrigDecisionTool m_trigDecTool; //!
+    Trig::TrigDecisionTool *m_trigDecisionTool; //!
+    TrigConf::xAODConfigTool *m_trigConfigTool; //!
   #endif /// not __CINT__
 
   HistObjectDumper *m_HistObjectDumper; //!

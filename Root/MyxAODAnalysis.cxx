@@ -35,6 +35,7 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
+// include files for using the trigger tools
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
