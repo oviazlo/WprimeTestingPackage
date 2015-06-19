@@ -42,6 +42,7 @@ public:
   bool m_useHistObjectDumper;
   bool m_useBitsetCutflow;
   bool m_useMuonCalibrationAndSmearingTool;
+  bool m_doWprimeTruthMatching;
 
   // variables that don't get filled at submission time should be
 //   // protected from being send from the submission node to the worker

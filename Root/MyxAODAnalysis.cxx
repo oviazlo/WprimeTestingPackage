@@ -70,7 +70,8 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   m_useHistObjectDumper = true;
   m_useBitsetCutflow = true;
   m_useMuonCalibrationAndSmearingTool = true;
-
+  m_doWprimeTruthMatching = false;
+  
   return EL::StatusCode::SUCCESS;
 }
 
@@ -284,7 +285,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
   
   /// Muon Truth matching. Check do we have muon from W' decay
-  if(isMC){
+  if(isMC && m_doWprimeTruthMatching){
     bool foundMuonFromWprimeDecay = false;
     
     /// Create truth vertice container
