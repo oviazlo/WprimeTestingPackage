@@ -346,14 +346,19 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// examine the HLT_mu50* chains, see if they passed/failed and their total 
   /// prescale
+  bool passTrigger = true;
   auto chainGroup = m_trigDecisionTool->getChainGroup("HLT_mu50.*");
   std::map<std::string,int> triggerCounts;
   for(auto &trig : chainGroup->getListOfTriggers()) {
     auto cg = m_trigDecisionTool->getChainGroup(trig);
     std::string thisTrig = trig;
-    Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale "
-    "(L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
+//     Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale "
+//     "(L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
+    if (cg->isPassed()==false)
+      passTrigger = false;
   } /// end for loop (c++11 style) over chain group matching "HLT_mu50*" 
+  if (passTrigger==false)
+    return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Trigger");
   
   /// if data check if event passes GRL
