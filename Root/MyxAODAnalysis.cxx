@@ -261,7 +261,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   ///
   m_isolationSelectionTool = new CP::IsolationSelectionTool("iso");
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool->setProperty(
-    "MuonWP","VeryLooseTrackOnly") );
+    "WorkingPoint","VeryLooseTrackOnly") );
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool->initialize()); 
   
   if (m_useHistObjectDumper)
