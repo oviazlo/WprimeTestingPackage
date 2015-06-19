@@ -37,6 +37,9 @@
 
 #include "xAODRootAccess/tools/Message.h"
 
+/// ElectronIsolationTool
+#include "ElectronIsolationSelection/IsolationSelectionTool.h"
+
 /// Helper macro for checking xAOD::TReturnCode return values
 #define EL_RETURN_CHECK( CONTEXT, EXP )                     \
    do {                                                     \
@@ -256,6 +259,11 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "ConfigTool", trigConfigHandle ) ); // connect the TrigDecisionTool to the ConfigTool
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
+  
+  ///
+  m_isolationSelectionToo = new CP::IsolationSelectionTool("iso");
+  EL_RETURN_CHECK( m_isolationSelectionToo.setProperty("WorkingPoint","VeryLooseTrackOnly") );
+  EL_RETURN_CHECK( m_isolationSelectionToo.initialize() ); 
   
   if (m_useHistObjectDumper)
     m_HistObjectDumper = new HistObjectDumper(wk());
@@ -550,15 +558,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       double z0_vrtPVx = mu->primaryTrackParticle()->z0() + 
       mu->primaryTrackParticle()->vz() - primVertex->z(); 
       double sintheta = 1.0/TMath::CosH(mu->eta());
-      if (abs( z0_vrtPVx*sintheta )>0.5) continue;
+      if (abs( z0_vrtPVx*sintheta )>10.0) continue;
       m_BitsetCutflow->FillCutflow("z0");
       
       /// Isolation stuff
-      float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
-      mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  // second arg is an enum defined in xAODPrimitives/IsolationType.h
-      //muPtCone30 = (*muon_itr)->auxdata< float >("ptcone30"); 
-
-      if (muPtCone30/mu->pt() >= 0.05) continue;
+      if (!m_isolationSelectionToo.accept(mu)) continue;
       m_BitsetCutflow->FillCutflow("Isolation");
       
       double phi_mu = mu->phi();
@@ -619,17 +623,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       double z0_vrtPVx = mu->primaryTrackParticle()->z0() + 
       mu->primaryTrackParticle()->vz() - primVertex->z(); 
       double sintheta = 1.0/TMath::CosH(mu->eta());
-      if (abs( z0_vrtPVx*sintheta )>0.5) continue;
+      if (abs( z0_vrtPVx*sintheta )>10.0) continue;
       
       /// Isolation stuff
-      float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
-      mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  // second arg is an enum defined in xAODPrimitives/IsolationType.h
-
-      if (muPtCone30/mu->pt() >= 0.05) continue;
-      
-      double phi_mu = mu->phi();
-      double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * 
-      (1.0 - TMath::Cos( phi_mu - phi_met )) );
+      if (!m_isolationSelectionToo.accept(mu)) continue;
       
       nVetoMuons++;
     }
