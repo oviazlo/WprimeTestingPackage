@@ -16,6 +16,7 @@
 
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetResolution/JERTool.h"
 #include <TSystem.h> /// used to define JERTool calibration path 
