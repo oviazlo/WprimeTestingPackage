@@ -37,6 +37,8 @@
 
 #include "xAODRootAccess/tools/Message.h"
 
+/// IsolationTool
+#include "ElectronIsolationSelection/IsolationSelectionTool.h"
 
 /// Helper macro for checking xAOD::TReturnCode return values
 #define EL_RETURN_CHECK( CONTEXT, EXP )                     \
@@ -259,10 +261,10 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
   
   ///
-  m_isolationSelectionToo = new CP::IsolationSelectionTool("iso");
-  EL_RETURN_CHECK( "initialize",m_isolationSelectionToo.setProperty(
+  m_isolationSelectionTool = new CP::IsolationSelectionTool("iso");
+  EL_RETURN_CHECK( "initialize",m_isolationSelectionTool.setProperty(
     "WorkingPoint","VeryLooseTrackOnly") );
-  EL_RETURN_CHECK( "initialize",m_isolationSelectionToo.initialize()); 
+  EL_RETURN_CHECK( "initialize",m_isolationSelectionTool.initialize()); 
   
   if (m_useHistObjectDumper)
     m_HistObjectDumper = new HistObjectDumper(wk());
@@ -561,7 +563,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       m_BitsetCutflow->FillCutflow("z0");
       
       /// Isolation stuff
-      if (!m_isolationSelectionToo.accept(mu)) continue;
+      if (!m_isolationSelectionTool.accept(mu)) continue;
       m_BitsetCutflow->FillCutflow("Isolation");
       
       double phi_mu = mu->phi();
@@ -625,7 +627,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       if (abs( z0_vrtPVx*sintheta )>10.0) continue;
       
       /// Isolation stuff
-      if (!m_isolationSelectionToo.accept(mu)) continue;
+      if (!m_isolationSelectionTool.accept(mu)) continue;
       
       nVetoMuons++;
     }
