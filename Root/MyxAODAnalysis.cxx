@@ -504,13 +504,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   //~ delete muons_shallowCopy.first;
   //~ delete muons_shallowCopy.second;
   
-  /// get muon container of interest
-  const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
-    Error("execute()", "Failed to retrieve Muons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
-  
   /// loop over the muons in the container
   /// signal selection
   xAOD::Muon* mu = SelectMuon();
@@ -662,6 +655,13 @@ EL::StatusCode MyxAODAnalysis :: histFinalize ()
 
 xAOD::Muon* MyxAODAnalysis :: SelectMuon(bool lookForVetoMuon){
 
+  /// get muon container of interest
+  const xAOD::MuonContainer* muons = 0;
+  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
+    Error("execute()", "Failed to retrieve Muons container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
   xAOD::Muon* outMuon = 0;
   int muonCounter = 0;
   xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
@@ -686,11 +686,11 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(bool lookForVetoMuon){
     if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
       if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("Combined");
     
-    double ptCut = 55.0;
-    if (lookForVetoMuon)
-      ptCut = 20.0;
-    
-    if (( mu->pt()) * 0.001 < ptCut) continue;
+    double muPt = (mu->pt()) * 0.001;
+    if (!lookForVetoMuon)
+      if (muPt < 55.0) continue; /// signal muon
+    else
+      if (muPt < 20.0 || muPt>=55.0) continue; /// veto muon
     
     if (!lookForVetoMuon) m_BitsetCutflow->FillCutflow("mu_pt");
     
@@ -730,6 +730,10 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(bool lookForVetoMuon){
   
   } /// end for loop over muons
 
+  /// if there are two or more signal muons - return NULL
+  /// Veto muon is defined to have pT within 20..55 GeV range
+  /// that's why veto muon selection is not overlapping with signal region
+  /// if more than two veto muons found - return any of them
   if (muonCounter==1 || lookForVetoMuon) return outMuon;
   else
     return 0;
