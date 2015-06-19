@@ -535,72 +535,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     if(m_muonSelection->accept(mu)){
 
       m_BitsetCutflow->FillCutflow("MCP selector");
-      
-      //~ uint8_t nMSPrecLayers = -1;
-      //~ mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);  /// < layers with at least 3 hits [unit8_t].
-      //~ if (nMSPrecLayers<3) continue;
-      //~ m_BitsetCutflow->FillCutflow("3 hits in 3 MS layers");
-      
-      //~ uint8_t nLayersWithPhiHit = -1;
-      //~ mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);    /// < layers with a trigger phi hit [unit8_t].
-      //~ if (nLayersWithPhiHit<2) continue;
-      //~ m_BitsetCutflow->FillCutflow("2 phi layers");
-      
-      /// not used in current cutflow
-      /*
-      uint8_t n_innerSmallHits = -1;
-      mu->summaryValue(n_innerSmallHits, xAOD::innerSmallHits);
-      
-      uint8_t n_innerLargeHits = -1;
-      mu->summaryValue(n_innerLargeHits, xAOD::innerLargeHits);
-      
-      uint8_t n_middleSmallHits = -1;
-      mu->summaryValue(n_middleSmallHits, xAOD::middleSmallHits);
-      
-      uint8_t n_middleLargeHits = -1;
-      mu->summaryValue(n_middleLargeHits, xAOD::middleLargeHits);
-      
-      uint8_t n_outerSmallHits = -1;
-      mu->summaryValue(n_outerSmallHits, xAOD::outerSmallHits);
-      
-      uint8_t n_outerLargeHits = -1;
-      mu->summaryValue(n_outerLargeHits, xAOD::outerLargeHits);
-      
-      uint8_t n_extendedSmallHits = -1;
-      mu->summaryValue(n_extendedSmallHits, xAOD::extendedSmallHits);
-      
-      uint8_t n_extendedLargeHits = -1;
-      mu->summaryValue(n_extendedLargeHits, xAOD::extendedLargeHits);
-      
-      uint8_t n_innerMDTLayerHits = n_innerSmallHits + n_innerLargeHits;
-      uint8_t n_middleMDTLayerHits = n_middleSmallHits + n_middleLargeHits;
-      uint8_t n_outerMDTLayerHits = n_outerSmallHits + n_outerLargeHits;
-      uint8_t n_extendedMDTLayerHits = n_extendedSmallHits + n_extendedLargeHits;
-      
-      if ((n_innerMDTLayerHits<3)||(n_middleMDTLayerHits<3)||(n_outerMDTLayerHits<3)) continue;
-      m_BitsetCutflow->FillCutflow("3 hits in all 3 MS layers");
-            
-      uint8_t n_phiLayer1Hits = -1;
-      mu->summaryValue(n_phiLayer1Hits, xAOD::phiLayer1Hits);
-      
-      uint8_t n_phiLayer2Hits = -1;
-      mu->summaryValue(n_phiLayer2Hits, xAOD::phiLayer2Hits);
-      
-      uint8_t n_phiLayer3Hits = -1;
-      mu->summaryValue(n_phiLayer3Hits, xAOD::phiLayer3Hits);
-      
-      uint8_t n_phiLayer4Hits = -1;
-      mu->summaryValue(n_phiLayer4Hits, xAOD::phiLayer4Hits);
-            
-      int nPhiLayers = 0;
-      if (n_phiLayer1Hits>0) nPhiLayers++;
-      if (n_phiLayer2Hits>0) nPhiLayers++;
-      if (n_phiLayer3Hits>0) nPhiLayers++;
-      if (n_phiLayer4Hits>0) nPhiLayers++;
-      
-      if (nPhiLayers<2) continue;
-      m_BitsetCutflow->FillCutflow("2 phi layers");
-      */
+         
+      if (!m_muonSelection->passedHighPtCuts(*mu)) continue;
+      m_BitsetCutflow->FillCutflow("MS Hits");
       
       /// do significance 
       double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) / 
@@ -615,10 +552,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       double sintheta = 1.0/TMath::CosH(mu->eta());
       if (abs( z0_vrtPVx*sintheta )>0.5) continue;
       m_BitsetCutflow->FillCutflow("z0");
-      
-//       const xAOD::Muon* constMuon = mu;
-      if (!m_muonSelection->passedHighPtCuts(*mu)) continue;
-      m_BitsetCutflow->FillCutflow("MS Hits");
       
       /// Isolation stuff
       float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
@@ -646,10 +579,68 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     }
   
   } /// end for loop over muons
-
+  
   h_nSelectedMuons->Fill(muonCounter);
   
   if (muonCounter==0) return EL::StatusCode::SUCCESS;
+  
+  /// LOOK FOR VETO MUONS
+  muon_itr = muons->begin();
+  muon_end = muons->end();
+  int nVetoMuons = 0;
+  for( ; muon_itr != muon_end; ++muon_itr ) {
+  
+    xAOD::Muon* mu = 0;
+    if (m_useMuonCalibrationAndSmearingTool){
+      if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
+        Error(APP_NAME, "Cannot really apply calibration nor smearing");
+        continue;
+      }
+    }
+    else{
+      mu = const_cast<xAOD::Muon*> (*muon_itr);
+    }
+    
+    if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
+    
+    if ( ((mu->pt()) * 0.001 < 20.0) || ((mu->pt()) * 0.001 > 55.0)) continue;
+
+    if(m_muonSelection->accept(mu)){
+
+      if (!m_muonSelection->passedHighPtCuts(*mu)) continue;
+
+      /// do significance 
+      double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) / 
+      TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
+      + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+      if (d0_sig>3.0) continue;
+      
+      /// zo cut
+      double z0_vrtPVx = mu->primaryTrackParticle()->z0() + 
+      mu->primaryTrackParticle()->vz() - primVertex->z(); 
+      double sintheta = 1.0/TMath::CosH(mu->eta());
+      if (abs( z0_vrtPVx*sintheta )>0.5) continue;
+      
+      /// Isolation stuff
+      float muPtCone30 = 0.; // your variable that will be filled after calling the isolation function
+      mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  // second arg is an enum defined in xAODPrimitives/IsolationType.h
+
+      if (muPtCone30/mu->pt() >= 0.05) continue;
+      
+      double phi_mu = mu->phi();
+      double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * 
+      (1.0 - TMath::Cos( phi_mu - phi_met )) );
+      
+      nVetoMuons++;
+    }
+    
+  }
+  if (nVetoMuons>0)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("Veto muon");
+  
+  
+  
   /// ************************************************
   /// Fill other event-based distributions (e.g. MET)
   /// ************************************************
