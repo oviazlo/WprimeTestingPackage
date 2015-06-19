@@ -504,14 +504,21 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   //~ delete muons_shallowCopy.first;
   //~ delete muons_shallowCopy.second;
   
+  /// get muon container of interest
+  const xAOD::MuonContainer* muons = 0;
+  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
+    Error("execute()", "Failed to retrieve Muons container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }  
+  
   /// loop over the muons in the container
   /// signal selection
-  xAOD::Muon* mu = SelectMuon();
+  xAOD::Muon* mu = SelectMuon(muons);
   if (mu==0)
     return EL::StatusCode::SUCCESS;
 
   /// look for veto muon
-  xAOD::Muon* vetoMu = SelectMuon(true);
+  xAOD::Muon* vetoMu = SelectMuon(muons,true);
   if (vetoMu!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Veto muon");
@@ -653,13 +660,12 @@ EL::StatusCode MyxAODAnalysis :: histFinalize ()
 
 
 
-xAOD::Muon* MyxAODAnalysis :: SelectMuon(bool lookForVetoMuon){
+xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons, bool lookForVetoMuon){
 
-  /// get muon container of interest
-  const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
-    Error("execute()", "Failed to retrieve Muons container. Exiting." );
-    return EL::StatusCode::FAILURE;
+  
+  const xAOD::EventInfo* eventInfo = 0;
+  if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
+    Error("execute()", "Failed to retrieve event info collection. Exiting." );
   }
   
   xAOD::Muon* outMuon = 0;
