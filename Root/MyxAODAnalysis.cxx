@@ -513,12 +513,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// loop over the muons in the container
   /// signal selection
-  xAOD::Muon* mu = SelectMuon(muons);
+  xAOD::Muon* mu = SelectMuon(muons,primVertex);
   if (mu==0)
     return EL::StatusCode::SUCCESS;
 
   /// look for veto muon
-  xAOD::Muon* vetoMu = SelectMuon(muons,true);
+  xAOD::Muon* vetoMu = SelectMuon(muons,primVertex,true);
   if (vetoMu!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Veto muon");
@@ -660,8 +660,11 @@ EL::StatusCode MyxAODAnalysis :: histFinalize ()
 
 
 
-xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons, bool lookForVetoMuon){
+xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons, 
+                                         xAOD::Vertex* primVertex, 
+                                         bool lookForVetoMuon){
 
+  const char* APP_NAME = "MyxAODAnalysis";
   
   const xAOD::EventInfo* eventInfo = 0;
   if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
