@@ -270,16 +270,16 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   m_LHToolTight2015    = new AsgElectronLikelihoodTool ("m_LHToolTight2015");
   m_LHToolMedium2015   = new AsgElectronLikelihoodTool ("m_LHToolMedium2015"); 
   
-  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty
-  ("primaryVertexContainer","PrimaryVertices"));
-  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty
-  ("primaryVertexContainer","PrimaryVertices"));
+  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty(
+    "primaryVertexContainer","PrimaryVertices"));
+  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
+    "primaryVertexContainer","PrimaryVertices"));
   
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150408/";
-  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty
-  ("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf");
-  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty
-  ("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2015.conf");
+  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty(
+    "ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf"));
+  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
+    "ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2015.conf"));
   
   EL_RETURN_CHECK( "initialize", m_LHToolTight2015->initialize() );
   EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->initialize() );
