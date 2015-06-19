@@ -35,8 +35,15 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
+#include "TrigConfxAOD/xAODConfigTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
+
+using namespace Trig;
+using namespace TrigConf;
+using namespace xAOD;
 
 MyxAODAnalysis :: MyxAODAnalysis ()
 {
@@ -235,6 +242,20 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   //m_METUtil->setVerbosity(true);
   //m_util->setSoftJetCut(20);
 
+  /// The configuration tool.
+  xAODConfigTool m_configTool("xAODConfigTool");
+  ToolHandle<TrigConf::ITrigConfigTool> configHandle(&m_configTool);
+  configHandle->initialize();
+  
+  /// The decision tool
+  TrigDecisionTool m_trigDecTool("TrigDecTool");
+  m_trigDecTool.setProperty("ConfigTool",configHandle);
+  //trigDecTool.setProperty("OutputLevel", MSG::VERBOSE);
+  m_trigDecTool.setProperty("TrigDecisionKey","xTrigDecision");
+  m_trigDecTool.initialize();
+  
+  
+  
   if (m_useHistObjectDumper)
     m_HistObjectDumper = new HistObjectDumper(wk());
   

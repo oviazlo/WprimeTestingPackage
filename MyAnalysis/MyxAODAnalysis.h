@@ -1,23 +1,23 @@
 #ifndef MyAnalysis_MyxAODAnalysis_H
 #define MyAnalysis_MyxAODAnalysis_H
 
-// EventLoop
+/// EventLoop
 #include <EventLoop/Algorithm.h>
 
-// Infrastructure includes:
+/// Infrastructure includes:
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 
 #include <TH1.h>
 #include <TTree.h>
 
-// shallow copy
+/// shallow copy
 #include "xAODCore/ShallowCopy.h"
 
 #include <MyAnalysis/HistObjectDumper.h>
 #include <MyAnalysis/BitsetCutflow.h>
 
-// GRL
+/// GRL
 class GoodRunsListSelectionTool;
 class xAODJet;
 class xAODMuon;
@@ -27,10 +27,12 @@ class JERTool;
 
 //class METUtility;
 
-// muon calibration and smearing tool
+/// muon calibration and smearing tool
 namespace CP{
     class MuonSelectionTool;
-    class MuonCalibrationAndSmearingTool; // this tool lives in the namespace CP
+    class MuonCalibrationAndSmearingTool; /// this tool lives in the namespace CP
+    class TrigDecisionTool;
+    class xAODConfigTool;
     //~ class MuonEfficiencyCorrections;
 }
 
@@ -44,9 +46,9 @@ public:
   bool m_useMuonCalibrationAndSmearingTool;
   bool m_doWprimeTruthMatching;
 
-  // variables that don't get filled at submission time should be
-//   // protected from being send from the submission node to the worker
-  // node (done by the //!)
+  /// variables that don't get filled at submission time should be
+  /// protected from being send from the submission node to the worker
+  /// node (done by the //!)
 public:
   // Tree *myTree; //!
   // TH1 *myHist; //!
@@ -85,15 +87,17 @@ public:
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
     //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
     //METUtility *m_METUtil;
-  #endif // not __CINT__
+    CP::xAODConfigTool m_configTool; //!
+    CP::TrigDecisionTool m_trigDecTool; //!
+  #endif /// not __CINT__
 
   HistObjectDumper *m_HistObjectDumper; //!
   BitsetCutflow* m_BitsetCutflow; //!
 
-  // this is a standard constructor
+  /// this is a standard constructor
   MyxAODAnalysis ();
 
-  // these are the functions inherited from Algorithm
+  /// these are the functions inherited from Algorithm
   virtual EL::StatusCode setupJob (EL::Job& job);
   virtual EL::StatusCode fileExecute ();
   virtual EL::StatusCode histInitialize ();
@@ -104,7 +108,7 @@ public:
   virtual EL::StatusCode finalize ();
   virtual EL::StatusCode histFinalize ();
 
-  // this is needed to distribute the algorithm to the workers
+  /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
 };
 
