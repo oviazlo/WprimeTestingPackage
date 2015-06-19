@@ -100,7 +100,7 @@ public:
     CP::MuonSelectionTool* m_muonSelection; //!
     /// MuonCalibrationAndSmearing
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
-    CP::IsolationSelectionTool m_isolationSelectionTool; //!
+//     CP::IsolationSelectionTool m_isolationSelectionTool; //!
     //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
     //METUtility *m_METUtil;
     Trig::TrigDecisionTool *m_trigDecisionTool; //!

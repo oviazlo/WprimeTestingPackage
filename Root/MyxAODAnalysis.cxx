@@ -243,7 +243,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   //~ m_effi_corr = new CP::MuonEfficiencyScaleFactors m_effi_corr("SomeName");
   //~ m_effi_corr->setProperty("WorkingPoint","CBandST");
   //~ m_effi_corr->setProperty("DataPeriod","2012");
-  //~ CHECK (m_effi_corr->initialize().isSuccess());
+  //~ CHECK (m_effi_corr->initialize().isSuccess()); 
   
   //m_METUtil = new METUtility;
   //m_METUtil->setVerbosity(true);
@@ -259,9 +259,9 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
   
   ///
-  m_isolationSelectionTool = new CP::IsolationSelectionTool("iso");
+  CP_IsolationSelectionTool m_isolationSelectionTool("iso");
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool.setProperty(
-    "WorkingPoint","VeryLooseTrackOnly") );
+    "MuonWP","VeryLooseTrackOnly") );
   EL_RETURN_CHECK( "initialize",m_isolationSelectionTool.initialize()); 
   
   if (m_useHistObjectDumper)
