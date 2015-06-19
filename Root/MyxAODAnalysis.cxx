@@ -837,7 +837,7 @@ xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* 
     
     /// Eta
     double Eta = el->caloCluster()->eta();
-    if ( abs(Eta) > 2.47 || (1.37 > abs(Eta) > 1.52)) continue;
+    if ( abs(Eta) > 2.47 || (1.37 > abs(Eta) < 1.52)) continue;
     m_BitsetCutflow->FillCutflow("Eta",!lookForVetoElectron);
     
     /// OQ
