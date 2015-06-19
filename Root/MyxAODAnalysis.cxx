@@ -561,7 +561,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       m_BitsetCutflow->FillCutflow("z0");
       
       /// Isolation stuff
-      if (!m_isolationSelectionTool->accept(mu)) continue;
+      if (!m_isolationSelectionTool->accept(*mu)) continue;
       m_BitsetCutflow->FillCutflow("Isolation");
       
       double phi_mu = mu->phi();
@@ -625,7 +625,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       if (abs( z0_vrtPVx*sintheta )>10.0) continue;
       
       /// Isolation stuff
-      if (!m_isolationSelectionTool->accept(mu)) continue;
+      if (!m_isolationSelectionTool->accept(*mu)) continue;
       
       nVetoMuons++;
     }
