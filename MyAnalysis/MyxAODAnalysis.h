@@ -125,7 +125,7 @@ private:
   virtual EL::StatusCode histFinalize ();
 
   /// Custom made functions
-  xAOD::Muon* MyxAODAnalysis :: SelectMuon(bool lookForVetoMuon = false);
+  xAOD::Muon* SelectMuon(bool lookForVetoMuon = false);
   
   /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
