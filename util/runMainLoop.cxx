@@ -89,9 +89,14 @@ int main( int argc, char* argv[] ) {
 
   //    alg->outputName = "myOutput"; // give the name of the output to our algorithm
   //alg->m_useHistObjectDumper = false;
-  alg->m_useMuonCalibrationAndSmearingTool = false;
+  alg->m_useCalibrationAndSmearingTool = true;
+  if (vm.count("noSmearing"))
+    alg->m_useCalibrationAndSmearingTool = false;
   alg->m_doWprimeTruthMatching = false;
 
+  if (vm.count("electronChannel"))
+    alg->m_runElectronChannel = true;
+  
   /// overwrite output folder
   if (vm.count("overwrite")){
     const boost::filesystem::path path( submitDir); 
@@ -131,6 +136,8 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("folder,f", po::value<string>(), "output working-folder name")
       ("nWorkers,w", po::value<unsigned int>(), "number of workers")
       ("proof,p", "enable PROOF-Lite mode") 
+      ("noSmearing", "don't do lepton calibration and smearing") 
+      ("electronChannel,e", "run electron selection") 
       ("overwrite,o", "overwrite output folder") 
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;

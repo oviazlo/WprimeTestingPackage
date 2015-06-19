@@ -58,7 +58,8 @@ class MyxAODAnalysis : public EL::Algorithm
 public:
   bool m_useHistObjectDumper;
   bool m_useBitsetCutflow;
-  bool m_useMuonCalibrationAndSmearingTool;
+  bool m_useCalibrationAndSmearingTool;
+  bool m_runElectronChannel;
   bool m_doWprimeTruthMatching;
 
   /// variables that don't get filled at submission time should be

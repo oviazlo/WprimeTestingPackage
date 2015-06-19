@@ -83,7 +83,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
 
   m_useHistObjectDumper = true;
   m_useBitsetCutflow = true;
-  m_useMuonCalibrationAndSmearingTool = true;
+  m_useCalibrationAndSmearingTool = true;
   m_doWprimeTruthMatching = false;
   
   return EL::StatusCode::SUCCESS;
@@ -406,8 +406,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::Vertex* primVertex = 0;
   int nGoodVtx = 0;
   for( ; vtx_itr != vtx_end; ++vtx_itr ) {
-    //~ h_zPrimVtx->Fill((*vtx_itr)->z());
-//     if ((abs((*vtx_itr)->z())<200.0)&&((*vtx_itr)->nTrackParticles()>=3))
     if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx){
       primVertex = (*vtx_itr);
       nGoodVtx++;
@@ -511,11 +509,20 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::FAILURE;
   }  
   
-  /// loop over the muons in the container
-  /// signal selection
-  xAOD::Muon* mu = SelectMuon(muons,primVertex);
-  if (mu==0)
-    return EL::StatusCode::SUCCESS;
+  xAOD::IParticle *lep = 0;
+  
+  if (!m_runElectronChannel){
+    /// loop over the muons in the container
+    /// signal selection
+    lep = SelectMuon(muons,primVertex);
+    if (lep==0)
+      return EL::StatusCode::SUCCESS;
+  }
+  else{
+    
+  }
+
+
 
   /// look for veto muon
   xAOD::Muon* vetoMu = SelectMuon(muons,primVertex,true);
@@ -523,13 +530,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Veto muon");
     
-  double phi_mu = mu->phi();
-  double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * 
+  double phi_mu = lep->phi();
+  double Mt = sqrt( 2*lep->pt()*sqrt(mpx*mpx + mpy*mpy) * 
   (1.0 - TMath::Cos( phi_mu - phi_met )) );
 
   h_Mt_muonPtCut->Fill(Mt * 0.001);
       
-  if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
+//   if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
   
   
   /// ************************************************
@@ -682,7 +689,7 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons,
     m_BitsetCutflow->FillCutflow("oneMuon",!lookForVetoMuon);
   
     xAOD::Muon* mu = 0;
-    if (m_useMuonCalibrationAndSmearingTool){
+    if (m_useCalibrationAndSmearingTool){
       if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
         Error(APP_NAME, "Cannot really apply calibration nor smearing");
         continue;
