@@ -849,8 +849,9 @@ xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* 
     /// ... pT cut
     
     /// d0 significance ...
-    double d0_sig = TMath::Abs(el->primaryTrackParticle()->d0()) / 
-    TMath::Sqrt(el->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
+    
+    const xAOD::TrackParticle trk = el->trackParticle();
+    float d0_sig = fabs(trk.d0()) / sqrt(trk.definingParametersCovMatrix()(0,0) 
     + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
     if (d0_sig>5.0) continue;
     m_BitsetCutflow->FillCutflow("d0",!lookForVetoElectron);
