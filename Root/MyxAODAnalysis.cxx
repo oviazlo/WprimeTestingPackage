@@ -35,6 +35,19 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
+#include "xAODRootAccess/tools/Message.h"
+
+/// Helper macro for checking xAOD::TReturnCode return values
+#define EL_RETURN_CHECK( CONTEXT, EXP )                     \
+   do {                                                     \
+      if( ! EXP.isSuccess() ) {                             \
+         Error( CONTEXT,                                    \
+                XAOD_MESSAGE( "Failed to execute: %s" ),    \
+                #EXP );                                     \
+         return EL::StatusCode::FAILURE;                    \
+      }                                                     \
+   } while( false )
+
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
 
@@ -65,7 +78,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   
   /// let's initialize the algorithm to use the xAODRootAccess package
   job.useXAOD ();
-  xAOD::Init( "MyxAODAnalysis" ).ignore(); /// call before opening first file
+  EL_RETURN_CHECK( "setupJob()", xAOD::Init( "MyxAODAnalysis" ).ignore() ); /// call before opening first file
 
   m_useHistObjectDumper = true;
   m_useBitsetCutflow = true;
