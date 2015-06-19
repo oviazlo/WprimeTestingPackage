@@ -559,7 +559,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if (vetoMu!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Veto muon");
-    
+
+  xAOD::Electron* vetoEl = SelectElectron(electrons,primVertex,true);
+  if (vetoEl!=0)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("Veto electron");
+  
+  
   double phi_mu;
   double Mt;
 
