@@ -134,6 +134,10 @@ public:
                          xAOD::Vertex* primVertex, 
                          bool lookForVetoMuon = false);
   
+  xAOD::Electron* SelectElectron(const xAOD::ElectronContainer* electrons, 
+                                         xAOD::Vertex* primVertex, 
+                                         bool lookForVetoElectron);
+  
   /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
 };

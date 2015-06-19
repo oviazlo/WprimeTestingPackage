@@ -797,7 +797,7 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons,
 }
 
 
-xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronnContainer* electrons, 
+xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* electrons, 
                                          xAOD::Vertex* primVertex, 
                                          bool lookForVetoElectron){
 
