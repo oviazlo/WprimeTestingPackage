@@ -871,7 +871,7 @@ xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* 
     
     /// Isolation
     if (!m_isolationSelectionTool->accept(*el)) continue;
-    m_BitsetCutflow->FillCutflow("Isolation",!lookForVetoMuon);
+    m_BitsetCutflow->FillCutflow("Isolation",!lookForVetoElectron);
     
     outElectron = el;
     electronCounter++;
