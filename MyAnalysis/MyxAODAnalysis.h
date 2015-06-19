@@ -21,6 +21,8 @@
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+#include "xAODEgamma/ElectronContainer.h"
+
 /// IsolationTool
 #include "ElectronIsolationSelection/IsolationSelectionTool.h"
 
