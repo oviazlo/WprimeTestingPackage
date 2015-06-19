@@ -17,6 +17,10 @@
 #include <MyAnalysis/HistObjectDumper.h>
 #include <MyAnalysis/BitsetCutflow.h>
 
+/// include files for using the trigger tools
+#include "TrigConfxAOD/xAODConfigTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 /// GRL
 class GoodRunsListSelectionTool;
 class xAODJet;
@@ -34,13 +38,13 @@ namespace CP{
   //~ class MuonEfficiencyCorrections;
 }
 
-namespace TrigConf{
-  class TrigDecisionTool;
-}
-
-namespace Trig{
-  class xAODConfigTool;
-}
+// namespace TrigConf{
+//   class TrigDecisionTool;
+// }
+// 
+// namespace Trig{
+//   class xAODConfigTool;
+// }
 
 class MyxAODAnalysis : public EL::Algorithm
 {

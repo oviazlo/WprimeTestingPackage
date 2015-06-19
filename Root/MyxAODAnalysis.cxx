@@ -35,16 +35,8 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
-// include files for using the trigger tools
-#include "TrigConfxAOD/xAODConfigTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
-
-using namespace Trig;
-using namespace TrigConf;
-using namespace xAOD;
 
 MyxAODAnalysis :: MyxAODAnalysis ()
 {
@@ -243,19 +235,14 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   //m_METUtil->setVerbosity(true);
   //m_util->setSoftJetCut(20);
 
-  /// The configuration tool.
-  xAODConfigTool m_configTool("xAODConfigTool");
-  ToolHandle<TrigConf::ITrigConfigTool> configHandle(&m_configTool);
-  configHandle->initialize();
-  
-  /// The decision tool
-  TrigDecisionTool m_trigDecTool("TrigDecTool");
-  m_trigDecTool.setProperty("ConfigTool",configHandle);
-  //trigDecTool.setProperty("OutputLevel", MSG::VERBOSE);
-  m_trigDecTool.setProperty("TrigDecisionKey","xTrigDecision");
-  m_trigDecTool.initialize();
-  
-  
+  /// Initialize and configure trigger tools
+  m_trigConfigTool = new TrigConf::xAODConfigTool("xAODConfigTool"); // gives us access to the meta-data
+  EL_RETURN_CHECK( "initialize", m_trigConfigTool->initialize() );
+  ToolHandle< TrigConf::ITrigConfigTool > trigConfigHandle( m_trigConfigTool );
+  m_trigDecisionTool = new Trig::TrigDecisionTool("TrigDecisionTool");
+  EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "ConfigTool", trigConfigHandle ) ); // connect the TrigDecisionTool to the ConfigTool
+  EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
+  EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
   
   if (m_useHistObjectDumper)
     m_HistObjectDumper = new HistObjectDumper(wk());
@@ -343,6 +330,16 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     if (!foundMuonFromWprimeDecay) return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Truth muon decay");
   }
+  
+  /// examine the HLT_xe80* chains, see if they passed/failed and their total prescale
+  auto chainGroup = m_trigDecisionTool->getChainGroup("HLT_xe80.*");
+  std::map<std::string,int> triggerCounts;
+  for(auto &trig : chainGroup->getListOfTriggers()) {
+    auto cg = m_trigDecisionTool->getChainGroup(trig);
+    std::string thisTrig = trig;
+    Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
+  } // end for loop (c++11 style) over chain group matching "HLT_xe80*" 
+  m_BitsetCutflow->FillCutflow("Trigger");
   
   /// if data check if event passes GRL
   if(!isMC){ /// it's data!
@@ -846,6 +843,16 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
     delete m_BitsetCutflow;
     m_BitsetCutflow = 0;
   }
+  
+  /// cleaning up trigger tools
+  if( m_trigConfigTool ) {
+      delete m_trigConfigTool;
+      m_trigConfigTool = 0;
+   }
+   if( m_trigDecisionTool ) {
+      delete m_trigDecisionTool;
+      m_trigDecisionTool = 0;
+   }
 
   return EL::StatusCode::SUCCESS;
 }
