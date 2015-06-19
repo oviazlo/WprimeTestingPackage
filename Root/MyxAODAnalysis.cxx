@@ -290,7 +290,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     /// Create truth vertice container
     const xAOD::TruthVertexContainer* truthVertices = 0; 
     /// retrieve arguments: container type, container key
-    if ( !m_event->retrieve( truthVertices, "TruthVertices" ).isSuccess() ){ 
+    if ( !m_event->retrieve( truthVertices, "TruthVertice" ).isSuccess() ){ 
       Error("execute()","Failed to retrieve TruthVertices container. Exiting.");
       return EL::StatusCode::FAILURE;
     }
