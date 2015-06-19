@@ -415,7 +415,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// we need to use MET_Core_AntiKt4EMTopo, according to:
   /// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2xAODMissingET
-  if ( !m_event->retrieve( metcontainer, "MET_Core_AntiKt4EMTopo" ).isSuccess())
+  /// FIXME use MET_Reference_AntiKt4EMTopo instead of MET_Core_AntiKt4EMTopo
+  if ( !m_event->retrieve( metcontainer, "MET_Reference_AntiKt4EMTopo" ).isSuccess())
   { /// retrieve arguments: container$
     Error("execute()","Failed to retrieve MET_RefFinalFix container. Exiting.");
     return EL::StatusCode::FAILURE;
