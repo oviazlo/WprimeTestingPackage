@@ -260,8 +260,8 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   
   ///
   m_isolationSelectionToo = new CP::IsolationSelectionTool("iso");
-  EL_RETURN_CHECK( m_isolationSelectionToo.setProperty("WorkingPoint","VeryLooseTrackOnly") );
-  EL_RETURN_CHECK( m_isolationSelectionToo.initialize() ); 
+  EL_RETURN_CHECK( "initialize",m_isolationSelectionToo.setProperty("WorkingPoint","VeryLooseTrackOnly") );
+  EL_RETURN_CHECK( "initialize",m_isolationSelectionToo.initialize() ); 
   
   if (m_useHistObjectDumper)
     m_HistObjectDumper = new HistObjectDumper(wk());
