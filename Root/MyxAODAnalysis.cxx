@@ -85,6 +85,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   m_useBitsetCutflow = true;
   m_useCalibrationAndSmearingTool = true;
   m_doWprimeTruthMatching = false;
+  m_runElectronChannel = false;
   
   return EL::StatusCode::SUCCESS;
 }
