@@ -72,7 +72,6 @@ public:
   bool m_doWprimeTruthMatching;
   int m_truthoption;
   int truthOption;
-  bool m_runElectronChannel;
   bool isMC;
   int count[20];
   
@@ -146,7 +145,6 @@ public:
   /// defining the output file name and tree that we will put in the output ntuple, also the one branch that will be in that tree 
 //   std::string outputName;
 //   TTree *tree; //!
-  int EventNumber; //!
 
   #ifndef __CINT__
     GoodRunsListSelectionTool *m_grl; //!
@@ -177,9 +175,7 @@ public:
     CP::IsolationSelectionTool* iso_7; //!
     CP::IsolationSelectionTool* iso_8; //!
     CP::IsolationSelectionTool* iso_9; //!
-    
-    Trig::TrigDecisionTool *m_trigDecisionTool; //!
-    TrigConf::xAODConfigTool *m_trigConfigTool; //!
+
   #endif /// not __CINT__
 
   HistObjectDumper *m_HistObjectDumper; //!
