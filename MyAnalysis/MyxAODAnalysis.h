@@ -29,7 +29,7 @@
 #include <ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h>
 
 /// IsolationTool
-#include "ElectronIsolationSelection/IsolationSelectionTool.h"
+// #include "ElectronIsolationSelection/IsolationSelectionTool.h"
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
