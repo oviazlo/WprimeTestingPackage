@@ -176,6 +176,9 @@ public:
     CP::IsolationSelectionTool* iso_8; //!
     CP::IsolationSelectionTool* iso_9; //!
 
+    CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
+    CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
+    
   #endif /// not __CINT__
 
   HistObjectDumper *m_HistObjectDumper; //!

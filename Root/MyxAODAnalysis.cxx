@@ -326,6 +326,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   }
   
   /// initialize JER 
+  /*
   const char* jerFilePath = "$ROOTCOREBIN/data/JetResolution/JERProviderPlots"
   "_2012.root";
   const char* fullJERFilePath = gSystem->ExpandPathName (jerFilePath);
@@ -336,7 +337,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     "Exiting.");
     return EL::StatusCode::FAILURE;
   }
-
+ */
   /// Get Muon Selector Tool
   m_muonSelection = new CP::MuonSelectionTool("MuonSelection");
   // m_muonSelection->msg().setLevel( MSG::INFO );
@@ -1236,11 +1237,12 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
     m_jetCleaning = 0;
   }
   
-  
+  /*
   if(m_JERTool){
     delete m_JERTool;
     m_JERTool = 0;
   }
+  */
   Info("finalize()", "Number of clean events = %i", m_numCleanEvents);
   /// Muon calibration and smearing tool
   if(m_muonCalibrationAndSmearingTool){
