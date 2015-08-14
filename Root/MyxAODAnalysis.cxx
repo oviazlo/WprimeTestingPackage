@@ -1710,6 +1710,7 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons,
 
 }
 
+*/
 
 xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* electrons, 
                                          xAOD::Vertex* primVertex, 
@@ -1803,4 +1804,3 @@ xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* 
 }
 
 
-*/
