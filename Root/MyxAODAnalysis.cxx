@@ -964,14 +964,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   double reftrkold = sqrt(pow(mpx2,2)+pow(mpy2,2));
   //cout << "rtrk: "<<reftrk<<endl;
   //cout << "old met reftrk " << mpx2/1000.<< " " << reftrkold<<endl;
-
-  //cout << "METcore result " << refcore<<endl;
-  mpx2 = (*metcontainer)["FinalTrk"]->mpx();
-  mpy2 = (*metcontainer)["FinalTrk"]->mpy();
-  double reftotal = sqrt(pow(mpx,2)+pow(mpy,2));
-  double oldtotal = sqrt(pow(mpx2,2)+pow(mpy2,2));
-  //cout << "new MET: " << reftotal/1000. << " old MET: " << oldtotal/1000.<<endl;
-  
+ 
   //cout << "METcore result " << refcore<<endl;
   mpx2 = (*metcontainer)["FinalTrk"]->mpx();
   mpy2 = (*metcontainer)["FinalTrk"]->mpy();
@@ -1472,15 +1465,17 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: SelectMuon(const xAOD::Mu
     m_BitsetCutflow->FillCutflow("oneMuon",!lookForVetoMuon);
 
     xAOD::Muon* mu = 0;
-    if (m_useMuonCalibrationAndSmearingTool){
-      if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
-        Error(APP_NAME, "Cannot really apply calibration nor smearing");
-        continue;
-      }
-    }
-    else{
-      mu = const_cast<xAOD::Muon*> (*muon_itr);
-    }
+    /// TODO return m_useMuonCalibrationAndSmearingTool flag
+//     if (m_useMuonCalibrationAndSmearingTool){
+//       if( !m_muonCalibrationAndSmearingTool->correctedCopy( **muon_itr, mu ) ) {
+//         Error(APP_NAME, "Cannot really apply calibration nor smearing");
+//         continue;
+//       }
+//     }
+//     else{
+//       mu = const_cast<xAOD::Muon*> (*muon_itr);
+//     }
+    mu = const_cast<xAOD::Muon*> (*muon_itr);
 
     // keep lins
 
