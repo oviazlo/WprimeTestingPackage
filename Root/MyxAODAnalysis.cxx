@@ -717,7 +717,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
   /// Loop over all jets in the event
   /// get jet container of interest
-  const xAOD::JetContainer* jets = 0;
+//   const xAOD::JetContainer* jets = 0;
 
   /// retrieve arguments: container type, container key
   if ( !m_event->retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess() ){ 
@@ -913,16 +913,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   cout << "MET old " << mpx2 << ", " << mpy2 << ", " << sqrt(mpx2*mpx2 + mpy2*mpy2)<<endl;
   */
   // easier
-  double mpx2 = (*met)["NewRefJet"]->mpx();
-  double mpy2 = (*met)["NewRefJet"]->mpy();
-  double refjet = sqrt(pow(mpx2,2)+pow(mpy2,2));
-  //cout << "new met refjet " << mpx2/1000.<< ", " << refjet<<endl;
-  mpx2 = (*met)["NewMuons"]->mpx();
-  mpy2 = (*met)["NewMuons"]->mpy();
-  //double refmuon = 0.;
-  double refmuon = sqrt(pow(mpx2,2)+pow(mpy2,2));
-  //cout << "new met refmuon " << mpx2/1000.<< ", " << refmuon<<endl;
-  
   double mpx2 = (*met)["NewRefJet"]->mpx();
   double mpy2 = (*met)["NewRefJet"]->mpy();
   double refjet = sqrt(pow(mpx2,2)+pow(mpy2,2));
