@@ -1621,7 +1621,7 @@ bool MyxAODAnalysis :: passMuonSelection(const xAOD::Muon* mu,
 
 
 
-
+/*
 
 xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons, 
                                          xAOD::Vertex* primVertex, 
@@ -1803,4 +1803,4 @@ xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* 
 }
 
 
-
+*/
