@@ -1613,11 +1613,97 @@ bool MyxAODAnalysis :: passMuonSelection(const xAOD::Muon* mu,
   return pass;
 }
 
+ConstDataVector<xAOD::ElectronContainer> MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* electrons, xAOD::Vertex* primVertex, bool lookForVetoElectron){
 
+  const char* APP_NAME = "MyxAODAnalysis";
 
+    const xAOD::EventInfo* eventInfo = 0;
+  if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
+    Error("execute()", "Failed to retrieve event info collection. Exiting." );
+  }
 
+  //cout << "in selectElectron"<<endl;
+  xAOD::Electron* outElectron = 0;
+  ConstDataVector<xAOD::ElectronContainer> outElectronContainer(SG::VIEW_ELEMENTS);
+  int electronCounter = 0;
+  xAOD::ElectronContainer::const_iterator electron_itr = electrons->begin();
+  xAOD::ElectronContainer::const_iterator electron_end = electrons->end();
+  int i = 0;
+  for( ; electron_itr != electron_end; ++electron_itr ) {
 
+    m_BitsetCutflow->FillCutflow("oneElectron",!lookForVetoElectron);
 
+    /// Calibration and corrections ...
+    xAOD::Electron* el = 0;
+    xAOD::Electron* el2 = 0;
+    el2 = const_cast<xAOD::Electron*> (*electron_itr);
+    float oldpt = el2->pt()/1000.;
+
+    el = const_cast<xAOD::Electron*> (*electron_itr);
+      //}
+
+    i++;
+    /// ... Calibration and corrections
+    /// Eta
+    double Eta = el->caloCluster()->eta();
+    if ( abs(Eta) > 2.47 || (abs(Eta) > 1.37 && abs(Eta) < 1.52)) continue;
+    m_BitsetCutflow->FillCutflow("Eta",!lookForVetoElectron);
+
+    /// OQ
+    if (el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)==false) continue;
+    m_BitsetCutflow->FillCutflow("OQ",!lookForVetoElectron);
+
+    /// pT cut ...
+    double elPt = (el->pt()) * 0.001;
+    double lowPtCut = 65.0; /// GeV
+    if (lookForVetoElectron){
+      lowPtCut = 20.0;
+    }
+//cout << "pt " << elPt<< " old " << oldpt<<endl;
+    if (elPt < lowPtCut) continue; /// veto electron
+    m_BitsetCutflow->FillCutflow("el_pt",!lookForVetoElectron);
+    /// ... pT cut
+
+    /// d0 significance ...
+
+    const xAOD::TrackParticle *trk = el->trackParticle();
+    float d0_sig =  TMath::Abs(trk->d0())/TMath::Sqrt(trk->definingParametersCovMatrix()(0,0)
+    + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+
+   if (d0_sig>5.0) continue;
+    m_BitsetCutflow->FillCutflow("d0",!lookForVetoElectron);
+    /// ... d0 significance
+
+    /// ID ...
+    bool goodID = false;
+    if (lookForVetoElectron)
+      goodID = m_LHToolMedium2015->accept(el) || (m_LHToolTight2015->accept(el));
+    //goodID = m_LHToolMedium2015->accept(el);
+    else
+      goodID = m_LHToolMedium2015->accept(el) &&
+      m_LHToolTight2015->accept(el);
+
+    if (!goodID) continue;
+    m_BitsetCutflow->FillCutflow("ID",!lookForVetoElectron);
+    /// ... ID
+
+    /// Isolation
+    if (!m_eleisolationSelectionTool->accept(*el)) continue;
+    m_BitsetCutflow->FillCutflow("Isolation",!lookForVetoElectron);
+
+    outElectron = el;
+    outElectronContainer.push_back(el);
+    electronCounter++;
+
+  } /// end for loop over electrons
+
+  /// if there are two or more signal electrons - return NULL
+  /// Veto electron is defined to have pT within 20..55 GeV range
+  /// that's why veto electron selection is not overlapping with signal region
+  /// if more than two veto electrons found - return any of them
+  return outElectronContainer;
+
+}
 
 
 
@@ -1710,7 +1796,7 @@ xAOD::Muon* MyxAODAnalysis :: SelectMuon(const xAOD::MuonContainer* muons,
 
 }
 
-*/
+
 
 xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* electrons, 
                                          xAOD::Vertex* primVertex, 
@@ -1802,5 +1888,5 @@ xAOD::Electron* MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* 
     return 0;
 
 }
-
+*/
 
