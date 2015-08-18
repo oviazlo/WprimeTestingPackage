@@ -101,7 +101,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   /// let's initialize the algorithm to use the xAODRootAccess package
   job.useXAOD ();
   xAOD::Init( "MyxAODAnalysis" ).ignore(); /// call before opening first file
-
+  
   m_useHistObjectDumper = true;
   m_useBitsetCutflow = true;
   m_useCalibrationAndSmearingTool = true;
@@ -113,7 +113,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   
   outputName = "outFile";
   
-  OutputStream out (outputName);
+  OutputStream *out = new OutputStream (outputName);
   job.outputAdd (out);
   
   return EL::StatusCode::SUCCESS;
