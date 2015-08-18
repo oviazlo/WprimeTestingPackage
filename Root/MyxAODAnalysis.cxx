@@ -53,6 +53,9 @@
 #include <TMath.h>
 #include <TLorentzVector.h>
 
+/// OutputStream
+#include "EventLoop/OutputStream.h"
+
 #include "xAODRootAccess/tools/Message.h"
 
 
@@ -112,7 +115,6 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   
   OutputStream out (outputName);
   job.outputAdd (out);
-  return EL::StatusCode::SUCCESS;
   
   return EL::StatusCode::SUCCESS;
 }
