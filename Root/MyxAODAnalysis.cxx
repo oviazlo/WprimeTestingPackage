@@ -189,6 +189,7 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 
   /// get the output file, create a new TTree and connect it to that output
   /// define what branches will go in that tree
+  outputName = "outFile.root";
   TFile *outputFile = wk()->getOutputFile (outputName);
   tree = new TTree ("tree", "tree");
   tree->SetDirectory (outputFile);
