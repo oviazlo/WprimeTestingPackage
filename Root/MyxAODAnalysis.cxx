@@ -108,6 +108,12 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   m_truthoption = 1;
   cout << "after init"<<endl;
   
+  outputName = "outFile";
+  
+  OutputStream out (outputName);
+  job.outputAdd (out);
+  return EL::StatusCode::SUCCESS;
+  
   return EL::StatusCode::SUCCESS;
 }
 
@@ -189,7 +195,7 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 
   /// get the output file, create a new TTree and connect it to that output
   /// define what branches will go in that tree
-  outputName = "outFile.root";
+
   TFile *outputFile = wk()->getOutputFile (outputName);
   tree = new TTree ("tree", "tree");
   tree->SetDirectory (outputFile);
