@@ -1224,15 +1224,15 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
     m_grl = 0;
   }
   /// Jet cleaning tool
-  if( m_jetCleaning ) {
-    delete m_jetCleaning;
-    m_jetCleaning = 0;
-  }
-  
-  if( m_jetCalibrationTool ) {
-    delete m_jetCalibrationTool;
-    m_jetCalibrationTool = 0;
-  }
+//   if( m_jetCleaning ) {
+//     delete m_jetCleaning;
+//     m_jetCleaning = 0;
+//   }
+//   
+//   if( m_jetCalibrationTool ) {
+//     delete m_jetCalibrationTool;
+//     m_jetCalibrationTool = 0;
+//   }
   
   
   /*
