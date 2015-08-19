@@ -69,26 +69,18 @@ int main( int argc, char* argv[] ) {
   SH::Sample* mySample = sh.at(0);
   
   /// get histogram
-//   SH::Sample* mySample = sh.get (sampleMap[ vm["sample"].as<std::string>() ]);
-  
-  //SH::Sample* mySample = sh.get ("mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00");
-  //SH::Sample* mySample = sh.get ("mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00");
-  //SH::Sample* mySample = sh.findBySource ("mc14_13TeV*Wprime_emutau_*");
   TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
-
-  //~ cout << "cutflowHist pointer: " << cutflowHist << endl;
-  
+ 
   for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
     int binContent = cutflowHist->GetBinContent(i);
     if (binContent<=0) break;
     string binLabel = cutflowHist->GetXaxis()->GetBinLabel(i);
     cout << binLabel << ":\t" << binContent << endl;
   }
-  
 
   SetAtlasStyle();
   
-  // read pt, MET, Mt histograms, make them pretty and save them
+  /// read pt, MET, Mt histograms, make them pretty and save them
   TH1F* h_pt = (TH1F*)mySample->readHist ("muon/stage2_allCuts/pt");
   TH1F* h_MET = (TH1F*)mySample->readHist ("h_MET_RefFinalFix");
   TH1F* h_Mt = (TH1F*)mySample->readHist ("h_Mt_muonPtCut");
@@ -127,21 +119,7 @@ int main( int argc, char* argv[] ) {
 
 /// parse input arguments
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
-  sampleMap["W2"] = "mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r6092_p1872_tid05283006_00";
-//   sampleMap["W2"] = "mc14_13TeV.203671.Pythia8_AU2MSTW2008LO_Wprime_emutau_2000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1846_tid04963913_00";
-  sampleMap["W3"] = "mc14_13TeV.158762.Pythia8_AU2MSTW2008LO_Wprime_emutau_3000.merge.DAOD_EXOT9.e3148_s1982_s2008_r5787_r5853_p1816_tid04655450_00";
-  sampleMap["Wplus"] = "mc15_13TeV.301112.PowhegPythia8EvtGen_AZNLOCTEQ6L1_"
-  "Wplusmunu_2500M2750.merge.DAOD_EXOT9.e3663_s2608_s2183_r6630_r6264_p2353_tid0"
-  "5541743_00";
-  
-  string availableSamples = "";
-  
-  typedef map<string,string>::iterator it_type;
-  for(it_type iterator = sampleMap.begin(); iterator != sampleMap.end(); iterator++) {
-    availableSamples += iterator->first + ", ";
-  }
-  availableSamples.resize (availableSamples.size()-2);
-  
+
   try 
   { 
     /** Define and parse the program options 
@@ -150,7 +128,6 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
     desc.add_options()
       ("help,h", "Print help messages") 
       ("folder,f", po::value<string>()->required(), "name of folder to read")
-      ("sample,s", po::value<string>()->required(), ("sample type. Available samples:\n" + availableSamples).c_str())
       ;
     try 
     { 
