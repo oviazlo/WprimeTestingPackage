@@ -61,12 +61,12 @@ int main( int argc, char* argv[] ) {
   /// Print what we found:
   sh.print();
 
-  SH::Sample* mySample;
-  
-  for (SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
-  {
-    mySample = *iter;
+  if (sh.size()!=1){
+    cout << "Found more(less) than one sample in folder. Abort!" << endl;
+    return -1;
   }
+  
+  SH::Sample* mySample = sh.at(0);
   
   /// get histogram
 //   SH::Sample* mySample = sh.get (sampleMap[ vm["sample"].as<std::string>() ]);
