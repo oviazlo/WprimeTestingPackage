@@ -113,7 +113,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   
   outputName = "outFile";
   
-  OutputStream *out = new OutputStream (outputName);
+  EL::OutputStream *out = new EL::OutputStream (outputName);
   job.outputAdd (out);
   
   return EL::StatusCode::SUCCESS;
