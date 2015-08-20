@@ -274,7 +274,6 @@ public:
 //   xAOD::Muon* SelectMuon(const xAOD::MuonContainer* muons, 
 //                          xAOD::Vertex* primVertex, 
 //                          bool lookForVetoMuon = false);
-  virtual EL::StatusCode initHists ();
   
   ConstDataVector<xAOD::MuonContainer>  SelectMuon(const xAOD::MuonContainer* muons,
                          xAOD::Vertex* primVertex,

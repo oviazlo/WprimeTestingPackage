@@ -1,6 +1,5 @@
 #include <MyAnalysis/MyxAODAnalysis.h>
 
-
 EL::StatusCode MyxAODAnalysis :: initialize ()
 {
   /// Here you do everything that you need to do after the first input
