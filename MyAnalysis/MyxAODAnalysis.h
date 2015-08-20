@@ -1,6 +1,78 @@
 #ifndef MyAnalysis_MyxAODAnalysis_H
 #define MyAnalysis_MyxAODAnalysis_H
 
+#include <EventLoop/Job.h>
+#include <EventLoop/StatusCode.h>
+#include <EventLoop/Worker.h>
+//#include <MyAnalysis/HistObjectDumper.h>
+#include "CPAnalysisExamples/errorcheck.h"
+
+/// EDM includes:
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODCore/ShallowCopy.h"
+#include "xAODBase/IParticleHelpers.h"
+
+/// Isolation
+#include "IsolationSelection/IsolationSelectionTool.h"
+#include "JetMomentTools/JetVertexTaggerTool.h"
+
+/// GRL
+#include "GoodRunsLists/GoodRunsListSelectionTool.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/EgammaContainer.h"
+#include "JetSelectorTools/JetCleaningTool.h"
+#include "JetResolution/JERTool.h"
+#include "JetCalibTools/JetCalibrationTool.h"
+#include <TSystem.h> /// used to define JERTool calibration path 
+#include "xAODTracking/VertexContainer.h"
+#include "xAODParticleEvent/IParticleLink.h"
+
+/// Muons
+#include "MuonSelectorTools/MuonSelectionTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+
+/// to check the return correction code status of tools
+#include "PATInterfaces/CorrectionCode.h" 
+
+/// MET
+#include "METUtilities/METMaker.h" /// METUtils
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODMissingET/MissingETComposition.h"
+#include "xAODMissingET/MissingETAssociationMap.h"
+#include "METInterface/IMETMaker.h"
+#include "METUtilities/CutsMETMaker.h"
+
+#include <TFile.h>
+#include <TMath.h>
+#include <TLorentzVector.h>
+
+/// OutputStream
+#include "EventLoop/OutputStream.h"
+
+#include "xAODRootAccess/tools/Message.h"
+
+/// Helper macro for checking xAOD::TReturnCode return values
+#define EL_RETURN_CHECK( CONTEXT, EXP )                     \
+   do {                                                     \
+      if( ! EXP.isSuccess() ) {                             \
+         Error( CONTEXT,                                    \
+                XAOD_MESSAGE( "Failed to execute: %s" ),    \
+                #EXP );                                     \
+         return EL::StatusCode::FAILURE;                    \
+      }                                                     \
+   } while( false )
+
+
+
 /// EventLoop
 #include <EventLoop/Algorithm.h>
 
