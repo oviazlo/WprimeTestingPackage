@@ -1,4 +1,12 @@
+///*****************************************************************************
+///
+/// Implementation of all functions which are called BEFORE execute.
+///
+///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>
+
+/// this is needed to distribute the algorithm to the workers
+ClassImp(MyxAODAnalysis)
 
 EL::StatusCode MyxAODAnalysis :: initialize ()
 {
@@ -200,5 +208,69 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     count[i]=0;
   }  
 
+  return EL::StatusCode::SUCCESS;
+}
+
+MyxAODAnalysis :: MyxAODAnalysis ()
+{
+  /// Here you put any code for the base initialization of variables,
+  /// e.g. initialize all pointers to 0.  Note that you should only put
+  /// the most basic initialization here, since this method will be
+  /// called on both the submission and the worker node.  Most of your
+  /// initialization code will go into histInitialize() and
+  /// initialize().
+  
+  //m_useHistObjectDumper = true;
+
+}
+
+
+
+EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
+{
+  /// Here you put code that sets up the job on the submission object
+  /// so that it is ready to work with your algorithm, e.g. you can
+  /// request the D3PDReader service or add output files.  Any code you
+  /// put here could instead also go into the submission script.  The
+  /// sole advantage of putting it here is that it gets automatically
+  /// activated/deactivated when you add/remove the algorithm from your
+  /// job, which may or may not be of value to you.
+  
+  /// let's initialize the algorithm to use the xAODRootAccess package
+  job.useXAOD ();
+  xAOD::Init( "MyxAODAnalysis" ).ignore(); /// call before opening first file
+  
+  m_useHistObjectDumper = true;
+  m_useBitsetCutflow = true;
+  m_useCalibrationAndSmearingTool = true;
+  m_doWprimeTruthMatching = false;
+  m_runElectronChannel = false;
+  
+  m_truthoption = 1;
+  cout << "after init"<<endl;
+  
+  outputName = "outFile";
+  
+  EL::OutputStream out (outputName);
+  job.outputAdd (out);
+  
+  return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode MyxAODAnalysis :: fileExecute ()
+{
+  /// Here you do everything that needs to be done exactly once for every
+  /// single file, e.g. collect a list of all lumi-blocks processed
+  return EL::StatusCode::SUCCESS;
+}
+
+
+
+EL::StatusCode MyxAODAnalysis :: changeInput (bool firstFile)
+{
+  /// Here you do everything you need to do when we change input files,
+  /// e.g. resetting branch addresses on trees.  If you are using
+  /// D3PDReader or a similarin that jet loop let's fill this histogram, so the 
+  /// loop looks something like: service this method is not needed.
   return EL::StatusCode::SUCCESS;
 }
