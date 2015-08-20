@@ -58,7 +58,7 @@
 
 #include "xAODRootAccess/tools/Message.h"
 
-#include "Histograms.cxx"
+// #include "Histograms.cxx"
 
 /// Helper macro for checking xAOD::TReturnCode return values
 #define EL_RETURN_CHECK( CONTEXT, EXP )                     \
