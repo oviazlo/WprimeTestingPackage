@@ -1,6 +1,10 @@
 ///*****************************************************************************
 ///
-/// Custom user-defined functions, which are not standart in EventLoop
+/// Custom user-defined functions, which are not standart in EventLoop:
+///     - VetoMuon
+///     - SelectMuon
+///     - passMuonSelection
+///     - SelectElectron
 ///
 ///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>

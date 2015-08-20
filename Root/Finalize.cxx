@@ -1,6 +1,10 @@
 ///*****************************************************************************
 ///
-/// Implementation of all functions which are called AFTER execute.
+/// Implementation of all functions which are called AFTER execute:
+///     - postExecute
+///     - finalize:
+///             * deleting of all tools
+///     - histFinalize
 ///
 ///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>

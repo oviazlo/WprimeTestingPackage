@@ -1,6 +1,13 @@
 ///*****************************************************************************
 ///
-/// Implementation of all functions which are called BEFORE execute.
+/// Implementation of all functions which are called BEFORE execute:
+///     - constructor MyxAODAnalysis
+///     - initialize:
+///             * retrieve and configure all tools
+///     - setupJob:
+///             * initialization of flags
+///     - fileExecute
+///     - changeInput
 ///
 ///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>

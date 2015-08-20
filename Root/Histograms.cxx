@@ -1,3 +1,10 @@
+///*****************************************************************************
+///
+/// Implementation of histInitialize function:
+///     - histInitialize:
+///             * create and register in worker all output histograms
+///
+///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>
 
 EL::StatusCode MyxAODAnalysis :: histInitialize ()
