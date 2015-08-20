@@ -16,18 +16,15 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: VetoMuon(const xAOD::Muon
                                          xAOD::Vertex* primVertex,
                                   bool lookForVetoMuon){
 
-  // option 1: signal selection; 2: muon veto; 3: 
-  // would need to fill 
-  // ConstDataVector<xAOD::MuonContainer> muonfinal(SG::VIEW_ELEMENTS); // Create a new muon container
+  /// option 1: signal selection; 2: muon veto; 3: 
+  /// would need to fill 
+
   const char* APP_NAME = "MyxAODAnalysis";
-  //nmuons = 0;
 
   const xAOD::EventInfo* eventInfo = 0;
   if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
     Error("execute()", "Failed to retrieve event info collection. Exiting." );
   }
-
-  //  xAOD::MuonContainer* outMuonContainer = 0;
 
   ConstDataVector<xAOD::MuonContainer> vetoMuonContainer(SG::VIEW_ELEMENTS);
   xAOD::Muon* vetoMuon = 0;
@@ -50,7 +47,7 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: VetoMuon(const xAOD::Muon
       return vetoMuonContainer;
     }
   }
-muon_itr = muons->begin();
+  muon_itr = muons->begin();
   for( ; muon_itr != muon_end; ++muon_itr ) {
 
     if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon((*muon_itr),"noCuts");
@@ -60,7 +57,7 @@ muon_itr = muons->begin();
     xAOD::Muon* mu = 0;
     mu = const_cast<xAOD::Muon*> (*muon_itr);
 
-    // keep lins
+    /// keep lins
 
     if (mu->muonType()!=xAOD::Muon_v1::Combined) continue;
     m_BitsetCutflow->FillCutflow("Combined",!lookForVetoMuon);
@@ -97,7 +94,7 @@ muon_itr = muons->begin();
     if (!lookForVetoMuon) count[8]+=1;
 
 
-/// zo cut
+    /// zo cut
     double z0_vrtPVx = mu->primaryTrackParticle()->z0() +
     mu->primaryTrackParticle()->vz() - primVertex->z();
     double sintheta = 1.0/TMath::CosH(mu->eta());
@@ -106,7 +103,6 @@ muon_itr = muons->begin();
     if (!lookForVetoMuon) count[9]+=1;
 
     /// Isolation stuff
-
     if (!lookForVetoMuon) {
       if (!m_muonisolationSelectionTool->accept(*mu)) continue;
       m_BitsetCutflow->FillCutflow("Isolation",!lookForVetoMuon);
@@ -117,7 +113,7 @@ muon_itr = muons->begin();
     if(isMC){
 
     }
-    // save this muon
+    /// save this muon
     //const xAOD::IParticleLink originLink( *muons, mu->index() );
     //accSetOriginLink(*mu) = originLink;
     vetoMuonContainer.push_back(mu);
