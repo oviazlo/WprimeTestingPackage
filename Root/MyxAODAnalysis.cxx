@@ -110,7 +110,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// prescale
   
   /// list of triggers to use
-  std::vector<std::string> triggerChains = {"HLT_mu10.*","HLT_noalg_L1MU10.*","HLT_mu18.*"};
+//   std::vector<std::string> triggerChains = {"HLT_mu10.*","HLT_noalg_L1MU10.*","HLT_mu18.*"};
+  std::vector<std::string> triggerChains = {"HLT_mu50.*"};
   bool passTrigger = true;
   
   for(std::vector<std::string>::iterator it = triggerChains.begin(); it != triggerChains.end(); ++it) {
