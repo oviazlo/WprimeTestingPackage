@@ -159,12 +159,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
   */
   /// TODO do we need !isMC requirement?
-  if(!isMC){
+//   if(!isMC){
     if (passTrigger==false)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Trigger");
     count[2]+=1;
-  }
+//   }
   
   /// if data check if event passes GRL
   if(!isMC){ /// it's data!
