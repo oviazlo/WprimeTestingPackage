@@ -49,6 +49,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
   
   /// Muon Truth matching. Check do we have muon from W' decay
+  /// WARNING do we need it for all MCs?
   if(isMC && m_doWprimeTruthMatching){
     bool foundMuonFromWprimeDecay = false;
     
@@ -68,11 +69,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
         break;
       for (unsigned int iIn=0; iIn < (*truthV_itr)->nIncomingParticles(); iIn++)
       {
-        if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) {
+        if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) { /// 34 - Wprime
           for (unsigned int iOut=0; iOut < (*truthV_itr)->nOutgoingParticles(); 
                iOut++) {
             if (TMath::Abs((*truthV_itr)->outgoingParticle(iOut)->pdgId()) 
-              == 13)
+              == 13) /// 13 - muon
               foundMuonFromWprimeDecay = true;
             break;
           }
@@ -107,10 +108,28 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// examine the HLT_mu50* chains, see if they passed/failed and their total 
   /// prescale
+  
+  /// list of triggers to use
+  std::vector<std::string> triggerChains = {"HLT_mu10.*","HLT_noalg_L1MU10.*","HLT_mu18.*"};
   bool passTrigger = true;
+  
+  for(std::vector<std::string>::iterator it = triggerChains.begin(); it != triggerChains.end(); ++it) {
+    auto chainGroup = m_trigDecisionTool->getChainGroup(*it);
+    for(auto &trig : chainGroup->getListOfTriggers()) {
+      auto cg = m_trigDecisionTool->getChainGroup(trig);
+      std::string thisTrig = trig;
+  //     Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale "
+  //     "(L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
+      if (cg->isPassed()==false){
+        passTrigger = false;
+        m_BitsetCutflow->FillCutflow(*it);
+      }
+    }
+  }/*
+  
   auto chainGroup = m_trigDecisionTool->getChainGroup("HLT_mu10.*");
 //   auto chainGroup = m_trigDecisionTool->getChainGroup("HLT_mu50.*");
-  std::map<std::string,int> triggerCounts;
+//   std::map<std::string,int> triggerCounts;
   for(auto &trig : chainGroup->getListOfTriggers()) {
     auto cg = m_trigDecisionTool->getChainGroup(trig);
     std::string thisTrig = trig;
@@ -120,7 +139,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       passTrigger = false;
   } /// end for loop (c++11 style) over chain group matching "HLT_mu50*" 
   
-  /// TODO do we need such chain of triggers?
   chainGroup = m_trigDecisionTool->getChainGroup("HLT_noalg_L1MU10.*");
   for(auto &trig : chainGroup->getListOfTriggers()) {
     auto cg = m_trigDecisionTool->getChainGroup(trig);
@@ -139,7 +157,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     if (cg->isPassed())
       passTrigger = true;
   }
-  
+  */
   /// TODO do we need !isMC requirement?
   if(!isMC){
     if (passTrigger==false)
@@ -151,7 +169,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// if data check if event passes GRL
   if(!isMC){ /// it's data!
     if(!m_grl->passRunLB(*eventInfo)){
-      return EL::StatusCode::SUCCESS; // go to next event
+      return EL::StatusCode::SUCCESS; /// go to next event
     }
   } /// end if not MC
   m_BitsetCutflow->FillCutflow("GRL");
@@ -318,7 +336,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       return EL::StatusCode::SUCCESS;
     }
     
-  } // end for loop over jets
+  } /// end for loop over jets
   
   m_BitsetCutflow->FillCutflow("JetCleaning");
   */
@@ -331,12 +349,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("Primary vertex");
   
   
-  // select electrons and muon candidate using W' cut flow
+  /// select electrons and muon candidate using W' cut flow
   xAOD::Electron* signalEl = 0;
 
   static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
   ConstDataVector<xAOD::MuonContainer> signalMuon(SG::VIEW_ELEMENTS); // Create a new muon container
-  // not really used right now
+  /// not really used right now
   if (!m_runElectronChannel){
     /// loop over the muons in the container
     /// signal selection
@@ -354,13 +372,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       return EL::StatusCode::SUCCESS;
   }
   else{
-    // to be filled
+    /// to be filled
   }
   
   ConstDataVector<xAOD::MuonContainer> newMuons(SG::VIEW_ELEMENTS);
   
   for(const auto& mu : *muoncopy.first) {
-    // put your cuts here
+    /// put your cuts here
       if ((*mu).muonType()!=xAOD::Muon_v1::Combined) continue;
       double muPt = ((*mu).pt()) * 0.001;
       if (muPt < 55 || muPt>=9999999) continue; /// veto muon
@@ -409,7 +427,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   std::string softTerm = "PVSoftTrk";
   std::string finalTerm = "FinalTrk";
 
-  // comment for the moment as this does not work on EXOT9
+  /// comment for the moment as this does not work on EXOT9
   xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
   xAOD::MissingETAuxContainer* met_aux = new xAOD::MissingETAuxContainer;
   met->setStore(met_aux);
@@ -431,7 +449,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
 
   bool doTracks = true;
-  // not needed any more as now I have my selected muons
+  /// not needed any more as now I have my selected muons
   //cout << "input electrons"<<endl;
   //m_metMaker->rebuildMET("NewRefEle", xAOD::Type::Electron, met, metElectrons.asDataVector(), metMap);
   //m_metMaker->rebuildMET("NewRefEle", xAOD::Type::Electron, met, vetoEl.asDataVector(), metMap);
@@ -463,7 +481,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   double phi_met = metVec->Phi();
   //cout << "MET new " << mpx << ", " << mpy << ", " << sqrt(mpx*mpx + mpy*mpy)<< " phi " << phi_met<<endl;
   
-  // uncalibrated met
+  /// uncalibrated met
   /// get MET_RefFinalFix container of interest
   //cout << "get old met values"<<endl;
   const xAOD::MissingETContainer* metcontainer = 0;
@@ -487,7 +505,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   double mpy2 = (*met_itold)->mpy();
   cout << "MET old " << mpx2 << ", " << mpy2 << ", " << sqrt(mpx2*mpx2 + mpy2*mpy2)<<endl;
   */
-  // easier
+  /// easier
   double mpx2 = (*met)["NewRefJet"]->mpx();
   double mpy2 = (*met)["NewRefJet"]->mpy();
   double refjet = sqrt(pow(mpx2,2)+pow(mpy2,2));
@@ -562,7 +580,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   //return EL::StatusCode::SUCCESS;
   //m_BitsetCutflow->FillCutflow("MET cut");
   count[15]+=1;
-  // calculate MT
+  /// calculate MT
   xAOD::MuonContainer::const_iterator muon_itr = signalMuon.begin();
   xAOD::MuonContainer::const_iterator muon_end = signalMuon.end();
   for (muon_itr=signalMuon.begin(); muon_itr != muon_end; ++muon_itr ){
