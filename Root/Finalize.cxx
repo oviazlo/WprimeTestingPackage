@@ -46,6 +46,8 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
   ///
   /// ************************
   
+  
+  PrintCutflowLocally();
   for (int i=0; i<17; i++) {
       cout << "cut " << i << " value: " << count[i]<<endl;
     }

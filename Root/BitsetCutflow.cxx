@@ -45,3 +45,11 @@ void BitsetCutflow::FillCutflow(string cutflowStepName, bool fillCutflow){
   }
 }
 
+void BitsetCutflow::PrintCutflowLocally(){
+  for (int i=1; i<=m_cutflowHist->GetNbinsX(); i++){
+    int binContent = m_cutflowHist->GetBinContent(i);
+    if (binContent<=0) break;
+    string binLabel = m_cutflowHist->GetXaxis()->GetBinLabel(i);
+    cout << binLabel << ":\t" << binContent << endl;
+  }
+}

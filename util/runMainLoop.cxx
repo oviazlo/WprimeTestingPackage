@@ -84,15 +84,35 @@ int main( int argc, char* argv[] ) {
   /// Add our analysis to the job:
   MyxAODAnalysis* alg = new MyxAODAnalysis();
   job.algsAdd( alg );
+  
   /// all configuration to the algorithm should be passed after attachment to 
   /// the job (practically after this comment)
-
-  //    alg->outputName = "myOutput"; // give the name of the output to our algorithm
-  //alg->m_useHistObjectDumper = false;
+  ///
+  /// syntax of passing configurations:
+  ///   alg->m_myMegaFlag = true;
+  ///
+  /// [List of possble flags to use]
+  /// bool m_useHistObjectDumper; - do not make default plots by HistObjectDumper
+  /// bool m_useBitsetCutflow; - do not save cutflow
+  /// bool m_useCalibrationAndSmearingTool; - don't do muon calibration and smearing TODO not in the code now?
+  /// bool m_runElectronChannel; - run electron cycle instead of muon one
+  /// bool m_doWprimeTruthMatching; - do truth matching to identify Wprime decay to muon/electron channel
+  /// bool m_doNotApplyTriggerCuts; - do not apply triggers in MC
+  /// string outputName; - name of output tree TODO not implemented yet
+  
   alg->m_useCalibrationAndSmearingTool = true;
   if (vm.count("noSmearing"))
     alg->m_useCalibrationAndSmearingTool = false;
+  
   alg->m_doWprimeTruthMatching = false;
+
+  
+  bool m_useHistObjectDumper;
+  bool m_useBitsetCutflow;
+  bool m_useCalibrationAndSmearingTool;
+  bool m_runElectronChannel;
+  bool m_doWprimeTruthMatching;
+  bool m_doNotApplyTriggerCuts;
 
   if (vm.count("electronChannel"))
     alg->m_runElectronChannel = true;

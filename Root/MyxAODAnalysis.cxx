@@ -106,9 +106,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   count[1]+=1;
   
   
-  /// examine the HLT_mu50* chains, see if they passed/failed and their total 
-  /// prescale
-  
+  /// triggers  
   /// list of triggers to use
 //   std::vector<std::string> triggerChains = {"HLT_mu10.*","HLT_noalg_L1MU10.*","HLT_mu18.*"};
   std::vector<std::string> triggerChains = {"HLT_mu50.*"};
@@ -130,13 +128,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     }
   }
   
-  /// TODO do we need !isMC requirement?
-//   if(!isMC){
+  if(m_doNotApplyTriggerCuts){
     if (passTrigger==false)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Trigger");
     count[2]+=1;
-//   }
+  }
   
   /// if data check if event passes GRL
   if(!isMC){ /// it's data!
@@ -574,7 +571,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     RunNumber = eventInfo->runNumber();
     LumiBlock = eventInfo->lumiBlock();
     MuonPt = mu->pt();
-  MuonEta = mu->eta();
+    MuonEta = mu->eta();
     MuonPhi = mu->phi();
     MissingEt = metVec->Pt();
     MissingEx = metVec->Px();

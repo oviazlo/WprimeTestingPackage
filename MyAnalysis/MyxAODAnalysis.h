@@ -142,13 +142,13 @@ public:
   bool m_useCalibrationAndSmearingTool;
   bool m_runElectronChannel;
   bool m_doWprimeTruthMatching;
+  bool m_doNotApplyTriggerCuts;
   int m_truthoption;
   int truthOption;
-  bool isMC;
-  int count[20];
-  
-  std::string outputName;
-  TTree *tree; //!
+   
+  int count[20]; //!
+  bool isMC; //!
+   
   int EventNumber; //!
   int RunNumber; //!
   int LumiBlock; //!
@@ -165,8 +165,7 @@ public:
   /// protected from being send from the submission node to the worker
   /// node (done by the //!)
 public:
-  // Tree *myTree; //!
-  // TH1 *myHist; //!
+
   xAOD::TEvent *m_event;  //!
   xAOD::TStore *m_store;  //!
 
@@ -215,8 +214,8 @@ public:
   TH1 *h_truthMET; //!
 
   /// defining the output file name and tree that we will put in the output ntuple, also the one branch that will be in that tree 
-//   std::string outputName;
-//   TTree *tree; //!
+  std::string outputName; //!
+  TTree *tree; //!
 
   #ifndef __CINT__
     GoodRunsListSelectionTool *m_grl; //!
