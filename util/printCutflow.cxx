@@ -51,7 +51,11 @@ int main( int argc, char* argv[] ) {
   if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 
   /// Take the submit directory from the input if provided:
-  std::string folder = vm["folder"].as<std::string>();  
+  std::string folder = "submitDir";
+  if (vm.count(folder))
+    folder = vm["folder"].as<std::string>();
+  else
+    cout << "[INFO]\tread cutflow from default directory: " << folder << endl;
 
   // Construct the samples to run on:
   SH::SampleHandler sh;
@@ -129,7 +133,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
     po::options_description desc("Options"); 
     desc.add_options()
       ("help,h", "Print help messages") 
-      ("folder,f", po::value<string>()->required(), "name of folder to read")
+      ("folder,f", po::value<string>(), "name of folder to read")
       ("drawHists,d", "draw histograms")
       ;
     try 
