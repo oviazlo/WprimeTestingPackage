@@ -84,20 +84,20 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
   /// get the output file, create a new TTree and connect it to that output
   /// define what branches will go in that tree
 
-  TFile *outputFile = wk()->getOutputFile (outputName);
-  tree = new TTree ("tree", "tree");
-  tree->SetDirectory (outputFile);
-  tree->Branch("EventNumber", &EventNumber);
-  tree->Branch("RunNumber", &RunNumber);
-  tree->Branch("LumiBlock", &LumiBlock);
-  tree->Branch("MuonPt", &MuonPt);
-  tree->Branch("MuonEta", &MuonEta);
-  tree->Branch("MuonPhi", &MuonPhi);
-  tree->Branch("MissingEt", &MissingEt);
-  tree->Branch("MissingEx", &MissingEx);
-  tree->Branch("MissingEy", &MissingEy);
-  tree->Branch("OldMissingEt", &OldMissingEt);
-  tree->Branch("TransverseMass", &TransverseMass);
+//   TFile *outputFile = wk()->getOutputFile (outputName);
+//   tree = new TTree ("tree", "tree");
+//   tree->SetDirectory (outputFile);
+//   tree->Branch("EventNumber", &EventNumber);
+//   tree->Branch("RunNumber", &RunNumber);
+//   tree->Branch("LumiBlock", &LumiBlock);
+//   tree->Branch("MuonPt", &MuonPt);
+//   tree->Branch("MuonEta", &MuonEta);
+//   tree->Branch("MuonPhi", &MuonPhi);
+//   tree->Branch("MissingEt", &MissingEt);
+//   tree->Branch("MissingEx", &MissingEx);
+//   tree->Branch("MissingEy", &MissingEy);
+//   tree->Branch("OldMissingEt", &OldMissingEt);
+//   tree->Branch("TransverseMass", &TransverseMass);
 
   return EL::StatusCode::SUCCESS;
 }
