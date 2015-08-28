@@ -54,7 +54,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     bool foundMuonFromWprimeDecay = false;
     
     /// Create truth vertice container
-    const xAOD::TruthVertexContainer* truthVertices = 0; 
+    const xAOD::TruthVertexContainer* truthVertices = 0;
     /// retrieve arguments: container type, container key
     if ( !m_event->retrieve( truthVertices, "TruthVertices" ).isSuccess() ){ 
       Error("execute()","Failed to retrieve TruthVertices container. Exiting.");
@@ -578,7 +578,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     MissingEy = metVec->Py();
     OldMissingEt = metVecold->Pt();
     TransverseMass = Mt;
-    tree->Fill();
+//     tree->Fill();
   }
 
   /// ************************************************
