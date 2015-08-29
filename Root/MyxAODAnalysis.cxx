@@ -151,7 +151,18 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     Error("execute()", "Failed to retrieve Electrons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
-  
+
+  /*
+  uniques.clear();
+  ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
+  for(const auto& electron : *electrons) {
+    if(CutsMETMaker::accept(electron)) {
+  metElectrons.push_back(electron);
+    }
+  }
+  */
+    
+  /// simple loop over photons
   const xAOD::PhotonContainer* photons(0);
   m_event->retrieve( photons, "Photons");
   if ( !m_event->retrieve( photons, "Photons" ).isSuccess() ){ /// retrieve arguments: container$
@@ -161,46 +172,46 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   uniques.clear();
   ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
-  //for(const auto& ph : *photons) {
   for(const auto& ph : *photons) {
     if(CutsMETMaker::accept(ph)) {
       metPhotons.push_back(ph);
     }
   }
   
-  /// full copy 
-  /// get muon container of interest
+  /// complex loop over muon (full copy)
   const xAOD::MuonContainer* muons = 0;
   if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
     Error("execute()", "Failed to retrieve Muons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
 
+  /// TODO cross-check this functionality
   std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> muoncopy = xAOD::shallowCopyContainer(*muons);
-  xAOD::setOriginalObjectLink(*muons, *muoncopy.first); // This line is very important ! Overlap removal will fail if line is missing
-  for(const auto& muon : *muoncopy.first) {
+  xAOD::setOriginalObjectLink(*muons, *muoncopy.first); /// This line is very important ! Overlap removal will fail if line is missing
+  for(const auto& muon : *muoncopy.first) { /// loop over muoncopy vector
     if (fabs(muon->eta())<2.5) {
-      CP::CorrectionCode result = m_muonCalibrationAndSmearingTool->applyCorrection(*muon);
+      CP::CorrectionCode result = m_muonCalibrationAndSmearingTool->applyCorrection(*muon); /// change is valid only for muoncopy vector (I assume)
       if(result != CP::CorrectionCode::Ok){
-    cout << "muon pt " << muon->pt()<< " eta " << muon->eta()<<endl;
-    throw std::runtime_error("Error when calibrating muons. Exiting." );
+        cout << "muon pt " << muon->pt()<< " eta " << muon->eta()<<endl;
+        throw std::runtime_error("Error when calibrating muons. Exiting." );
       }
     }
   }
+  /// TODO what's that? whe try to create new container in m_store? is this the place where we have ERRORs?
   m_store->record(muoncopy.first,  "MuonCopy");
   m_store->record(muoncopy.second, "MuonCopyAux");
   
   uniques.clear();
   ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-  for(const auto& muon : *muoncopy.first) {
-
+  for(const auto& muon : *muoncopy.first) { /// metMuons are muons after calibration and smearing...
     if(CutsMETMaker::accept(muon)) {
       metMuons.push_back(muon);
     }
   }
   
-  ConstDataVector<xAOD::MuonContainer> noMuons(SG::VIEW_ELEMENTS);
+//   ConstDataVector<xAOD::MuonContainer> noMuons(SG::VIEW_ELEMENTS);
   
+  /// simple loop over taus
   const xAOD::TauJetContainer* taus(0);
   m_event->retrieve( taus, "TauJets");
   if ( !m_event->retrieve( taus, "TauJets" ).isSuccess() ){ /// retrieve arguments: container$
@@ -216,15 +227,15 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     }
   }
   
-  /// LOOP OVER JETS
+  /// complex loop over jets
   const xAOD::JetContainer* jets(0);
   m_event->retrieve(jets, "AntiKt4EMTopoJets");
   uniques.clear();
 
   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> jetcopy = xAOD::shallowCopyContainer(*jets);
-  xAOD::setOriginalObjectLink(*jets, *jetcopy.first); // This line is very important ! Overlap removal will fail if line is missing
+  xAOD::setOriginalObjectLink(*jets, *jetcopy.first); /// This line is very important ! Overlap removal will fail if line is missing
   for(const auto& jet : *jetcopy.first) {
-
+    /// TODO check it, is it up-to-date way to calibrate jets
     //cout << "original jet pt " << (*jet).pt()/1000. <<endl;
     /*
     CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
@@ -241,11 +252,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     //cout << "oldjvt " << oldjvt << " newjvt " << newjvt<<endl;
   }
 
+  /// recond Jet copies to storage...
   m_store->record(jetcopy.first,  "JetCopy");
   m_store->record(jetcopy.second, "JetCopyAux");
 
+  /// complex loop over electrons
   std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> elecopy = xAOD::shallowCopyContainer(*electrons);
-  xAOD::setOriginalObjectLink(*electrons, *elecopy.first); // This line is very important ! Overlap removal will fail if line is missing
+  xAOD::setOriginalObjectLink(*electrons, *elecopy.first); /// This line is very important ! Overlap removal will fail if line is missing
   for(const auto& ele : *elecopy.first) {
 
     //cout << "original jet pt " << (*jet).pt()/1000. <<endl;
@@ -254,26 +267,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       throw std::runtime_error("Error when calibrating jets. Exiting." );
     }
   }
+  
+  /// recond Electron copies to storage...
   m_store->record(elecopy.first,  "EleCopy");
   m_store->record(elecopy.second, "EleCopyAux");
-  
-  const xAOD::VertexContainer* vertices = 0;
-  /// retrieve arguments: container type, container key
-  if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ 
-    Error("execute()","Failed to retrieve PrimaryVertices container. Exiting.");
-    return EL::StatusCode::FAILURE;
-  }
-  
-  xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
-  xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
-  xAOD::Vertex* primVertex = 0;
-  int nGoodVtx = 0;
-  for( ; vtx_itr != vtx_end; ++vtx_itr ) {
-    if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx){
-      primVertex = (*vtx_itr);
-      nGoodVtx++;
-    }
-  }
 
   /// LOOP OVER JETS
 
@@ -282,11 +279,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //   const xAOD::JetContainer* jets = 0;
 
   /// retrieve arguments: container type, container key
-  if ( !m_event->retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess() ){ 
-    Error("execute()","Failed to retrieve AntiKt4EMTopoJets container. "
-    "Exiting.");
-    return EL::StatusCode::FAILURE;
-  }
+  /// WARNING retieve jets again... why not use previous container?
+//   if ( !m_event->retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess() ){ 
+//     Error("execute()","Failed to retrieve AntiKt4EMTopoJets container. "
+//     "Exiting.");
+//     return EL::StatusCode::FAILURE;
+//   }
 
   /// loop over the jets in the container
   /// not used in current cutflow
@@ -310,6 +308,25 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("JetCleaning");
   */
   
+  ///
+  const xAOD::VertexContainer* vertices = 0;
+  /// retrieve arguments: container type, container key
+  if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ 
+    Error("execute()","Failed to retrieve PrimaryVertices container. Exiting.");
+    return EL::StatusCode::FAILURE;
+  }
+  
+  xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
+  xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
+  xAOD::Vertex* primVertex = 0;
+  int nGoodVtx = 0;
+  for( ; vtx_itr != vtx_end; ++vtx_itr ) {
+    if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx){
+      primVertex = (*vtx_itr);
+      nGoodVtx++;
+    }
+  }
+  
   if (nGoodVtx>1)
     cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " 
     << nGoodVtx << endl;
@@ -317,12 +334,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Primary vertex");
   
-  
   /// select electrons and muon candidate using W' cut flow
   xAOD::Electron* signalEl = 0;
 
-  static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
-  ConstDataVector<xAOD::MuonContainer> signalMuon(SG::VIEW_ELEMENTS); // Create a new muon container
+  static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink"); /// WARNING what's this?
+  ConstDataVector<xAOD::MuonContainer> signalMuon(SG::VIEW_ELEMENTS); /// Create a new muon container
   /// not really used right now
   if (!m_runElectronChannel){
     /// loop over the muons in the container
@@ -330,10 +346,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     //signalMuon = SelectMuon(muons,primVertex);
     for(const auto& mu : *muoncopy.first) {
       if (passMuonSelection(mu, eventInfo, primVertex, false)) {
-    //const xAOD::IParticleLink originLink( *muons, (*mu).index() );
-    //accSetOriginLink(*mu) = originLink;
-    signalMuon.push_back(mu);
-    //cout << "pass muon with " << mu->pt()<<endl;
+        //const xAOD::IParticleLink originLink( *muons, (*mu).index() );
+        //accSetOriginLink(*mu) = originLink;
+        signalMuon.push_back(mu);
+        //cout << "pass muon with " << mu->pt()<<endl;
       }
     }
 
@@ -341,9 +357,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       return EL::StatusCode::SUCCESS;
   }
   else{
-    /// to be filled
+    /// to be filled: electron selection
   }
   
+  /// TODO what is the difference between signalMuon and newMuons???
   ConstDataVector<xAOD::MuonContainer> newMuons(SG::VIEW_ELEMENTS);
   
   for(const auto& mu : *muoncopy.first) {
@@ -354,12 +371,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       if(!m_muonSelection->accept(mu)) continue;
       /// do significance 
       double d0_sig = TMath::Abs((*mu).primaryTrackParticle()->d0()) /
-    TMath::Sqrt((*mu).primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-            + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+                      TMath::Sqrt((*mu).primaryTrackParticle()->definingParametersCovMatrix()(0,0)
+                      + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
       if (d0_sig>3.0) continue;
       /// zo cut
       double z0_vrtPVx = (*mu).primaryTrackParticle()->z0() +
-    (*mu).primaryTrackParticle()->vz() - primVertex->z();
+                         (*mu).primaryTrackParticle()->vz() - primVertex->z();
       double sintheta = 1.0/TMath::CosH((*mu).eta());
       if (abs( z0_vrtPVx*sintheta )>10.0) continue;
       if (!m_muonisolationSelectionTool->accept(*mu)) continue;
@@ -373,7 +390,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   //if (signalMuon.size()>1) return EL::StatusCode::SUCCESS;
   if (signalMuon.size()==0 || signalMuon.size()>1) return EL::StatusCode::SUCCESS;
 
-  ConstDataVector<xAOD::MuonContainer> vetoMu(SG::VIEW_ELEMENTS); // Create a new muon container
+  ConstDataVector<xAOD::MuonContainer> vetoMu(SG::VIEW_ELEMENTS); /// Create a new muon container
   vetoMu = VetoMuon(muoncopy.first,primVertex,true);
   //cout << "Run/Event " << EventNumber << " signal " << signalMuon.size() << ", veto " << vetoMu.size()<<endl;
   if (vetoMu.size()>1) return EL::StatusCode::SUCCESS;
@@ -390,8 +407,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if (nGoodVtx==0)  return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Primary vertex");
   count[14]+=1;
-  // move met to last step as it needs our selected muons as input
-  // calculate MET
+  /// move met to last step as it needs our selected muons as input
+  /// calculate MET
   bool doJVFCut = false;
   std::string softTerm = "PVSoftTrk";
   std::string finalTerm = "FinalTrk";
