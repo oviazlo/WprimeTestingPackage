@@ -54,7 +54,8 @@ int main( int argc, char* argv[] ) {
   SH::SampleHandler sh;
 
    const char* inputFilePath = gSystem->ExpandPathName 
-   ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data/munu/p2377");
+//    ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data/munu/p2377");
+   ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data");
 //   const char* inputFilePath = gSystem->ExpandPathName 
 //   ("/afs/cern.ch/user/o/oviazlo/eos/atlas/user/o/oviazlo/Wprime/datasets");
   SH::DiskListLocal list (inputFilePath);
