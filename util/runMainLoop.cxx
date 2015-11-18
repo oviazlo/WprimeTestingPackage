@@ -63,7 +63,7 @@ int main( int argc, char* argv[] ) {
   hostNameChArr = getenv("HOSTNAME");
   string hostName(hostNameChArr);
   
-  std::size_t found = str.find("cern");
+  std::size_t found = hostName.find("cern");
   if (found!=std::string::npos)
     /// cern machines
     inputFilePath = gSystem->ExpandPathName
