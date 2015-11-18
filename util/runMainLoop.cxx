@@ -16,6 +16,8 @@
 #include <boost/algorithm/string.hpp>
 #include "boost/filesystem.hpp"
 
+#include <stdlib.h>     /* getenv */
+
 namespace 
 { 
   const size_t ERROR_IN_COMMAND_LINE = 1; 
@@ -53,11 +55,24 @@ int main( int argc, char* argv[] ) {
   /// Construct the samples to run on:
   SH::SampleHandler sh;
 
-   const char* inputFilePath = gSystem->ExpandPathName 
-//    ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data/munu/p2377");
-   ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data");
-//   const char* inputFilePath = gSystem->ExpandPathName 
-//   ("/afs/cern.ch/user/o/oviazlo/eos/atlas/user/o/oviazlo/Wprime/datasets");
+  const char* inputFilePath;
+  
+  /// get hostname of the running machine
+  /// check if it is cern or lunarc machines
+  char* hostNameChArr;
+  hostNameChArr = getenv("HOSTNAME");
+  string hostName(hostNameChArr);
+  
+  std::size_t found = str.find("cern");
+  if (found!=std::string::npos)
+    /// cern machines
+    inputFilePath = gSystem->ExpandPathName
+    ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data");
+  else
+    /// lunarc machines
+    inputFilePath = gSystem->ExpandPathName
+    ("/nfs/shared/pp/oviazlo/xAOD/p2425");
+
   SH::DiskListLocal list (inputFilePath);
   SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
   
