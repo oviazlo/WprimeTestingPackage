@@ -21,6 +21,7 @@
 
 /// GRL
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
+
 #include "xAODJet/JetContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
@@ -34,6 +35,8 @@
 #include <TSystem.h> /// used to define JERTool calibration path 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODParticleEvent/IParticleLink.h"
+
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 
 /// Muons
 #include "MuonSelectorTools/MuonSelectionTool.h"
