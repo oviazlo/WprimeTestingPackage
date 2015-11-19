@@ -340,34 +340,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   else{
     /// to be filled: electron selection
   }
-  
-  /// TODO what is the difference between signalMuon and newMuons???
-  ConstDataVector<xAOD::MuonContainer> newMuons(SG::VIEW_ELEMENTS);
-  
-  for(const auto& mu : *muoncopy.first) {
-    /// put your cuts here
-      if ((*mu).muonType()!=xAOD::Muon_v1::Combined) continue;
-      double muPt = ((*mu).pt()) * 0.001;
-      if (muPt < 55 || muPt>=9999999) continue; /// veto muon
-      if(!m_muonSelection->accept(mu)) continue;
-      /// do significance 
-      xAOD::TrackParticle *tp = mu->primaryTrackParticle();
-      double d0_sig = xAOD::TrackingHelpers::d0significance
-      ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
-      eventInfo->beamPosSigmaXY() );
-      if (d0_sig>3.0) continue;
-      /// zo cut
-      double z0_vrtPVx = (*mu).primaryTrackParticle()->z0() +
-                         (*mu).primaryTrackParticle()->vz() - primVertex->z();
-      double sintheta = 1.0/TMath::CosH((*mu).eta());
-      if (abs( z0_vrtPVx*sintheta )>10.0) continue;
-      if (!m_muonisolationSelectionTool->accept(*mu)) continue;
-      const xAOD::IParticleLink originLink( *muons, (*mu).index() );
-      accSetOriginLink(*mu) = originLink;
-      newMuons.push_back(mu);
-  }
-  
-  //cout << "no of signal muons " <<newMuons.size()<<endl; 
+
   /// look for veto muon, add this for the moment
   //if (signalMuon.size()>1) return EL::StatusCode::SUCCESS;
   if (signalMuon.size()==0 || signalMuon.size()>1) 
