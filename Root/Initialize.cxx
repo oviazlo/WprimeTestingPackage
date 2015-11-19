@@ -116,7 +116,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   "_2012.root";
   const char* fullJERFilePath = gSystem->ExpandPathName (jerFilePath);
   m_JERTool = new JERTool("JERTool",fullJERFilePath,"AntiKt4LCTopoJES");
-
+  
   if (! m_JERTool->initialize().isSuccess() ){
     Error("initialize()", "Failed to properly initialize the JER Tool. "
     "Exiting.");
@@ -136,8 +136,8 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   m_loosemuonSelection->setProperty( "MuQuality", 2);
   m_loosemuonSelection->msg().setLevel( MSG::ERROR );
   CHECK (m_loosemuonSelection->initialize().isSuccess());
-
-
+  
+  
   /// initialize the muon calibration and smearing tool
   m_muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(
     "MuonCorrectionTool");
@@ -156,7 +156,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   //m_METUtil = new METUtility;
   //m_METUtil->setVerbosity(true);
   //m_util->setSoftJetCut(20);
-
+  
   /// Initialize and configure trigger tools
   m_trigConfigTool = new TrigConf::xAODConfigTool("xAODConfigTool"); // gives us access to the meta-data
   EL_RETURN_CHECK( "initialize", m_trigConfigTool->initialize() );
@@ -165,14 +165,14 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "ConfigTool", trigConfigHandle ) ); // connect the TrigDecisionTool to the ConfigTool
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
-    
+  
   /// electrons
   cout << "do e/g calibration" << endl;
   m_eleCalibrationTool = new CP::EgammaCalibrationAndSmearingTool("eletool");
   m_eleCalibrationTool->setProperty("ESModel", "es2015PRE");  // see below for options
   m_eleCalibrationTool->setProperty("decorrelationModel", "1NP_v1");  // see below for options
   m_eleCalibrationTool->initialize();
-
+  
   cout << "e/g calibration done" << endl;
   
   /// LH electron identification ...
@@ -194,7 +194,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->initialize() );
   /// ... LH electron identification
   cout << "e/g LH done"<<endl;
-
+  
   /// Muon Isolation Tool
   m_muonisolationSelectionTool = new CP::IsolationSelectionTool("muoniso");
   EL_RETURN_CHECK( "initialize",m_muonisolationSelectionTool->setProperty( "MuonWP","LooseTrackOnly") );
