@@ -86,9 +86,15 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: VetoMuon(const xAOD::Muon
       if(!m_loosemuonSelection->accept(mu)) continue;
     }
     /// do significance 
-    double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) /
-    TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-    + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+//     double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) /
+//     TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
+//     + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+//     if (d0_sig>3.0) continue;
+
+    xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+    double d0_sig = xAOD::TrackingHelpers::d0significance
+    ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
+      eventInfo->beamPosSigmaXY() );
     if (d0_sig>3.0) continue;
     m_BitsetCutflow->FillCutflow("d0",!lookForVetoMuon);
     if (!lookForVetoMuon) count[8]+=1;
@@ -221,9 +227,10 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: SelectMuon(const xAOD::Mu
       if(!m_loosemuonSelection->accept(mu)) continue;
     }
     /// do significance 
-    double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) /
-    TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-    + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+    xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+    double d0_sig = xAOD::TrackingHelpers::d0significance
+    ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
+      eventInfo->beamPosSigmaXY() );
     if (d0_sig>3.0) continue;
     m_BitsetCutflow->FillCutflow("d0",!lookForVetoMuon);
     if (!lookForVetoMuon) count[8]+=1;
@@ -280,7 +287,6 @@ bool MyxAODAnalysis :: passMuonSelection(const xAOD::Muon* mu,
   if (!lookForVetoMuon) count[4]+=1;
   double muPt = (mu->pt()) * 0.001;
   double lowPtCut = 55.0; /// GeV
-//   double lowPtCut = 20.0; /// GeV
   double highPtCut = 99999.9; /// GeV
   if (lookForVetoMuon){
     lowPtCut = 20.0;
@@ -299,9 +305,10 @@ bool MyxAODAnalysis :: passMuonSelection(const xAOD::Muon* mu,
     if(!m_loosemuonSelection->accept(mu)) return pass;
   }
   /// do significance 
-  double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) /
-    TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-        + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+  xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+  double d0_sig = xAOD::TrackingHelpers::d0significance
+    ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
+      eventInfo->beamPosSigmaXY() );
   if (d0_sig>3.0) return pass;
   m_BitsetCutflow->FillCutflow("d0",!lookForVetoMuon);
   if (!lookForVetoMuon) count[8]+=1;
@@ -384,9 +391,10 @@ ConstDataVector<xAOD::ElectronContainer> MyxAODAnalysis :: SelectElectron(const 
 
     /// d0 significance ...
 
-    const xAOD::TrackParticle *trk = el->trackParticle();
-    float d0_sig =  TMath::Abs(trk->d0())/TMath::Sqrt(trk->definingParametersCovMatrix()(0,0)
-    + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+    xAOD::TrackParticle *tp = el->primaryTrackParticle();
+    double d0_sig = xAOD::TrackingHelpers::d0significance
+    ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
+      eventInfo->beamPosSigmaXY() );
 
    if (d0_sig>5.0) continue;
     m_BitsetCutflow->FillCutflow("d0",!lookForVetoElectron);
