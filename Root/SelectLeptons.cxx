@@ -279,8 +279,8 @@ bool MyxAODAnalysis :: passMuonSelection(const xAOD::Muon* mu,
   m_BitsetCutflow->FillCutflow("Combined",!lookForVetoMuon);
   if (!lookForVetoMuon) count[4]+=1;
   double muPt = (mu->pt()) * 0.001;
-  //double lowPtCut = 55.0; /// GeV
-  double lowPtCut = 20.0; /// GeV
+  double lowPtCut = 55.0; /// GeV
+//   double lowPtCut = 20.0; /// GeV
   double highPtCut = 99999.9; /// GeV
   if (lookForVetoMuon){
     lowPtCut = 20.0;
