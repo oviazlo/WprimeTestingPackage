@@ -87,6 +87,14 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Truth muon decay");
   }
   
+  /// if data check if event passes GRL
+  if(!isMC){ /// it's data!
+    if(!m_grl->passRunLB(*eventInfo)){
+      return EL::StatusCode::SUCCESS; /// go to next event
+    }
+  } /// end if not MC
+  m_BitsetCutflow->FillCutflow("GRL");
+  
   ///------------------------------------------------------------
   /// Apply event cleaning to remove events due to 
   /// problematic regions of the detector, and incomplete events.
@@ -96,15 +104,40 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if(!isMC){
     if(   (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
       || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
+      || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
       || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
     {
       return EL::StatusCode::SUCCESS; /// go to the next event
     } /// end if event flags check
   } /// end if the event is data
   m_numCleanEvents++;
-  m_BitsetCutflow->FillCutflow("LAr_Tile_Core");
-  count[1]+=1;
+  m_BitsetCutflow->FillCutflow("EventCleaning");
   
+  /// Primary vertex
+  const xAOD::VertexContainer* vertices = 0;
+  /// retrieve arguments: container type, container key
+  if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ 
+    Error("execute()","Failed to retrieve PrimaryVertices container. Exiting.");
+    return EL::StatusCode::FAILURE;
+  }
+  
+  xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
+  xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
+  xAOD::Vertex* primVertex = 0;
+  int nGoodVtx = 0;
+  for( ; vtx_itr != vtx_end; ++vtx_itr ) {
+    if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx){
+      primVertex = (*vtx_itr);
+      nGoodVtx++;
+    }
+  }
+  
+  if (nGoodVtx>1)
+    cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " 
+    << nGoodVtx << endl;
+  if (nGoodVtx==0)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("Primary vertex");
   
   /// triggers  
   /// list of triggers to use
@@ -132,16 +165,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     if (passTrigger==false)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Trigger");
-    count[2]+=1;
   }
-  
-  /// if data check if event passes GRL
-  if(!isMC){ /// it's data!
-    if(!m_grl->passRunLB(*eventInfo)){
-      return EL::StatusCode::SUCCESS; /// go to next event
-    }
-  } /// end if not MC
-  m_BitsetCutflow->FillCutflow("GRL");
 
   std::vector<const xAOD::IParticle*> uniques;
   /// loop over electrons (needed for MET)
@@ -307,32 +331,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   m_BitsetCutflow->FillCutflow("JetCleaning");
   */
-  
-  ///
-  const xAOD::VertexContainer* vertices = 0;
-  /// retrieve arguments: container type, container key
-  if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ 
-    Error("execute()","Failed to retrieve PrimaryVertices container. Exiting.");
-    return EL::StatusCode::FAILURE;
-  }
-  
-  xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
-  xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
-  xAOD::Vertex* primVertex = 0;
-  int nGoodVtx = 0;
-  for( ; vtx_itr != vtx_end; ++vtx_itr ) {
-    if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx){
-      primVertex = (*vtx_itr);
-      nGoodVtx++;
-    }
-  }
-  
-  if (nGoodVtx>1)
-    cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " 
-    << nGoodVtx << endl;
-  if (nGoodVtx==0)
-    return EL::StatusCode::SUCCESS;
-  m_BitsetCutflow->FillCutflow("Primary vertex");
   
   /// select electrons and muon candidate using W' cut flow
   xAOD::Electron* signalEl = 0;
