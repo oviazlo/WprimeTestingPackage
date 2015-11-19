@@ -12,9 +12,9 @@
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
 
-ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: VetoMuon(const xAOD::MuonContainer* muons,
-                                         xAOD::Vertex* primVertex,
-                                  bool lookForVetoMuon){
+ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: VetoMuon
+( const xAOD::MuonContainer* muons, xAOD::Vertex* primVertex, 
+ bool lookForVetoMuon ) {
 
   /// option 1: signal selection; 2: muon veto; 3: 
   /// would need to fill 
@@ -85,12 +85,8 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: VetoMuon(const xAOD::Muon
     } else {
       if(!m_loosemuonSelection->accept(mu)) continue;
     }
-    /// do significance 
-//     double d0_sig = TMath::Abs(mu->primaryTrackParticle()->d0()) /
-//     TMath::Sqrt(mu->primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-//     + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
-//     if (d0_sig>3.0) continue;
 
+    /// d0 significance 
     xAOD::TrackParticle *tp = mu->primaryTrackParticle();
     double d0_sig = xAOD::TrackingHelpers::d0significance
     ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
@@ -338,7 +334,9 @@ bool MyxAODAnalysis :: passMuonSelection(const xAOD::Muon* mu,
   return pass;
 }
 
-ConstDataVector<xAOD::ElectronContainer> MyxAODAnalysis :: SelectElectron(const xAOD::ElectronContainer* electrons, xAOD::Vertex* primVertex, bool lookForVetoElectron){
+ConstDataVector<xAOD::ElectronContainer> MyxAODAnalysis :: SelectElectron
+(const xAOD::ElectronContainer* electrons, xAOD::Vertex* primVertex, 
+ bool lookForVetoElectron){
 
   const char* APP_NAME = "MyxAODAnalysis";
 

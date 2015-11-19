@@ -11,10 +11,6 @@ ClassImp(MyxAODAnalysis)
 
 EL::StatusCode MyxAODAnalysis :: execute ()
 {
-  /// Here you do everything that needs to be done on every single
-  /// events, e.g. read input variables, apply cuts, and fill
-  /// histograms and trees.  This is where most of your actual analysis
-  /// code will go.
   
   const char* APP_NAME = "MyxAODAnalysis";
 
@@ -37,15 +33,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::FAILURE;
   }
 
-  /// fill the branches of our trees
   EventNumber = eventInfo->eventNumber();  
 
-  /// check if the event is data or MC
-  /// (many tools are applied either to data or MC)
   bool isMC = false;
-  /// check if the event is MC
   if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-    isMC = true; /// can do something with this later
+    isMC = true;
   }
   
   /// Muon Truth matching. Check do we have muon from W' decay
@@ -55,7 +47,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     
     /// Create truth vertice container
     const xAOD::TruthVertexContainer* truthVertices = 0;
-    /// retrieve arguments: container type, container key
     if ( !m_event->retrieve( truthVertices, "TruthVertices" ).isSuccess() ){ 
       Error("execute()","Failed to retrieve TruthVertices container. Exiting.");
       return EL::StatusCode::FAILURE;
@@ -69,7 +60,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
         break;
       for (unsigned int iIn=0; iIn < (*truthV_itr)->nIncomingParticles(); iIn++)
       {
-        if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) { /// 34 - Wprime
+        /// 34 - Wprime
+        if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) { 
+          
           for (unsigned int iOut=0; iOut < (*truthV_itr)->nOutgoingParticles(); 
                iOut++) {
             if (TMath::Abs((*truthV_itr)->outgoingParticle(iOut)->pdgId()) 
@@ -87,12 +80,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Truth muon decay");
   }
   
-  /// if data check if event passes GRL
-  if(!isMC){ /// it's data!
+  /// pass GRL?
+  if(!isMC){
     if(!m_grl->passRunLB(*eventInfo)){
-      return EL::StatusCode::SUCCESS; /// go to next event
+      return EL::StatusCode::SUCCESS;
     }
-  } /// end if not MC
+  }
   m_BitsetCutflow->FillCutflow("GRL");
   
   ///------------------------------------------------------------
@@ -102,20 +95,19 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   ///------------------------------------------------------------
   /// reject event if:
   if(!isMC){
-    if(   (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
+    if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
       || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
       || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
       || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
     {
-      return EL::StatusCode::SUCCESS; /// go to the next event
-    } /// end if event flags check
-  } /// end if the event is data
+      return EL::StatusCode::SUCCESS; 
+    }
+  }
   m_numCleanEvents++;
   m_BitsetCutflow->FillCutflow("EventCleaning");
   
   /// Primary vertex
   const xAOD::VertexContainer* vertices = 0;
-  /// retrieve arguments: container type, container key
   if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ 
     Error("execute()","Failed to retrieve PrimaryVertices container. Exiting.");
     return EL::StatusCode::FAILURE;
@@ -141,17 +133,15 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// triggers  
   /// list of triggers to use
-//   std::vector<std::string> triggerChains = {"HLT_mu10.*","HLT_noalg_L1MU10.*","HLT_mu18.*"};
   std::vector<std::string> triggerChains = {"HLT_mu50.*"};
   bool passTrigger = true;
   
-  for(std::vector<std::string>::iterator it = triggerChains.begin(); it != triggerChains.end(); ++it) {
+  for(std::vector<std::string>::iterator it = triggerChains.begin(); it != 
+    triggerChains.end(); ++it) {
     auto chainGroup = m_trigDecisionTool->getChainGroup(*it);
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecisionTool->getChainGroup(trig);
       std::string thisTrig = trig;
-  //     Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale "
-  //     "(L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
       if (cg->isPassed()==false){
         passTrigger = false;
       }
@@ -166,16 +156,16 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Trigger");
   }
-
+  
   std::vector<const xAOD::IParticle*> uniques;
   /// loop over electrons (needed for MET)
   const xAOD::ElectronContainer* electrons(0);
   m_event->retrieve( electrons, "Electrons");
-  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ /// retrieve arguments: container$
+  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ 
     Error("execute()", "Failed to retrieve Electrons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
-
+  
   /*
   uniques.clear();
   ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
@@ -185,49 +175,39 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     }
   }
   */
-    
-  /// simple loop over photons
-  const xAOD::PhotonContainer* photons(0);
-  m_event->retrieve( photons, "Photons");
-  if ( !m_event->retrieve( photons, "Photons" ).isSuccess() ){ /// retrieve arguments: container$
-    Error("execute()", "Failed to retrieve Photons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
-  
-  uniques.clear();
-  ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
-  for(const auto& ph : *photons) {
-    if(CutsMETMaker::accept(ph)) {
-      metPhotons.push_back(ph);
-    }
-  }
   
   /// complex loop over muon (full copy)
   const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
+  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ 
     Error("execute()", "Failed to retrieve Muons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
 
   /// TODO cross-check this functionality
-  std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> muoncopy = xAOD::shallowCopyContainer(*muons);
-  xAOD::setOriginalObjectLink(*muons, *muoncopy.first); /// This line is very important ! Overlap removal will fail if line is missing
+  std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> muoncopy = 
+  xAOD::shallowCopyContainer(*muons);
+  /// This line is very important! Overlap removal will fail if line is missing
+  xAOD::setOriginalObjectLink(*muons, *muoncopy.first); 
   for(const auto& muon : *muoncopy.first) { /// loop over muoncopy vector
     if (fabs(muon->eta())<2.5) {
-      CP::CorrectionCode result = m_muonCalibrationAndSmearingTool->applyCorrection(*muon); /// change is valid only for muoncopy vector (I assume)
+      /// change is valid only for muoncopy vector (I assume)
+      CP::CorrectionCode result = 
+      m_muonCalibrationAndSmearingTool->applyCorrection(*muon); 
       if(result != CP::CorrectionCode::Ok){
         cout << "muon pt " << muon->pt()<< " eta " << muon->eta()<<endl;
         throw std::runtime_error("Error when calibrating muons. Exiting." );
       }
     }
   }
-  /// TODO what's that? whe try to create new container in m_store? is this the place where we have ERRORs?
+  /// TODO what's that? whe try to create new container in m_store? 
+  /// is this the place where we have ERRORs?
   m_store->record(muoncopy.first,  "MuonCopy");
   m_store->record(muoncopy.second, "MuonCopyAux");
   
   uniques.clear();
   ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-  for(const auto& muon : *muoncopy.first) { /// metMuons are muons after calibration and smearing...
+  for(const auto& muon : *muoncopy.first) { 
+    /// metMuons are muons after calibration and smearing...
     if(CutsMETMaker::accept(muon)) {
       metMuons.push_back(muon);
     }
@@ -238,7 +218,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// simple loop over taus
   const xAOD::TauJetContainer* taus(0);
   m_event->retrieve( taus, "TauJets");
-  if ( !m_event->retrieve( taus, "TauJets" ).isSuccess() ){ /// retrieve arguments: container$
+  if ( !m_event->retrieve( taus, "TauJets" ).isSuccess() ){ 
     Error("execute()", "Failed to retrieve Taus container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
@@ -256,8 +236,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_event->retrieve(jets, "AntiKt4EMTopoJets");
   uniques.clear();
 
-  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> jetcopy = xAOD::shallowCopyContainer(*jets);
-  xAOD::setOriginalObjectLink(*jets, *jetcopy.first); /// This line is very important ! Overlap removal will fail if line is missing
+  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> jetcopy = 
+  xAOD::shallowCopyContainer(*jets);
+  xAOD::setOriginalObjectLink(*jets, *jetcopy.first); 
   for(const auto& jet : *jetcopy.first) {
     /// TODO check it, is it up-to-date way to calibrate jets
     //cout << "original jet pt " << (*jet).pt()/1000. <<endl;
@@ -281,8 +262,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_store->record(jetcopy.second, "JetCopyAux");
 
   /// complex loop over electrons
-  std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> elecopy = xAOD::shallowCopyContainer(*electrons);
-  xAOD::setOriginalObjectLink(*electrons, *elecopy.first); /// This line is very important ! Overlap removal will fail if line is missing
+  std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> elecopy = 
+  xAOD::shallowCopyContainer(*electrons);
+  xAOD::setOriginalObjectLink(*electrons, *elecopy.first); 
   for(const auto& ele : *elecopy.first) {
 
     //cout << "original jet pt " << (*jet).pt()/1000. <<endl;
@@ -335,8 +317,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// select electrons and muon candidate using W' cut flow
   xAOD::Electron* signalEl = 0;
 
-  static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink"); /// WARNING what's this?
-  ConstDataVector<xAOD::MuonContainer> signalMuon(SG::VIEW_ELEMENTS); /// Create a new muon container
+  static SG::AuxElement::Accessor< xAOD::IParticleLink > 
+  accSetOriginLink("originalObjectLink"); /// WARNING what's this?
+  ConstDataVector<xAOD::MuonContainer> signalMuon(SG::VIEW_ELEMENTS);
   /// not really used right now
   if (!m_runElectronChannel){
     /// loop over the muons in the container
@@ -368,9 +351,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       if (muPt < 55 || muPt>=9999999) continue; /// veto muon
       if(!m_muonSelection->accept(mu)) continue;
       /// do significance 
-      double d0_sig = TMath::Abs((*mu).primaryTrackParticle()->d0()) /
-                      TMath::Sqrt((*mu).primaryTrackParticle()->definingParametersCovMatrix()(0,0)
-                      + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
+      xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+      double d0_sig = xAOD::TrackingHelpers::d0significance
+      ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
+      eventInfo->beamPosSigmaXY() );
       if (d0_sig>3.0) continue;
       /// zo cut
       double z0_vrtPVx = (*mu).primaryTrackParticle()->z0() +
@@ -392,7 +376,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// Create a new muon container
   ConstDataVector<xAOD::MuonContainer> vetoMu(SG::VIEW_ELEMENTS); 
   vetoMu = VetoMuon(muoncopy.first,primVertex,true);
-  //cout << "Run/Event " << EventNumber << " signal " << signalMuon.size() << ", veto " << vetoMu.size()<<endl;
+  //cout << "Run/Event " << EventNumber << " signal " << signalMuon.size() 
+  //<< ", veto " << vetoMu.size()<<endl;
   if (vetoMu.size()>1) return EL::StatusCode::SUCCESS;
   if (signalMuon.size()>1) return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Veto muon");
@@ -403,10 +388,46 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("Veto electron");
   count[13]+=1;
   if (nGoodVtx>1)
-    cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " << nGoodVtx << endl;
+    cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " 
+    << nGoodVtx << endl;
   if (nGoodVtx==0)  return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Primary vertex");
   count[14]+=1;
+  
+  
+  
+  /// simple loop over photons
+  /// need to make preselection -> use deep copy
+  const xAOD::PhotonContainer* photons(0);
+  m_event->retrieve( photons, "Photons");
+  if ( !m_event->retrieve( photons, "Photons" ).isSuccess() ){ 
+    Error("execute()", "Failed to retrieve Photons container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
+  /// Create the new container and its auxiliary store.
+  xAOD::PhotonContainer* metPhotons = new xAOD::PhotonContainer();
+  xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
+  metPhotons->setStore( metPhotonsAux ); ///< Connect the two
+  
+  xAOD::PhotonContainer::iterator photon_itr = (photons.first)->begin();
+  xAOD::PhotonContainer::iterator photon_end = (photons.first)->end();
+  
+  for( ; photon_itr != photon_end; ++photon_itr ) {
+    if(!CutsMETMaker::accept(**photon_itr)) continue;
+    xAOD::Photon* photon = new xAOD::Photon();
+        
+    double photonPt = ((**photon_itr)->pt()) * 0.001;
+    if (photonPt<25.0) continue;
+    
+    metPhotons->push_back( photon ); /// jet acquires the goodJets auxstore
+    *photon= **photon_itr; /// copies auxdata from one auxstore to the other
+    
+  }
+  
+  
+  
+  
   /// move met to last step as it needs our selected muons as input
   /// calculate MET
   bool doJVFCut = false;
@@ -428,32 +449,17 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   const xAOD::MissingETContainer* metold(0);
   m_event->retrieve( metold, "MET_Reference_AntiKt4EMTopo" );
 
-  if ( !m_event->retrieve( metold, "MET_Reference_AntiKt4EMTopo" ).isSuccess() ){ /// retrieve arguments: container$
-    
+  if ( !m_event->retrieve( metold, "MET_Reference_AntiKt4EMTopo" ).isSuccess() ){
     Error("execute()", "Failed to retrieve old met container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
 
   bool doTracks = true;
   /// not needed any more as now I have my selected muons
-  //cout << "input electrons"<<endl;
-  //m_metMaker->rebuildMET("NewRefEle", xAOD::Type::Electron, met, metElectrons.asDataVector(), metMap);
-  //m_metMaker->rebuildMET("NewRefEle", xAOD::Type::Electron, met, vetoEl.asDataVector(), metMap);
-
-  //m_metMaker->rebuildMET("NewRefGamma", xAOD::Type::Photon, met, metPhotons.asDataVector(), metMap);
-  //m_metMaker->rebuildMET("NewRefTau", xAOD::Type::Tau, met, metTaus.asDataVector(), metMap);
-  //cout << "input jets"<<endl;
-  m_metMaker->rebuildMET("NewMuons", xAOD::Type::Muon, met, signalMuon.asDataVector(), metMap);
-  //m_metMaker->rebuildMET("NewMuons", xAOD::Type::Muon, met, newMuons.asDataVector(), metMap);
-  //m_metMaker->rebuildMET("NewMuons", xAOD::Type::Muon, met, metMuons.asDataVector(), metMap);
-  //m_metMaker->rebuildMET("NewMuons", xAOD::Type::Muon, met, noMuons.asDataVector(), metMap);
-
-  m_metMaker->rebuildJetMET("NewRefJet", "PVSoftTrk", met, jetcopy.first, metcore, metMap,false);
-  // m_metMaker->rebuildJetMET("NewRefJet",  "SoftClus", "PVSoftTrk", met, jetcopy.first, metcore, metMap,false); 
- //m_metMaker->rebuildJetMET("RefJet",  "SoftClus", softTerm, met, metJets.asDataVector(), metcore, metMap, doJVFCut); 
-
-  // m_metMaker->rebuildJetMET("RefJet",  "SoftClus", softTerm, met, jets, metcore, metMap, doJVFCut); 
- //cout << "input final term"<<endl;
+  m_metMaker->rebuildMET("NewMuons", xAOD::Type::Muon, met, 
+                         signalMuon.asDataVector(), metMap);
+  m_metMaker->rebuildJetMET("NewRefJet", "PVSoftTrk", met, jetcopy.first, 
+                            metcore, metMap,false);
   m_metMaker->buildMETSum("NewFinalTrk", met, (*met)[softTerm]->source());
 
   double mpx = (*met)["NewFinalTrk"]->mpx();
@@ -465,7 +471,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   metVec->SetPz(0.0);
   metVec->SetE(sqrt(mpx*mpx + mpy*mpy));
   double phi_met = metVec->Phi();
-  //cout << "MET new " << mpx << ", " << mpy << ", " << sqrt(mpx*mpx + mpy*mpy)<< " phi " << phi_met<<endl;
+  //cout << "MET new " << mpx << ", " << mpy << ", " << sqrt(mpx*mpx + mpy*mpy) 
+  //<< " phi " << phi_met<<endl;
   
   /// uncalibrated met
   /// get MET_RefFinalFix container of interest
@@ -474,14 +481,17 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
   /// we need to use MET_RefFinalFix, according to:
   /// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2xAODMissingET
-  if ( !m_event->retrieve(metcontainer, "MET_Reference_AntiKt4EMTopo" ).isSuccess() ){ /// retrieve arguments: container$
-    Error("execute()", "Failed to retrieve MET_Reference_AntiKt4EMTopo container. Exiting." );
+  if ( !m_event->retrieve(metcontainer, 
+    "MET_Reference_AntiKt4EMTopo" ).isSuccess() ){ 
+    Error("execute()", 
+          "Failed to retrieve MET_Reference_AntiKt4EMTopo container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
 
   /// We want to check default Final MET, wo any recalibration first
   /*
-  xAOD::MissingETContainer::const_iterator met_itold = metcontainer->find("FinalTrk"); 
+  xAOD::MissingETContainer::const_iterator met_itold = 
+  metcontainer->find("FinalTrk"); 
   
   if (met_itold == metcontainer->end()) {
     Error("execute()", "No RefFinal inside MET container" );
@@ -489,7 +499,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   double mpx2 = (*met_itold)->mpx();
   double mpy2 = (*met_itold)->mpy();
-  cout << "MET old " << mpx2 << ", " << mpy2 << ", " << sqrt(mpx2*mpx2 + mpy2*mpy2)<<endl;
+  cout << "MET old " << mpx2 << ", " << mpy2 << ", " 
+  << sqrt(mpx2*mpx2 + mpy2*mpy2)<<endl;
   */
   /// easier
   double mpx2 = (*met)["NewRefJet"]->mpx();
@@ -550,17 +561,22 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   double reftotal = sqrt(pow(mpx,2)+pow(mpy,2));
   double oldtotal = sqrt(pow(mpx2,2)+pow(mpy2,2));
   //cout << "new MET: " << reftotal/1000. << " old MET: " << oldtotal/1000.<<endl;
-  //cout << "MET components: jet " << refjet/1000 << " muon " << refmuon/1000 << " gamma " << refgamma/1000 << " electron " << refele/1000 << " tau " << reftau/1000.<< " total " <<reftotal/1000.<< endl;
-  //cout << "MET old " << mpx2 << ", " << mpy2 << ", " << sqrt(mpx2*mpx2 + mpy2*mpy2)<<endl;
+  //cout << "MET components: jet " << refjet/1000 << " muon " 
+  //<< refmuon/1000 << " gamma " << refgamma/1000 << " electron " 
+  //<< refele/1000 << " tau " << reftau/1000.<< " total " <<reftotal/1000.<< endl;
+  //cout << "MET old " << mpx2 << ", " << mpy2 << ", " 
+  //<< sqrt(mpx2*mpx2 + mpy2*mpy2)<<endl;
 
-  //cout << "MET new " << mpx << ", " << mpy << ", " << sqrt(mpx*mpx + mpy*mpy)<<endl;
+  //cout << "MET new " << mpx << ", " << mpy << ", " << sqrt(mpx*mpx + mpy*mpy) 
+  //<<endl;
   TLorentzVector *metVecold = new TLorentzVector();
   metVecold->SetPx(mpx2);
   metVecold->SetPy(mpy2);
   metVecold->SetPz(0.0);
   metVecold->SetE(sqrt(mpx2*mpx2 + mpy2*mpy2));
   double phi_metold = metVecold->Phi();
-  //cout << "new MET: "<<metVec->Pt()*0.001<< " old MET: " << metVecold->Pt()* 0.001<<endl; 
+  //cout << "new MET: "<<metVec->Pt()*0.001<< " old MET: " 
+  //<< metVecold->Pt()* 0.001<<endl; 
   //if (metVec->Pt()<55000)
   //if (metVecold->Pt()<20000)
   //return EL::StatusCode::SUCCESS;
@@ -575,8 +591,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     double phi_mu = mu->phi();
     double pt_mu = mu->pt();
     //double phi_mu = signalMuon->phi();
-    double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * (1.0 - TMath::Cos( phi_mu - phi_met )) );
-    //double Mt = sqrt( 2*pt_mu*sqrt(mpx2*mpx2 + mpy2*mpy2) * (1.0 - TMath::Cos( phi_mu - phi_metold )) );
+    double Mt = sqrt( 2*mu->pt()*sqrt(mpx*mpx + mpy*mpy) * 
+    (1.0 - TMath::Cos( phi_mu - phi_met )) );
+    //double Mt = sqrt( 2*pt_mu*sqrt(mpx2*mpx2 + mpy2*mpy2) * 
+    //(1.0 - TMath::Cos( phi_mu - phi_metold )) );
     //cout << "MT = " << Mt<<endl;
     h_Mt_muonPtCut->Fill(Mt * 0.001);
     //if (Mt<60000.)
@@ -633,7 +651,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// we need to use MET_Core_AntiKt4EMTopo, according to:
   /// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2xAODMissingET
   /// FIXME use MET_Reference_AntiKt4EMTopo instead of MET_Core_AntiKt4EMTopo
-  if ( !m_event->retrieve( metcontainer, "MET_Reference_AntiKt4EMTopo" ).isSuccess())
+  if ( !m_event->retrieve( metcontainer, 
+    "MET_Reference_AntiKt4EMTopo" ).isSuccess())
   { /// retrieve arguments: container$
     Error("execute()","Failed to retrieve MET_RefFinalFix container. Exiting.");
     return EL::StatusCode::FAILURE;
@@ -660,33 +679,41 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   double phi_met = metVec->Phi();
   
   //~ // create a shallow copy of the muons container
-  //~ std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
+  //~ std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > 
+  muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
 //~ 
   //~ // iterate over our shallow copy
-  //~ xAOD::MuonContainer::iterator muonSC_itr = (muons_shallowCopy.first)->begin();
-  //~ xAOD::MuonContainer::iterator muonSC_end = (muons_shallowCopy.first)->end();
+  //~ xAOD::MuonContainer::iterator muonSC_itr = 
+  //~ (muons_shallowCopy.first)->begin();
+  //~ xAOD::MuonContainer::iterator muonSC_end = 
+  //~ (muons_shallowCopy.first)->end();
 //~ 
   //~ for( ; muonSC_itr != muonSC_end; ++muonSC_itr ) {
-   //~ if(m_muonCalibrationAndSmearingTool->applyCorrection(**muonSC_itr) == CP::CorrectionCode::Error){ // apply correction and check return code
-       //~ // Can have CorrectionCode values of Ok, OutOfValidityRange, or Error. Here only checking for Error.
-       //~ // If OutOfValidityRange is returned no modification is made and the original muon values are taken.
-       //~ Error("execute()", "MuonCalibrationAndSmearingTool returns Error CorrectionCode");
+   //~ if(m_muonCalibrationAndSmearingTool->applyCorrection(**muonSC_itr) == 
+   CP::CorrectionCode::Error){ // apply correction and check return code
+       //~ // Can have CorrectionCode values of Ok, OutOfValidityRange, or Error.
+       //~ // Here only checking for Error.
+       //~ // If OutOfValidityRange is returned no modification is made and the 
+       //~ // original muon values are taken.
+       //~ Error("execute()", 
+       //~ "MuonCalibrationAndSmearingTool returns Error CorrectionCode");
    //~ }
    //~ //if(!m_muonSelection->accept(**muonSC_itr)) continue;
-   //~ Info("execute()", "  corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() * 0.001));  
+   //~ Info("execute()", "  corrected muon pt = %.2f GeV", ((*muonSC_itr)->pt() 
+   * 0.001));  
   //~ } // end for loop over shallow copied muons
   //~ delete muons_shallowCopy.first;
   //~ delete muons_shallowCopy.second;
   
   /// get muon container of interest
   const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ /// retrieve arguments: container$
+  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ 
     Error("execute()", "Failed to retrieve Muons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }  
   
   const xAOD::ElectronContainer* electrons = 0;
-  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ /// retrieve arguments: container$
+  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ 
     Error("execute()", "Failed to retrieve Electrons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }  
