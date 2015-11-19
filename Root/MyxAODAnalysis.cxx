@@ -386,9 +386,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   //cout << "no of signal muons " <<newMuons.size()<<endl; 
   /// look for veto muon, add this for the moment
   //if (signalMuon.size()>1) return EL::StatusCode::SUCCESS;
-  if (signalMuon.size()==0 || signalMuon.size()>1) return EL::StatusCode::SUCCESS;
+  if (signalMuon.size()==0 || signalMuon.size()>1) 
+    return EL::StatusCode::SUCCESS;
 
-  ConstDataVector<xAOD::MuonContainer> vetoMu(SG::VIEW_ELEMENTS); /// Create a new muon container
+  /// Create a new muon container
+  ConstDataVector<xAOD::MuonContainer> vetoMu(SG::VIEW_ELEMENTS); 
   vetoMu = VetoMuon(muoncopy.first,primVertex,true);
   //cout << "Run/Event " << EventNumber << " signal " << signalMuon.size() << ", veto " << vetoMu.size()<<endl;
   if (vetoMu.size()>1) return EL::StatusCode::SUCCESS;
@@ -594,6 +596,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     OldMissingEt = metVecold->Pt();
     TransverseMass = Mt;
 //     tree->Fill();
+    
+    if (m_useHistObjectDumper) m_HistObjectDumper->plotMuon(mu,"allCuts");
+    
   }
 
   /// ************************************************
