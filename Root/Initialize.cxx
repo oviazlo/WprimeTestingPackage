@@ -57,12 +57,10 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 
   /// GRL
   m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-  std::vector<std::string> vecStringGRL;
-  //vecStringGRL.push_back("/afs/cern.ch/user/a/atlasdqm/grlgen/All_Good/data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml");
-  vecStringGRL.push_back("$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns_tolerable_IBLSTANDBY-DISABLE.xml");
-//   vecStringGRL.push_back("/afs/cern.ch/user/a/atlasdqm/grlgen/All_Good/"
-//   "data12_8TeV.periodAllYear_DetStatus-v61-pro14-02_DQDefects-00-01-00_PHYS_"
-//   "StandardGRL_All_Good.xml");
+  std::vector<std::string> vecStringGRL; 
+  vecStringGRL.push_back("$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v71-pro19-06_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml");
+//   vecStringGRL.push_back("$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns_tolerable_IBLSTANDBY-DISABLE.xml");
+
   CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
   /// if true (default) will ignore result of GRL and will just pass all events
   CHECK(m_grl->setProperty("PassThrough", false)); 
