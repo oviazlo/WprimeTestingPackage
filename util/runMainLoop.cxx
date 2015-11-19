@@ -63,6 +63,8 @@ int main( int argc, char* argv[] ) {
   hostNameChArr = getenv("HOSTNAME");
   string hostName(hostNameChArr);
   
+  /// define which input-path to use
+  /// look for HOSTNAME env. variable
   std::size_t found = hostName.find("cern");
   if (found!=std::string::npos)
     /// cern machines
