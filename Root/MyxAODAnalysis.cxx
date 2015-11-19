@@ -383,18 +383,23 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
   metPhotons->setStore( metPhotonsAux ); ///< Connect the two
   
-  xAOD::PhotonContainer::iterator photon_itr = (photons.first)->begin();
-  xAOD::PhotonContainer::iterator photon_end = (photons.first)->end();
+  xAOD::PhotonContainer::iterator photon_itr = photons->begin();
+  xAOD::PhotonContainer::iterator photon_end = photons->end();
   
-  for( ; photon_itr != photon_end; ++photon_itr ) {
-    if(!CutsMETMaker::accept(**photon_itr)) continue;
-    xAOD::Photon* photon = new xAOD::Photon();
-        
-    double photonPt = ((**photon_itr)->pt()) * 0.001;
-    if (photonPt<25.0) continue;
+  for(const auto& ph : *photons) {
+    if( !CutsMETMaker::accept(ph) ) continue;
+
+    double photonPt = ph->pt() * 0.001;
+    if ( photonPt < 25.0 ) continue;
+
+    double photonEta = ph->caloCluster()->etaBE(2);
+    if ( abs(photonEta) >= 2.47 ) continue;
+    if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
     
-    metPhotons->push_back( photon ); /// jet acquires the goodJets auxstore
-    *photon= **photon_itr; /// copies auxdata from one auxstore to the other
+    /// WARNING it's strange as for me. But it's way it's done in tutorial
+    xAOD::Photon* photon = new xAOD::Photon();
+    metPhotons->push_back( photon );
+    *photon= *ph; /// copies auxdata from one auxstore to the other
     
   }
   
