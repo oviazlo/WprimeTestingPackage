@@ -27,7 +27,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// Event information
   ///--------------------------- 
 
-  const xAOD::EventInfo* eventInfo = 0;
+//   const xAOD::EventInfo* eventInfo = 0;
   if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
     Error("execute()", "Failed to retrieve event info collection. Exiting." );
     return EL::StatusCode::FAILURE;
@@ -213,23 +213,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     }
   }
   
-//   ConstDataVector<xAOD::MuonContainer> noMuons(SG::VIEW_ELEMENTS);
-  
-  /// simple loop over taus
-  const xAOD::TauJetContainer* taus(0);
-  m_event->retrieve( taus, "TauJets");
-  if ( !m_event->retrieve( taus, "TauJets" ).isSuccess() ){ 
-    Error("execute()", "Failed to retrieve Taus container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
-  
-  uniques.clear();
-  ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
-  for(const auto& tau : *taus) {
-    if(CutsMETMaker::accept(tau)) {
-      metTaus.push_back(tau);
-    }
-  }
   
   /// complex loop over jets
   const xAOD::JetContainer* jets(0);
@@ -383,9 +366,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
   metPhotons->setStore( metPhotonsAux ); ///< Connect the two
   
-  xAOD::PhotonContainer::iterator photon_itr = photons->begin();
-  xAOD::PhotonContainer::iterator photon_end = photons->end();
-  
   for(const auto& ph : *photons) {
     if( !CutsMETMaker::accept(ph) ) continue;
 
@@ -403,7 +383,21 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     
   }
   
+  /// simple loop over taus
+  const xAOD::TauJetContainer* taus(0);
+  m_event->retrieve( taus, "TauJets");
+  if ( !m_event->retrieve( taus, "TauJets" ).isSuccess() ){ 
+    Error("execute()", "Failed to retrieve Taus container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
   
+  uniques.clear();
+  ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
+  for(const auto& tau : *taus) {
+    if(CutsMETMaker::accept(tau)) {
+      metTaus.push_back(tau);
+    }
+  }
   
   
   /// move met to last step as it needs our selected muons as input
