@@ -87,7 +87,7 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: VetoMuon
     }
 
     /// d0 significance 
-    xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+    const xAOD::TrackParticle *tp = mu->primaryTrackParticle();
     double d0_sig = xAOD::TrackingHelpers::d0significance
     ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
       eventInfo->beamPosSigmaXY() );
@@ -223,7 +223,7 @@ ConstDataVector<xAOD::MuonContainer> MyxAODAnalysis :: SelectMuon(const xAOD::Mu
       if(!m_loosemuonSelection->accept(mu)) continue;
     }
     /// do significance 
-    xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+    const xAOD::TrackParticle *tp = mu->primaryTrackParticle();
     double d0_sig = xAOD::TrackingHelpers::d0significance
     ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
       eventInfo->beamPosSigmaXY() );
@@ -301,7 +301,7 @@ bool MyxAODAnalysis :: passMuonSelection(const xAOD::Muon* mu,
     if(!m_loosemuonSelection->accept(mu)) return pass;
   }
   /// do significance 
-  xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+  const xAOD::TrackParticle *tp = mu->primaryTrackParticle();
   double d0_sig = xAOD::TrackingHelpers::d0significance
     ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
       eventInfo->beamPosSigmaXY() );
@@ -389,7 +389,7 @@ ConstDataVector<xAOD::ElectronContainer> MyxAODAnalysis :: SelectElectron
 
     /// d0 significance ...
 
-    xAOD::TrackParticle *tp = el->trackParticle();
+    const xAOD::TrackParticle *tp = el->trackParticle();
     double d0_sig = xAOD::TrackingHelpers::d0significance
     ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
       eventInfo->beamPosSigmaXY() );
