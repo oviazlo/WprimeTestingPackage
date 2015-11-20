@@ -180,7 +180,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_store->record(classifiedMuons.second, "classifiedMuonsAux");
   
   std::pair<unsigned int, unsigned int> SelectMuons(classifiedMuons.first,
-                                                    primVertex,
                                                     true);
   
   /// FIXME exit from execute here for debugging purpose
