@@ -276,12 +276,12 @@ public:
 
   /// Custom made functions
 std::pair<unsigned int, unsigned int> SelectMuons(
-                                  const xAOD::MuonContainer* muons,
+                                  xAOD::MuonContainer* muons,
                                   xAOD::Vertex* primVertex, 
                                   bool fillInCutflow);
 
 std::pair<unsigned int, unsigned int> SelectElectrons(
-                                  const xAOD::ElectronContainer* electrons,
+                                  xAOD::ElectronContainer* electrons,
                                   xAOD::Vertex* primVertex,
                                   bool fillInCutflow);
   
