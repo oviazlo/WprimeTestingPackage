@@ -13,7 +13,7 @@
 ClassImp(MyxAODAnalysis)
 
 std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
-                                  const xAOD::MuonContainer* muons,
+                                  xAOD::MuonContainer* muons,
                                   xAOD::Vertex* primVertex, 
                                   bool fillInCutflow){
 
@@ -109,7 +109,7 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
 
 
 std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
-                                  const xAOD::ElectronContainer* electrons,
+                                  xAOD::ElectronContainer* electrons,
                                   xAOD::Vertex* primVertex,
                                   bool fillInCutflow){
 
