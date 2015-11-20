@@ -179,11 +179,39 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_store->record(classifiedMuons.first,  "classifiedMuons");
   m_store->record(classifiedMuons.second, "classifiedMuonsAux");
   
-  std::pair<unsigned int, unsigned int> myPair = SelectMuons(classifiedMuons.first, 
+  std::pair<unsigned int, unsigned int> muPair = SelectMuons(classifiedMuons.first, 
                                                              primVertex, true);
   
-  if (myPair.first!=1 && myPair.second!=0)
+  if (muPair.first!=1 && muPair.second!=0)
     m_BitsetCutflow->FillCutflow("Muon Veto");
+  
+  const xAOD::ElectronContainer* electrons(0);
+  m_event->retrieve( electrons, "Electrons");
+  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ 
+    Error("execute()", "Failed to retrieve Electrons container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
+  std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> 
+  classifiedElectrons = xAOD::shallowCopyContainer(*electrons);
+  xAOD::setOriginalObjectLink(*electrons, *classifiedElectrons.first); 
+  for(const auto& electron : *classifiedElectrons.first) { 
+    CP::CorrectionCode result = 
+    m_eleCalibrationTool->applyCorrection(*electron); 
+    if(result != CP::CorrectionCode::Ok){
+      cout << "electron pt " << electron->pt()<< " eta " << electron->eta()<<endl;
+      throw std::runtime_error("Error when calibrating muons. Exiting." );
+    }
+  }
+
+  m_store->record(classifiedElectrons.first,  "classifiedElectrons");
+  m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
+  
+  std::pair<unsigned int, unsigned int> elPair = 
+  SelectElectrons( classifiedElectrons.first, false );
+  
+  if (elPair.first!=0 || elPair.second!=0)
+    m_BitsetCutflow->FillCutflow("Electron Veto");
   
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
