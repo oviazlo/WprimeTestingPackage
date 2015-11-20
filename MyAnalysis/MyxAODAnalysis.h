@@ -275,28 +275,15 @@ public:
   virtual EL::StatusCode histFinalize ();
 
   /// Custom made functions
-//   xAOD::Muon* SelectMuon(const xAOD::MuonContainer* muons, 
-//                          xAOD::Vertex* primVertex, 
-//                          bool lookForVetoMuon = false);
-  
-  ConstDataVector<xAOD::MuonContainer>  SelectMuon(const xAOD::MuonContainer* muons,
-                         xAOD::Vertex* primVertex,
-                         bool lookForVetoMuon = false);
-  
-  ConstDataVector<xAOD::MuonContainer>  VetoMuon(const xAOD::MuonContainer* muons,
-                         xAOD::Vertex* primVertex,
-                         bool lookForVetoMuon = false);
-  
-  ConstDataVector<xAOD::ElectronContainer>  SelectElectron(const xAOD::ElectronContainer* electrons, xAOD::Vertex* primVertex, bool lookForVetoElectron);
-  
-  bool passMuonSelection(const xAOD::Muon* mu,
-               const xAOD::EventInfo* eventInfo,
-               xAOD::Vertex* primVertex,
-               bool lookForVetoMuon);
-  
-//   xAOD::Electron* SelectElectron(const xAOD::ElectronContainer* electrons, 
-//                                          xAOD::Vertex* primVertex, 
-//                                          bool lookForVetoElectron);
+std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
+                                  const xAOD::MuonContainer* muons,
+                                  xAOD::Vertex* primVertex, 
+                                  bool fillInCutflow);
+
+std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
+                                  const xAOD::ElectronContainer* electrons,
+                                  xAOD::Vertex* primVertex,
+                                  bool fillInCutflow);
   
   /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
