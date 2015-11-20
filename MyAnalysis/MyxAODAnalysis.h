@@ -277,12 +277,10 @@ public:
   /// Custom made functions
 std::pair<unsigned int, unsigned int> SelectMuons(
                                   xAOD::MuonContainer* muons,
-                                  xAOD::Vertex* primVertex, 
                                   bool fillInCutflow);
 
 std::pair<unsigned int, unsigned int> SelectElectrons(
                                   xAOD::ElectronContainer* electrons,
-                                  xAOD::Vertex* primVertex,
                                   bool fillInCutflow);
   
   /// this is needed to distribute the algorithm to the workers

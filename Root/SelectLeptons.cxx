@@ -14,7 +14,6 @@ ClassImp(MyxAODAnalysis)
 
 std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
                                   xAOD::MuonContainer* muons,
-                                  xAOD::Vertex* primVertex, 
                                   bool fillInCutflow){
 
   bool fillCutflow = true;
@@ -110,7 +109,6 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
 
 std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
                                   xAOD::ElectronContainer* electrons,
-                                  xAOD::Vertex* primVertex,
                                   bool fillInCutflow){
 
   bool fillCutflow = true;
@@ -131,7 +129,7 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
       m_BitsetCutflow->FillCutflow("oneElectron",fillInCutflow);
     
     double elEta = (*el_itr)->caloCluster()->etaBE(2);
-    if ( abs(Eta) > 2.47 || (abs(Eta) > 1.37 && abs(Eta) < 1.52)) continue;
+    if ( abs(elEta) > 2.47 || (abs(elEta) > 1.37 && abs(elEta) < 1.52)) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("Eta",fillInCutflow);
     
