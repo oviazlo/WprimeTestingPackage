@@ -19,8 +19,8 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
 
   bool fillCutflow = true;
   
-  xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
-  xAOD::MuonContainer::const_iterator muon_end = muons->end();
+  xAOD::MuonContainer::iterator muon_itr = muons->begin();
+  xAOD::MuonContainer::iterator muon_end = muons->end();
   
   int nVetoLeptons = 0;
   int nSignalLeptons = 0;
@@ -82,7 +82,7 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow( "z0",fillInCutflow );
     
-    if (!m_muonisolationSelectionTool->accept(( *muon_itr ))) continue;
+    if (!m_muonisolationSelectionTool->accept(( **muon_itr ))) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow( "Isolation",fillInCutflow );
     
@@ -115,8 +115,8 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
 
   bool fillCutflow = true;
   
-  xAOD::ElectronContainer::const_iterator el_itr = electrons->begin();
-  xAOD::ElectronContainer::const_iterator el_end = electrons->end();
+  xAOD::ElectronContainer::iterator el_itr = electrons->begin();
+  xAOD::ElectronContainer::iterator el_end = electrons->end();
   
   int nVetoLeptons = 0;
   int nSignalLeptons = 0;
@@ -176,7 +176,7 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("ID",fillInCutflow);
     
-    if (!m_eleisolationSelectionTool->accept(*el_itr)) continue;
+    if (!m_eleisolationSelectionTool->accept(**el_itr)) continue;
     m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
     
     /// all requirement above satisfy veto lepton
