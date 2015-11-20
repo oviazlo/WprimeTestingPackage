@@ -277,6 +277,7 @@ public:
   /// Custom made functions
 std::pair<unsigned int, unsigned int> SelectMuons(
                                   xAOD::MuonContainer* muons,
+                                  xAOD::Vertex* primVertex,
                                   bool fillInCutflow);
 
 std::pair<unsigned int, unsigned int> SelectElectrons(
