@@ -182,6 +182,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   std::pair<unsigned int, unsigned int> myPair = SelectMuons(classifiedMuons.first, 
                                                              primVertex, true);
   
+  if (myPair.first!=1 && myPair.second!=0)
+    m_BitsetCutflow->FillCutflow("Muon Veto");
+  
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
 }
