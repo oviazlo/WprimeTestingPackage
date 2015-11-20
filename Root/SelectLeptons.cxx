@@ -54,8 +54,8 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
     
     /// medium OR high-pT
     bool passHighPtSelection = false;
-    if( ( !m_looseMuonSelection->accept( ( *muon_itr ) ) ) ||
-      ( !m_muonSelection->accept( ( *muon_itr ) ) )
+    if( !(( m_looseMuonSelection->accept( ( *muon_itr ) ) ) ||
+        ( m_muonSelection->accept( ( *muon_itr ) ) ))
     ) continue;
     
     if( m_muonSelection->accept( ( *muon_itr ) ) ){
