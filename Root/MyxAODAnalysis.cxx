@@ -176,8 +176,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     }
   }
 
-  m_store->record(classifiedMuons.first,  "classifiedMuons");
-  m_store->record(classifiedMuons.second, "classifiedMuonsAux");
+//   m_store->record(classifiedMuons.first,  "classifiedMuons");
+//   m_store->record(classifiedMuons.second, "classifiedMuonsAux");
   
   std::pair<unsigned int, unsigned int> muPair = SelectMuons(classifiedMuons.first, 
                                                              primVertex, true);
@@ -205,8 +205,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     }
   }
 
-  m_store->record(classifiedElectrons.first,  "classifiedElectrons");
-  m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
+//   m_store->record(classifiedElectrons.first,  "classifiedElectrons");
+//   m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
   
   std::pair<unsigned int, unsigned int> elPair = 
   SelectElectrons( classifiedElectrons.first, false );
@@ -214,6 +214,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if (elPair.first!=0 || elPair.second!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Electron Veto");
+  
+  
   
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
