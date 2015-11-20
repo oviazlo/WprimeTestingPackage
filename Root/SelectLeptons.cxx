@@ -17,8 +17,6 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
                                   xAOD::Vertex* primVertex,
                                   bool fillInCutflow){
 
-  bool fillCutflow = true;
-  
   xAOD::MuonContainer::iterator muon_itr = muons->begin();
   xAOD::MuonContainer::iterator muon_end = muons->end();
   
@@ -26,6 +24,9 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
   int nSignalLeptons = 0;
   
   for( ; muon_itr != muon_end; ++muon_itr ) {
+    
+    bool fillCutflow = true;
+    
     /// Apply loosened vet selection first, fill in veto flags
     /// Left cut for signal selection apply in the end and fill signal flags
     ( *muon_itr )->auxdata< bool >( "veto" ) = false;
@@ -111,8 +112,6 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
 std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
                                   xAOD::ElectronContainer* electrons,
                                   bool fillInCutflow){
-
-  bool fillCutflow = true;
   
   xAOD::ElectronContainer::iterator el_itr = electrons->begin();
   xAOD::ElectronContainer::iterator el_end = electrons->end();
@@ -121,6 +120,9 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
   int nSignalLeptons = 0;
   
   for( ; el_itr != el_end; ++el_itr ) {
+
+    bool fillCutflow = true;
+
     /// Apply loosened vet selection first, fill in veto flags
     /// Left cut for signal selection apply in the end and fill signal flags
     ( *el_itr )->auxdata< bool >( "veto" ) = false;
