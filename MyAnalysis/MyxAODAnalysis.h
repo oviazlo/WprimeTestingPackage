@@ -233,7 +233,7 @@ public:
     TrigConf::xAODConfigTool *m_trigConfigTool; //!
     /// Muson Selector Tool
     CP::MuonSelectionTool* m_muonSelection; //!
-    CP::MuonSelectionTool* m_loosemuonSelection; //!
+    CP::MuonSelectionTool* m_looseMuonSelection; //!
     /// MuonCalibrationAndSmearing
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
 //     CP::IsolationSelectionTool *m_isolationSelectionTool; //!
