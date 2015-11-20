@@ -14,6 +14,7 @@ ClassImp(MyxAODAnalysis)
 
 std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
                                   xAOD::MuonContainer* muons,
+                                  xAOD::Vertex* primVertex,
                                   bool fillInCutflow){
 
   bool fillCutflow = true;
