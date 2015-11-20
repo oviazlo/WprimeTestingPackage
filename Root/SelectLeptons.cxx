@@ -61,7 +61,7 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
     if( m_muonSelection->accept( ( *muon_itr ) ) ){
       passHighPtSelection = true;
     }
-    bool fillCutflow = (passHighPtCut && passHighPtSelection);
+    fillCutflow = (passHighPtCut && passHighPtSelection);
     
     if (fillCutflow) 
       m_BitsetCutflow->FillCutflow( "MCP selector",fillInCutflow );
@@ -172,7 +172,7 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
     if (m_LHToolTight2015->accept((*el_itr)))
       passHighPtSelection = true;
       
-    bool fillCutflow = (passHighPtCut && passHighPtSelection);
+    fillCutflow = (passHighPtCut && passHighPtSelection);
     
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("ID",fillInCutflow);
