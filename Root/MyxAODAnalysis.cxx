@@ -183,7 +183,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
                                                              primVertex, true);
   
   if (muPair.first!=1 && muPair.second!=0)
-    m_BitsetCutflow->FillCutflow("Muon Veto");
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("Muon Veto");
   
   const xAOD::ElectronContainer* electrons(0);
   m_event->retrieve( electrons, "Electrons");
@@ -211,7 +212,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   SelectElectrons( classifiedElectrons.first, false );
   
   if (elPair.first!=0 || elPair.second!=0)
-    m_BitsetCutflow->FillCutflow("Electron Veto");
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("Electron Veto");
   
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
