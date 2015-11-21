@@ -196,14 +196,14 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if (muPair.first!=1 || muPair.second!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Muon Veto");
-  
+  */
   const xAOD::ElectronContainer* electrons(0);
   m_event->retrieve( electrons, "Electrons");
   if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ 
     Error("execute()", "Failed to retrieve Electrons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
-  */
+  
   std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> 
   classifiedElectrons = xAOD::shallowCopyContainer(*electrons);
   xAOD::setOriginalObjectLink(*electrons, *classifiedElectrons.first); 
