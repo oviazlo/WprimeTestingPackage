@@ -130,8 +130,9 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   m_muonSelection->setProperty( "MuQuality", 4);
   m_muonSelection->msg().setLevel( MSG::ERROR );
   CHECK (m_muonSelection->initialize().isSuccess());
-  m_looseMuonSelection = new CP::MuonSelectionTool("MuonSelection");
-  // m_muonSelection->msg().setLevel( MSG::INFO );
+
+  m_looseMuonSelection = new CP::MuonSelectionTool("MuonLooseSelection");
+  // m_looseMuonSelection->msg().setLevel( MSG::INFO );
   m_looseMuonSelection->setProperty( "MaxEta", 2.5 );
   m_looseMuonSelection->setProperty( "MuQuality", 2);
   m_looseMuonSelection->msg().setLevel( MSG::ERROR );
