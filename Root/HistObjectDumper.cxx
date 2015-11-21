@@ -173,7 +173,8 @@ void HistObjectDumper::printMuon(const xAOD::Muon* mu){
   
   float muPtCone30 = 0.; /// your variable that will be filled after calling the isolation function
   mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
-  
+
+  cout << "************************************" << endl;
   cout << "pt:\t" << mu->pt()*0.001 << endl;
   cout << "eta:\t" << mu->eta() << endl;
   cout << "phi:\t" << mu->phi() << endl;
