@@ -87,23 +87,23 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow( "Isolation",fillInCutflow );
     
-    /// all requirement above satisfy veto lepton
-    ( *muon_itr )->auxdata< bool >( "veto" ) = true;
-    nVetoLeptons++;
-    
     /// check veto lepton if it satisfy signal requirements
     if (passHighPtCut && passHighPtSelection){
-      ( *muon_itr )->auxdata< bool >( "signal" ) = true;
+      ( *el_itr )->auxdata< bool >( "signal" ) = true;
       nSignalLeptons++;
+    }
+    else{
+      ( *el_itr )->auxdata< bool >( "veto" ) = true;
+      nVetoLeptons++;
     }
   }
   
   /// all signal leptons are counted as veto...
   /// subtract them to get exclusive veto leptons
   std::pair<unsigned int, unsigned int> outPair (nSignalLeptons,
-                                            nVetoLeptons-nSignalLeptons);
+                                            nVetoLeptons);
   
-  return outPair;
+  return outPair; 
   
 }
 
@@ -180,21 +180,21 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
     if (!m_eleisolationSelectionTool->accept(**el_itr)) continue;
     m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
     
-    /// all requirement above satisfy veto lepton
-    ( *el_itr )->auxdata< bool >( "veto" ) = true;
-    nVetoLeptons++;
-    
     /// check veto lepton if it satisfy signal requirements
     if (passHighPtCut && passHighPtSelection){
       ( *el_itr )->auxdata< bool >( "signal" ) = true;
       nSignalLeptons++;
+    }
+    else{
+      ( *el_itr )->auxdata< bool >( "veto" ) = true;
+      nVetoLeptons++;
     }
   }
   
   /// all signal leptons are counted as veto...
   /// subtract them to get exclusive veto leptons
   std::pair<unsigned int, unsigned int> outPair (nSignalLeptons,
-                                            nVetoLeptons-nSignalLeptons);
+                                            nVetoLeptons);
   
   return outPair; 
   
