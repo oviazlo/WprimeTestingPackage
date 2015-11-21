@@ -203,7 +203,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     Error("execute()", "Failed to retrieve Electrons container. Exiting." );
     return EL::StatusCode::FAILURE;
   }
-  
+  */
   std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> 
   classifiedElectrons = xAOD::shallowCopyContainer(*electrons);
   xAOD::setOriginalObjectLink(*electrons, *classifiedElectrons.first); 
@@ -218,7 +218,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 //   m_store->record(classifiedElectrons.first,  "classifiedElectrons");
 //   m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
-  */
+  
   std::pair<unsigned int, unsigned int> elPair = 
   SelectElectrons( classifiedElectrons.first, true );
   
