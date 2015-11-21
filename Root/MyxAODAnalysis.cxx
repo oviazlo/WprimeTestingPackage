@@ -220,8 +220,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
   
   for( ; muon_itr != muon_end; ++muon_itr ) {
-     if ((*muon_itr)->auxdata< bool >( "signal" ))
+     if ((*muon_itr)->auxdata< bool >( "signal" )){
        m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
+       cout << EventNumber << endl;
+     }
      if ((*muon_itr)->auxdata< bool >( "veto" ))
        m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
   }
