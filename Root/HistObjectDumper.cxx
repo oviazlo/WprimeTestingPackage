@@ -162,3 +162,22 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	m_muonHistMap["ptCone30"][stage_tag]->Fill(muPtCone30*0.001);
 	m_muonHistMap["ptCone30OverPt"][stage_tag]->Fill(muPtCone30/mu->pt());
 }
+
+
+void HistObjectDumper::printMuon(const xAOD::Muon* mu){
+/// **************************************************************
+///
+/// Print info about selected muon
+///     
+/// **************************************************************
+  
+  float muPtCone30 = 0.; /// your variable that will be filled after calling the isolation function
+  mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
+  
+  cout << "pt:\n" << mu->pt()*0.001 << endl;
+  cout << "eta:\n" << mu->eta() << endl;
+  cout << "phi:\n" << mu->phi() << endl;
+  cout << "qual:\n" << mu->quality() << endl;
+  cout << "ptCone/pt:\n" << muPtCone30/mu->pt() << endl;
+   
+}

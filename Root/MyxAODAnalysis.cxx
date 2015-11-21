@@ -181,7 +181,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   std::pair<unsigned int, unsigned int> muPair = SelectMuons(classifiedMuons.first, 
                                                              primVertex, true);
-  
+  if (EventNumber == 401299860){
+    cout << "nSignalMuons = " << muPair.first << "; nVetoMuons = " << muPair.second 
+    << endl;
+  }  
+   
   if (muPair.first!=1 && muPair.second!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Muon Veto");
@@ -222,7 +226,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   for( ; muon_itr != muon_end; ++muon_itr ) {
      if ((*muon_itr)->auxdata< bool >( "signal" )){
        m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
-       cout << EventNumber << endl;
+       if (EventNumber == 401299860){
+        cout << EventNumber << endl;
+        m_HistObjectDumper->printMuon((*muon_itr));
+       }
      }
      if ((*muon_itr)->auxdata< bool >( "veto" ))
        m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
