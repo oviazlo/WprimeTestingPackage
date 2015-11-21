@@ -185,7 +185,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
     "primaryVertexContainer","PrimaryVertices"));
   
-  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150408/";
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20151012/";
   EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty(
     "ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf"));
   EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
@@ -198,10 +198,12 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   
   /// Muon Isolation Tool
   m_muonisolationSelectionTool = new CP::IsolationSelectionTool("muoniso");
-  EL_RETURN_CHECK( "initialize",m_muonisolationSelectionTool->setProperty( "MuonWP","LooseTrackOnly") );
+  EL_RETURN_CHECK( "initialize",m_muonisolationSelectionTool
+  ->setProperty( "MuonWP","LooseTrackOnly") );
   EL_RETURN_CHECK( "initialize",m_muonisolationSelectionTool->initialize());
   m_eleisolationSelectionTool = new CP::IsolationSelectionTool("eleiso");
-  EL_RETURN_CHECK( "initialize",m_eleisolationSelectionTool->setProperty( "ElectronWP","Loose") );
+  EL_RETURN_CHECK( "initialize",m_eleisolationSelectionTool
+  ->setProperty( "ElectronWP","Loose") );
   EL_RETURN_CHECK( "initialize",m_eleisolationSelectionTool->initialize());
   
   if (m_useHistObjectDumper)
