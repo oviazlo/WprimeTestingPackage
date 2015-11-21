@@ -216,8 +216,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("Electron Veto");
   
   
-  xAOD::MuonContainer::iterator muon_itr = muPair->begin();
-  xAOD::MuonContainer::iterator muon_end = muPair->end();
+  xAOD::MuonContainer::iterator muon_itr = classifiedMuons->begin();
+  xAOD::MuonContainer::iterator muon_end = classifiedMuons->end();
   
   for( ; muon_itr != muon_end; ++muon_itr ) {
      if ((*muon_itr)->auxdata< bool >( "signal" ))
