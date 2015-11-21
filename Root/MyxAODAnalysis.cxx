@@ -178,7 +178,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 //   m_store->record(classifiedMuons.first,  "classifiedMuons");
 //   m_store->record(classifiedMuons.second, "classifiedMuonsAux");
-  
+  /*
   std::pair<unsigned int, unsigned int> muPair = SelectMuons(classifiedMuons.first, 
                                                              primVertex, true);
   
@@ -218,9 +218,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 //   m_store->record(classifiedElectrons.first,  "classifiedElectrons");
 //   m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
-  
+  */
   std::pair<unsigned int, unsigned int> elPair = 
-  SelectElectrons( classifiedElectrons.first, false );
+  SelectElectrons( classifiedElectrons.first, true );
   
   if (elPair.first!=0 || elPair.second!=0)
     return EL::StatusCode::SUCCESS;
