@@ -89,11 +89,11 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
     
     /// check veto lepton if it satisfy signal requirements
     if (passHighPtCut && passHighPtSelection){
-      ( *el_itr )->auxdata< bool >( "signal" ) = true;
+      ( *muon_itr )->auxdata< bool >( "signal" ) = true;
       nSignalLeptons++;
     }
     else{
-      ( *el_itr )->auxdata< bool >( "veto" ) = true;
+      ( *muon_itr )->auxdata< bool >( "veto" ) = true;
       nVetoLeptons++;
     }
   }
