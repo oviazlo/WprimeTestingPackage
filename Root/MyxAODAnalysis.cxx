@@ -181,10 +181,17 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   std::pair<unsigned int, unsigned int> muPair = SelectMuons(classifiedMuons.first, 
                                                              primVertex, true);
-//   if (EventNumber == 401299860){
-//     cout << "nSignalMuons = " << muPair.first << "; nVetoMuons = " << muPair.second 
-//     << endl;
-//   }
+  
+  xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
+  xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
+  
+  for( ; muon_itr != muon_end; ++muon_itr ) {
+     if ((*muon_itr)->auxdata< bool >( "signal" )){
+       m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
+     }
+     if ((*muon_itr)->auxdata< bool >( "veto" ))
+       m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
+  }
   
   if (muPair.first!=1 || muPair.second!=0)
     return EL::StatusCode::SUCCESS;
@@ -218,23 +225,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if (elPair.first!=0 || elPair.second!=0)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Electron Veto");
-  
-  
-  xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
-  xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
-  
-  for( ; muon_itr != muon_end; ++muon_itr ) {
-     if ((*muon_itr)->auxdata< bool >( "signal" )){
-       m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
-//        if (EventNumber == 401299860){
-//         cout << EventNumber << endl;
-//         m_HistObjectDumper->printMuon((*muon_itr));
-//        }
-     }
-     if ((*muon_itr)->auxdata< bool >( "veto" ))
-       m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
-  }
-
   
   /*
   /// calibrate jets for MET
