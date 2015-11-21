@@ -220,7 +220,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //   m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
   
   std::pair<unsigned int, unsigned int> elPair = 
-  SelectElectrons( classifiedElectrons.first, true );
+  SelectElectrons( classifiedElectrons.first, false );
   
   if (elPair.first!=0 || elPair.second!=0)
     return EL::StatusCode::SUCCESS;

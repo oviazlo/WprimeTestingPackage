@@ -178,7 +178,8 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
       m_BitsetCutflow->FillCutflow("ID",fillInCutflow);
     
     if (!m_eleisolationSelectionTool->accept(**el_itr)) continue;
-    m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
+    if (fillCutflow)
+      m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
     
     /// check veto lepton if it satisfy signal requirements
     if (passHighPtCut && passHighPtSelection){
