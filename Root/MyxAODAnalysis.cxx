@@ -216,6 +216,55 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("Electron Veto");
   
   
+  xAOD::MuonContainer::iterator muon_itr = muPair->begin();
+  xAOD::MuonContainer::iterator muon_end = muPair->end();
+  
+  for( ; muon_itr != muon_end; ++muon_itr ) {
+     if ((*muon_itr)->auxdata< bool >( "signal" ))
+       m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
+     if ((*muon_itr)->auxdata< bool >( "veto" ))
+       m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
+  }
+
+  
+  /*
+  /// calibrate jets for MET
+  const xAOD::JetContainer* jets(0);
+  m_tEvent->retrieve(jets, "AntiKt4EMTopoJets);
+  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> 
+  calibJets = xAOD::shallowCopyContainer(*jets);
+  xAOD::setOriginalObjectLink(*jets, *calibJets.first); 
+  for(const auto& jet : *calibJets.first) {
+    CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
+    if(result != CP::CorrectionCode::Ok){
+          throw std::runtime_error("Error when calibrating jets. Exiting." );
+    }
+  }
+//   m_tEvent->record(calibJets.first, "CalibAntiKt4EMTopoJets");
+//   m_tEvent->record(calibJets.second,"CalibAntiKt4EMTopoJetsAux.");
+  
+  /// preselect photons for MET
+  xAOD::PhotonContainer* metPhotons = new xAOD::PhotonContainer();
+  xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
+  metPhotons->setStore( metPhotonsAux ); ///< Connect the two
+  
+  for(const auto& ph : *photons) {
+    if( !CutsMETMaker::accept(ph) ) continue;
+
+    double photonPt = ph->pt() * 0.001;
+    if ( photonPt < 25.0 ) continue;
+
+    double photonEta = ph->caloCluster()->etaBE(2);
+    if ( abs(photonEta) >= 2.37 ) continue;
+    if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
+    
+    /// WARNING it's strange as for me. But it's way it's done in tutorial
+    xAOD::Photon* photon = new xAOD::Photon();
+    metPhotons->push_back( photon );
+    *photon= *ph; /// copies auxdata from one auxstore to the other
+  }
+  */
+
   
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
