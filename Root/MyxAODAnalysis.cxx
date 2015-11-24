@@ -136,9 +136,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   std::vector<std::string> triggerChains = {"HLT_mu50*"};
   if (m_runElectronChannel){
     triggerChains.erase (triggerChains.begin()+1);
+    triggerChains.push_back("HLT_e24_lhmedium_L1EM20VH");
     triggerChains.push_back("HLT_e60_lhmedium*");
     triggerChains.push_back("HLT_e120_lhloose*");
-    triggerChains.push_back("HLT_e24_lhmedium_L1EM20VH");
   }
   
   bool passTriggerOR = false;
