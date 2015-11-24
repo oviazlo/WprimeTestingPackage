@@ -138,6 +138,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     triggerChains.erase (triggerChains.begin()+1);
     triggerChains.push_back("HLT_e60_lhmedium*");
     triggerChains.push_back("HLT_e120_lhloose*");
+    triggerChains.push_back("HLT_e24_lhmedium_L1EM20VH");
   }
   
   bool passTriggerOR = false;
