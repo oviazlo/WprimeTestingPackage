@@ -249,7 +249,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
               (*elec_itr)->auxdata< bool >( "signal" )){
             TLorentzVector part_elec = (*elec_itr)->p4();
             double dR = part_muon.DeltaR(part_elec);
-            if (dR<0.1)
+            if (dR<0.1) 
               nOverlapElec++;
           }
         }
