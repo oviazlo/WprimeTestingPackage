@@ -141,7 +141,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
     
   
-  bool passTrigger = true;
+  bool passTrigger = false;
   
   for(std::vector<std::string>::iterator it = triggerChains.begin(); it != 
     triggerChains.end(); ++it) {
@@ -149,8 +149,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecisionTool->getChainGroup(trig);
       std::string thisTrig = trig;
-      if (cg->isPassed()==false){
-        passTrigger = false;
+      if (cg->isPassed()==true){
+        passTrigger = true;
       }
       else{
         m_BitsetCutflow->FillCutflow(*it);
