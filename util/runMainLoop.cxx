@@ -66,14 +66,24 @@ int main( int argc, char* argv[] ) {
   /// define which input-path to use
   /// look for HOSTNAME env. variable
   std::size_t found = hostName.find("cern");
-  if (found!=std::string::npos)
+  if (found!=std::string::npos){
     /// cern machines
     inputFilePath = gSystem->ExpandPathName
     ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data");
-  else
-    /// lunarc machines
-    inputFilePath = gSystem->ExpandPathName
-    ("/nfs/shared/pp/oviazlo/xAOD/p2425");
+  }
+  else{
+    std::size_t found = hostName.find("alarik");
+    if (found!=std::string::npos){
+      /// alarik cluster machines
+      inputFilePath = gSystem->ExpandPathName
+      ("/lunarc/nobackup/users/oviazlo/xAOD/p2425");
+    }
+    else{
+      /// iridium cluster
+      inputFilePath = gSystem->ExpandPathName
+      ("/nfs/shared/pp/oviazlo/xAOD/p2425"); 
+    }
+  }
 
   SH::DiskListLocal list (inputFilePath);
   SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
@@ -112,9 +122,11 @@ int main( int argc, char* argv[] ) {
   /// [List of possble flags to use]
   /// bool m_useHistObjectDumper; - do not make default plots by HistObjectDumper
   /// bool m_useBitsetCutflow; - do not save cutflow
-  /// bool m_useCalibrationAndSmearingTool; - don't do muon calibration and smearing TODO not in the code now?
+  /// bool m_useCalibrationAndSmearingTool; - don't do muon calibration and 
+  ///                                         smearing TODO not in the code now?
   /// bool m_runElectronChannel; - run electron cycle instead of muon one
-  /// bool m_doWprimeTruthMatching; - do truth matching to identify Wprime decay to muon/electron channel
+  /// bool m_doWprimeTruthMatching; - do truth matching to identify Wprime decay 
+  ///                                 to muon/electron channel
   /// bool m_doNotApplyTriggerCuts; - do not apply triggers in MC
   /// string outputName; - name of output tree TODO not implemented yet
   
