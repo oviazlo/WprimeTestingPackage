@@ -145,7 +145,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   for(std::vector<std::string>::iterator it = triggerChains.begin(); it != 
     triggerChains.end(); ++it) {
     bool passTrigger = true;
-    passOR = false;
     auto chainGroup = m_trigDecisionTool->getChainGroup(*it);
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecisionTool->getChainGroup(trig);
