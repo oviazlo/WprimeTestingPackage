@@ -21,6 +21,7 @@
 
 /// GRL
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
+
 #include "xAODJet/JetContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
@@ -34,6 +35,8 @@
 #include <TSystem.h> /// used to define JERTool calibration path 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODParticleEvent/IParticleLink.h"
+
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 
 /// Muons
 #include "MuonSelectorTools/MuonSelectionTool.h"
@@ -230,7 +233,7 @@ public:
     TrigConf::xAODConfigTool *m_trigConfigTool; //!
     /// Muson Selector Tool
     CP::MuonSelectionTool* m_muonSelection; //!
-    CP::MuonSelectionTool* m_loosemuonSelection; //!
+    CP::MuonSelectionTool* m_looseMuonSelection; //!
     /// MuonCalibrationAndSmearing
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
 //     CP::IsolationSelectionTool *m_isolationSelectionTool; //!
@@ -249,6 +252,8 @@ public:
 
     CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
     CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
+    
+    const xAOD::EventInfo* eventInfo = 0; //!
     
   #endif /// not __CINT__
 
@@ -270,28 +275,14 @@ public:
   virtual EL::StatusCode histFinalize ();
 
   /// Custom made functions
-//   xAOD::Muon* SelectMuon(const xAOD::MuonContainer* muons, 
-//                          xAOD::Vertex* primVertex, 
-//                          bool lookForVetoMuon = false);
-  
-  ConstDataVector<xAOD::MuonContainer>  SelectMuon(const xAOD::MuonContainer* muons,
-                         xAOD::Vertex* primVertex,
-                         bool lookForVetoMuon = false);
-  
-  ConstDataVector<xAOD::MuonContainer>  VetoMuon(const xAOD::MuonContainer* muons,
-                         xAOD::Vertex* primVertex,
-                         bool lookForVetoMuon = false);
-  
-  ConstDataVector<xAOD::ElectronContainer>  SelectElectron(const xAOD::ElectronContainer* electrons, xAOD::Vertex* primVertex, bool lookForVetoElectron);
-  
-  bool passMuonSelection(const xAOD::Muon* mu,
-               const xAOD::EventInfo* eventInfo,
-               xAOD::Vertex* primVertex,
-               bool lookForVetoMuon);
-  
-//   xAOD::Electron* SelectElectron(const xAOD::ElectronContainer* electrons, 
-//                                          xAOD::Vertex* primVertex, 
-//                                          bool lookForVetoElectron);
+std::pair<unsigned int, unsigned int> SelectMuons(
+                                  xAOD::MuonContainer* muons,
+                                  xAOD::Vertex* primVertex,
+                                  bool fillInCutflow);
+
+std::pair<unsigned int, unsigned int> SelectElectrons(
+                                  xAOD::ElectronContainer* electrons,
+                                  bool fillInCutflow);
   
   /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
