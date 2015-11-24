@@ -243,19 +243,19 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     
     for( ; muon_itr != muon_end; ++muon_itr ) {
       if ((*muon_itr)->auxdata< bool >( "signal" )){
-        m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
+        TLorentzVector part_muon = (*muon_itr)->p4();
         for( ; elec_itr != elec_end; ++elec_itr ) {
           if ((*elec_itr)->auxdata< bool >( "veto" )){
-            double dR = (*elec_itr)->deltaR((*muon_itr));
+            TLorentzVector part_elec = (*elec_itr)->p4();
+            double dR = part_muon.deltaR(part_elec);
             if (dR<0.1)
               nOverlapElec++;
           }
         break;
       }
     }
-    
-    
-    if (elPair.first!=0 || elPair.second!=0)
+        
+    if (elPair.second!=nOverlapElec)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
   }
