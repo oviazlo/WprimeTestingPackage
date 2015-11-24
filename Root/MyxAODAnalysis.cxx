@@ -256,7 +256,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       }
     }
         
-    if (elPair.second!=nOverlapElec)
+    if ((elPair.second+elPair.first)!=nOverlapElec)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
   }
