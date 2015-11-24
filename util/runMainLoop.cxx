@@ -136,14 +136,6 @@ int main( int argc, char* argv[] ) {
   
   alg->m_doWprimeTruthMatching = false;
 
-  
-  bool m_useHistObjectDumper;
-  bool m_useBitsetCutflow;
-  bool m_useCalibrationAndSmearingTool;
-  bool m_runElectronChannel;
-  bool m_doWprimeTruthMatching;
-  bool m_doNotApplyTriggerCuts;
-
   if (vm.count("electronChannel"))
     alg->m_runElectronChannel = true;
   
