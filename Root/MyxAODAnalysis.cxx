@@ -133,35 +133,30 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// triggers  
   /// list of triggers to use
-  std::vector<std::string> triggerChains = {"HLT_mu50.*"};
+  std::vector<std::string> triggerChains = {"HLT_mu50"};
   if (m_runElectronChannel){
     triggerChains.erase (triggerChains.begin()+1);
     triggerChains.push_back("HLT_e60_lhmedium");
     triggerChains.push_back("HLT_e120_lhloose");
   }
   
-  bool passOR = false;
+  bool passTriggerOR = false;
   
   for(std::vector<std::string>::iterator it = triggerChains.begin(); it != 
     triggerChains.end(); ++it) {
-    bool passTrigger = true;
+    
     auto chainGroup = m_trigDecisionTool->getChainGroup(*it);
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecisionTool->getChainGroup(trig);
-      std::string thisTrig = trig;
-      Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
-      if (cg->isPassed()==false){
-        passTrigger = false;
-      }
-      else{
+      if (cg->isPassed()==true){
+        passTriggerOR = true;
         m_BitsetCutflow->FillCutflow(*it);
       }
-      passOR = (passOR || passTrigger);
     }
   }
   
   if(m_doNotApplyTriggerCuts){
-    if (passOR==false)
+    if (passTriggerOR==false)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Trigger");
   }
