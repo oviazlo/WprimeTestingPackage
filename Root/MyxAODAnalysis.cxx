@@ -178,25 +178,28 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 //   m_store->record(classifiedMuons.first,  "classifiedMuons");
 //   m_store->record(classifiedMuons.second, "classifiedMuonsAux");
-  /*
-  std::pair<unsigned int, unsigned int> muPair = SelectMuons(classifiedMuons.first, 
-                                                             primVertex, true);
+
+  std::pair<unsigned int, unsigned int> muPair;
   
-  xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
-  xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
-  
-  for( ; muon_itr != muon_end; ++muon_itr ) {
-     if ((*muon_itr)->auxdata< bool >( "signal" )){
-       m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
-     }
-     if ((*muon_itr)->auxdata< bool >( "veto" ))
-       m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
+  if (!m_runElectronChannel){
+    muPair = SelectMuons(classifiedMuons.first, primVertex, true);
+    
+    xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
+    xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
+    
+    for( ; muon_itr != muon_end; ++muon_itr ) {
+      if ((*muon_itr)->auxdata< bool >( "signal" )){
+        m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
+      }
+      if ((*muon_itr)->auxdata< bool >( "veto" ))
+        m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
+    }
+    
+    if (muPair.first!=1 || muPair.second!=0)
+      return EL::StatusCode::SUCCESS;
+    m_BitsetCutflow->FillCutflow("Muon Veto");
   }
-  
-  if (muPair.first!=1 || muPair.second!=0)
-    return EL::StatusCode::SUCCESS;
-  m_BitsetCutflow->FillCutflow("Muon Veto");
-  */
+
   const xAOD::ElectronContainer* electrons(0);
   m_event->retrieve( electrons, "Electrons");
   if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ 
@@ -219,12 +222,26 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //   m_store->record(classifiedElectrons.first,  "classifiedElectrons");
 //   m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
   
-  std::pair<unsigned int, unsigned int> elPair = 
-  SelectElectrons( classifiedElectrons.first, true );
-  
-  if (elPair.first!=0 || elPair.second!=0)
-    return EL::StatusCode::SUCCESS;
-  m_BitsetCutflow->FillCutflow("Electron Veto");
+  std::pair<unsigned int, unsigned int> elPair;
+  elPair = SelectElectrons( classifiedElectrons.first, m_runElectronChannel );
+
+  if (!m_runElectronChannel){
+    if (elPair.first!=0 || elPair.second!=0)
+      return EL::StatusCode::SUCCESS;
+    m_BitsetCutflow->FillCutflow("Electron Veto");
+  }
+  else{
+    if (elPair.first!=1 || elPair.second!=0)
+      return EL::StatusCode::SUCCESS;
+    m_BitsetCutflow->FillCutflow("Electron Veto");
+    
+    muPair = SelectMuons(classifiedMuons.first, primVertex, 
+                         !m_runElectronChannel);
+    
+    if (muPair.first!=0 || muPair.second!=0)
+      return EL::StatusCode::SUCCESS;
+    m_BitsetCutflow->FillCutflow("Muon Veto");
+  }
   
   /*
   /// calibrate jets for MET
