@@ -136,8 +136,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   std::vector<std::string> triggerChains = {"HLT_mu50.*"};
   if (m_runElectronChannel){
     triggerChains.erase (triggerChains.begin()+1);
-    triggerChains.push_back("HLT_e60_lhmedium*");
-    triggerChains.push_back("HLT_e120_lhloose*");
+    triggerChains.push_back("HLT_e60_lhmedium");
+    triggerChains.push_back("HLT_e120_lhloose");
   }
   
   bool passOR = false;
@@ -149,6 +149,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecisionTool->getChainGroup(trig);
       std::string thisTrig = trig;
+      Info( "execute()", "%30s chain passed(1)/failed(0): %d total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
       if (cg->isPassed()==false){
         passTrigger = false;
       }
