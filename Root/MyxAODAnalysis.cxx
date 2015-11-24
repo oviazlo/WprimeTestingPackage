@@ -245,7 +245,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       if ((*muon_itr)->auxdata< bool >( "signal" )){
         TLorentzVector part_muon = (*muon_itr)->p4();
         for( ; elec_itr != elec_end; ++elec_itr ) {
-          if ((*elec_itr)->auxdata< bool >( "veto" )){
+          if ((*elec_itr)->auxdata< bool >( "veto" ) || 
+              (*elec_itr)->auxdata< bool >( "signal" )){
             TLorentzVector part_elec = (*elec_itr)->p4();
             double dR = part_muon.DeltaR(part_elec);
             if (dR<0.1)
