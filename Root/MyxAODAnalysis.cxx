@@ -251,6 +251,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
             if (dR<0.1)
               nOverlapElec++;
           }
+        }
         break;
       }
     }
