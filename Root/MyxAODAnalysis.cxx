@@ -133,11 +133,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// triggers  
   /// list of triggers to use
-  std::vector<std::string> triggerChains = {"HLT_mu50"};
+  std::vector<std::string> triggerChains = {"HLT_mu50*"};
   if (m_runElectronChannel){
     triggerChains.erase (triggerChains.begin()+1);
-    triggerChains.push_back("HLT_e60_lhmedium");
-    triggerChains.push_back("HLT_e120_lhloose");
+    triggerChains.push_back("HLT_e60_lhmedium*");
+    triggerChains.push_back("HLT_e120_lhloose*");
   }
   
   bool passTriggerOR = false;
