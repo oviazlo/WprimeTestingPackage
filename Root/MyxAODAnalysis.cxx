@@ -247,7 +247,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
         for( ; elec_itr != elec_end; ++elec_itr ) {
           if ((*elec_itr)->auxdata< bool >( "veto" )){
             TLorentzVector part_elec = (*elec_itr)->p4();
-            double dR = part_muon.deltaR(part_elec);
+            double dR = part_muon.DeltaR(part_elec);
             if (dR<0.1)
               nOverlapElec++;
           }
