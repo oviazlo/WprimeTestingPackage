@@ -5,6 +5,7 @@
 ///*****************************************************************************
 
 #include <MyAnalysis/MyxAODAnalysis.h>
+#include "../RootCoreIncludes/xAODEgamma/ElectronFwd.h"
 
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
@@ -236,8 +237,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
     xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
     
-    xAOD::MuonContainer::iterator elec_itr = classifiedElectrons.first->begin();
-    xAOD::MuonContainer::iterator elec_end = classifiedElectrons.first->end();
+    xAOD::ElectronContainer::iterator elec_itr = classifiedElectrons.first->begin();
+    xAOD::ElectronContainer::iterator elec_end = classifiedElectrons.first->end();
     
     int nOverlapElec = 0;
     
