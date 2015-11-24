@@ -5,7 +5,6 @@
 ///*****************************************************************************
 
 #include <MyAnalysis/MyxAODAnalysis.h>
-#include "../RootCoreIncludes/xAODEgamma/ElectronFwd.h"
 
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
