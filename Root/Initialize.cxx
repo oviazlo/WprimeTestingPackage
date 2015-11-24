@@ -38,7 +38,8 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   /// Event Info
   const xAOD::EventInfo* eventInfo = 0;
   if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
-    Error("execute()", "Failed to retrieve event info collection in initialise. Exiting." );
+    Error("execute()", 
+          "Failed to retrieve event info collection in initialise. Exiting." );
     return EL::StatusCode::FAILURE;
   }  
   
@@ -58,8 +59,12 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   /// GRL
   m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
   std::vector<std::string> vecStringGRL; 
-  vecStringGRL.push_back("$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v71-pro19-06_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml");
-//   vecStringGRL.push_back("$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns_tolerable_IBLSTANDBY-DISABLE.xml");
+  vecStringGRL.push_back(
+    "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus"
+    "-v71-pro19-06_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml");
+//   vecStringGRL.push_back(
+//     "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_HEAD_DQDefects-"
+//     "00-01-02_PHYS_StandardGRL_All_Good_25ns_tolerable_IBLSTANDBY-DISABLE.xml");
 
   CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
   /// if true (default) will ignore result of GRL and will just pass all events
@@ -77,10 +82,15 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   
   /// Jet Calibration Tool
   cout << "initialise jet calib"<<endl;
-  const std::string name = "MyxAODAnalysis"; //string describing the current thread, for logging
-  TString jetAlgo = "AntiKt4EMTopo"; //String describing your jet collection, for example AntiKt4EMTopo or AntiKt4EMTopo (see above)
-  TString config = "JES_MC15Prerecommendation_April2015.config"; //Path to global config used to initialize the tool (see above)
-  TString calibSeq ="JetArea_Residual_Origin_EtaJES_GSC" ; //String describing the calibration sequence to apply (see above)
+  /// String describing the current thread, for logging
+  const std::string name = "MyxAODAnalysis"; 
+  /// String describing your jet collection, 
+  /// for example AntiKt4EMTopo or AntiKt4EMTopo (see above)
+  TString jetAlgo = "AntiKt4EMTopo"; 
+  /// Path to global config used to initialize the tool (see above)
+  TString config = "JES_MC15Prerecommendation_April2015.config"; 
+  /// String describing the calibration sequence to apply (see above)
+  TString calibSeq ="JetArea_Residual_Origin_EtaJES_GSC" ; 
 //   m_jetCalibrationTool = new JetCalibrationTool();
 //   CHECK (m_jetCalibrationTool->setProperty("JetCollection",jetAlgo));
 //   CHECK (m_jetCalibrationTool->setProperty("ConfigFile",config));
@@ -88,13 +98,15 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
 //   CHECK (m_jetCalibrationTool->setProperty("IsData",isData));
 //   
 //   if (! m_jetCalibrationTool->initialize().isSuccess() ){
-//     Error("initialize()", "Failed to properly initialize the JES Tool. Exiting." );
+//     Error("initialize()", "Failed to properly initialize the JES Tool. "
+//     "Exiting." );
 //   }
   cout << "initialise jet calib done"<<endl;
   m_metMaker = new met::METMaker("METMakerTool");
   //m_metMaker->msg().setLevel( MSG::DEBUG ); // or DEBUG or VERBOSE
   if ( ! m_metMaker->initialize().isSuccess() ){
-    Error("initialize()", "Failed to properly initialize the METMakerTool. Exiting." );
+    Error("initialize()", "Failed to properly initialize the METMakerTool. "
+    "Exiting." );
     return EL::StatusCode::FAILURE;
   }
   
@@ -104,7 +116,8 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   m_jvtTool = new JetVertexTaggerTool("jvtag");
   hjvtagup = ToolHandle<IJetUpdateJvt>("jvtag");
   m_jvtTool->msg().setLevel( MSG::DEBUG ); // or DEBUG or VERBOSE
-  CHECK (m_jvtTool->setProperty("JVTFileName","JetMomentTools/JVTlikelihood_20140805.root"));
+  CHECK (m_jvtTool->setProperty("JVTFileName","JetMomentTools/"
+  "JVTlikelihood_20140805.root"));
   if ( ! m_jvtTool->initialize().isSuccess() ){
     Error("initialize()", "Failed to properly initialize the JVTTool. Exiting." );
     return EL::StatusCode::FAILURE;
@@ -159,19 +172,25 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   //m_util->setSoftJetCut(20);
   
   /// Initialize and configure trigger tools
-  m_trigConfigTool = new TrigConf::xAODConfigTool("xAODConfigTool"); // gives us access to the meta-data
+  /// gives us access to the meta-data
+  m_trigConfigTool = new TrigConf::xAODConfigTool("xAODConfigTool"); 
   EL_RETURN_CHECK( "initialize", m_trigConfigTool->initialize() );
   ToolHandle< TrigConf::ITrigConfigTool > trigConfigHandle( m_trigConfigTool );
   m_trigDecisionTool = new Trig::TrigDecisionTool("TrigDecisionTool");
-  EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "ConfigTool", trigConfigHandle ) ); // connect the TrigDecisionTool to the ConfigTool
-  EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
+  /// connect the TrigDecisionTool to the ConfigTool
+  EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( 
+  "ConfigTool", trigConfigHandle ) ); 
+  EL_RETURN_CHECK( "initialize", m_trigDecisionTool->setProperty( 
+  "TrigDecisionKey", "xTrigDecision" ) );
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
   
   /// electrons
   cout << "do e/g calibration" << endl;
   m_eleCalibrationTool = new CP::EgammaCalibrationAndSmearingTool("eletool");
-  m_eleCalibrationTool->setProperty("ESModel", "es2015PRE");  // see below for options
-  m_eleCalibrationTool->setProperty("decorrelationModel", "1NP_v1");  // see below for options
+  /// see below for options
+  m_eleCalibrationTool->setProperty("ESModel", "es2015PRE");  
+  /// see below for options
+  m_eleCalibrationTool->setProperty("decorrelationModel", "1NP_v1");  
   m_eleCalibrationTool->initialize();
   
   cout << "e/g calibration done" << endl;

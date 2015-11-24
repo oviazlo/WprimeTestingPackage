@@ -122,9 +122,11 @@ int main( int argc, char* argv[] ) {
   /// [List of possble flags to use]
   /// bool m_useHistObjectDumper; - do not make default plots by HistObjectDumper
   /// bool m_useBitsetCutflow; - do not save cutflow
-  /// bool m_useCalibrationAndSmearingTool; - don't do muon calibration and smearing TODO not in the code now?
+  /// bool m_useCalibrationAndSmearingTool; - don't do muon calibration and 
+  ///                                         smearing TODO not in the code now?
   /// bool m_runElectronChannel; - run electron cycle instead of muon one
-  /// bool m_doWprimeTruthMatching; - do truth matching to identify Wprime decay to muon/electron channel
+  /// bool m_doWprimeTruthMatching; - do truth matching to identify Wprime decay 
+  ///                                 to muon/electron channel
   /// bool m_doNotApplyTriggerCuts; - do not apply triggers in MC
   /// string outputName; - name of output tree TODO not implemented yet
   
