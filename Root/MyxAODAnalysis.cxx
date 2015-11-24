@@ -136,30 +136,32 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   std::vector<std::string> triggerChains = {"HLT_mu50.*"};
   if (m_runElectronChannel){
     triggerChains.erase (triggerChains.begin()+1);
-    triggerChains.push_back("HLT_e60_lhmedium");
-    triggerChains.push_back("HLT_e120_lhloose");
+    triggerChains.push_back("HLT_e60_lhmedium*");
+    triggerChains.push_back("HLT_e120_lhloose*");
   }
-    
   
-  bool passTrigger = false;
+  bool passOR = false;
   
   for(std::vector<std::string>::iterator it = triggerChains.begin(); it != 
     triggerChains.end(); ++it) {
+    bool passTrigger = true;
+    passOR = false;
     auto chainGroup = m_trigDecisionTool->getChainGroup(*it);
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecisionTool->getChainGroup(trig);
       std::string thisTrig = trig;
-      if (cg->isPassed()==true){
-        passTrigger = true;
+      if (cg->isPassed()==false){
+        passTrigger = false;
       }
       else{
         m_BitsetCutflow->FillCutflow(*it);
       }
+      passOR = (passOR || passTrigger);
     }
   }
   
   if(m_doNotApplyTriggerCuts){
-    if (passTrigger==false)
+    if (passOR==false)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Trigger");
   }
