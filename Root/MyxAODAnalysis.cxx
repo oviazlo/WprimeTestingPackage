@@ -231,6 +231,30 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   elPair = SelectElectrons( classifiedElectrons.first, m_runElectronChannel );
 
   if (!m_runElectronChannel){
+    
+    /// check dR for all vetoed electrons with selected muon
+    xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
+    xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
+    
+    xAOD::MuonContainer::iterator elec_itr = classifiedElectrons.first->begin();
+    xAOD::MuonContainer::iterator elec_end = classifiedElectrons.first->end();
+    
+    int nOverlapElec = 0;
+    
+    for( ; muon_itr != muon_end; ++muon_itr ) {
+      if ((*muon_itr)->auxdata< bool >( "signal" )){
+        m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
+        for( ; elec_itr != elec_end; ++elec_itr ) {
+          if ((*elec_itr)->auxdata< bool >( "veto" )){
+            double dR = (*elec_itr)->deltaR((*muon_itr));
+            if (dR<0.1)
+              nOverlapElec++;
+          }
+        break;
+      }
+    }
+    
+    
     if (elPair.first!=0 || elPair.second!=0)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
