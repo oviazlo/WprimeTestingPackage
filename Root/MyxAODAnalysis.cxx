@@ -381,13 +381,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
   
   xAOD::MissingET * finalTrkMet = (*met)["FinalTrk"];
-  if ( finalTrkMet == 0) { //check we retrieved the clust term
-      ATH_MSG_ERROR("getMET - finalTrkMet == 0");
-      return false;
+  if ( finalTrkMet == 0) {
+      throw std::runtime_error("Pointer finalTrkMet is NULL. Exiting." );
   }
-  m_met_et     = finalTrkMet->met()/1000.;
-  m_met_sumet  = finalTrkMet->sumet()/1000.;
-  m_met_phi    = finalTrkMet->phi();
+  
+  double m_met_et     = finalTrkMet->met()/1000.;
+  double m_met_sumet  = finalTrkMet->sumet()/1000.;
+  double m_met_phi    = finalTrkMet->phi();
   
   cout << "m_met_et = " << m_met_et << endl;
   cout << "m_met_sumet = " << m_met_sumet << endl;
