@@ -264,7 +264,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Muon Veto");
   }
   
-  
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
   EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
@@ -427,6 +426,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("mT");
   
+  
+  hMu_pt_off->Fill(leptonEt);
+  hMu_mt_off->Fill(mT);
+  hMu_MET_Muons_off->Fill(missingEt);
+
   return EL::StatusCode::SUCCESS;
 }
 

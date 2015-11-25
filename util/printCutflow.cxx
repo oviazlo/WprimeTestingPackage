@@ -74,7 +74,7 @@ int main( int argc, char* argv[] ) {
   
   /// get histogram
   TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
- 
+  
   for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
     int binContent = cutflowHist->GetBinContent(i);
     if (binContent<=0) break;
