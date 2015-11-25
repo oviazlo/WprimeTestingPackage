@@ -327,8 +327,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// metTaus
   const xAOD::TauJetContainer* taus(0);
-  EL_RETURN_CHECK("retrieve Taus",
-                  m_event->retrieve( taus, "Taus" ));
+  EL_RETURN_CHECK("retrieve TauRecContainer",
+                  m_event->retrieve( taus, "TauRecContainer" ));
   
   /// WARNING implementation with only preselection
   ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS); 
@@ -350,40 +350,40 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
   
   /// Recalculate MET
-//   bool doJVTCut = true;
-//   std::string softTerm = "PVSoftTrk";
-//   std::string finalTerm = "FinalTrk";
-// 
-//   xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
-//   xAOD::MissingETAuxContainer* met_aux = new xAOD::MissingETAuxContainer;
-//   met->setStore(met_aux);
-// 
-//   const xAOD::MissingETAssociationMap* metMap(0);
-//   EL_RETURN_CHECK("retrieve METAssoc_AntiKt4EMTopo",
-//                   m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" ));
-//   
-//   const xAOD::MissingETContainer* metcore(0);
-//   EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
-//                   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
-//   
-//   m_metMaker = new met::METMaker("METMakerTool");
-//   EL_RETURN_CHECK("init m_metMaker", m_metMaker->initialize() );
-// 
-//   m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
-//                            metMuons.asDataVector(), metMap);
-//   m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
-//                            metElectrons.asDataVector(), metMap);
-//   m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
-//                            metPhotons.asDataVector(), metMap);
-//   m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
-//                            metTaus.asDataVector(), metMap);
-//   m_metMaker->rebuildJetMET("RefJet", softTerm, met,
-//                             metJets.first, metcore, metMap, 
-//                             doJVTCut);                                              
-// 
-//   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
-//   
-//   cout << "met = " << met << endl;
+  bool doJVTCut = true;
+  std::string softTerm = "PVSoftTrk";
+  std::string finalTerm = "FinalTrk";
+
+  xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
+  xAOD::MissingETAuxContainer* met_aux = new xAOD::MissingETAuxContainer;
+  met->setStore(met_aux);
+
+  const xAOD::MissingETAssociationMap* metMap(0);
+  EL_RETURN_CHECK("retrieve METAssoc_AntiKt4EMTopo",
+                  m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" ));
+  
+  const xAOD::MissingETContainer* metcore(0);
+  EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
+                  m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
+  
+  m_metMaker = new met::METMaker("METMakerTool");
+  EL_RETURN_CHECK("init m_metMaker", m_metMaker->initialize() );
+
+  m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
+                           metMuons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
+                           metElectrons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
+                           metPhotons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
+                           metTaus.asDataVector(), metMap);
+  m_metMaker->rebuildJetMET("RefJet", softTerm, met,
+                            metJets.first, metcore, metMap, 
+                            doJVTCut);                                              
+
+  m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
+  
+  cout << "met = " << met << endl;
   
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
