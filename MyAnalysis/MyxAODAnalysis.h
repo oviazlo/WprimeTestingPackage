@@ -216,9 +216,9 @@ public:
   TH1F *h_MET_phi; //!
 
   /// Magnar histogramming way
-  TH1F* hMu_pt_off; //!
-  TH1F* hMu_mt_off; //!
-  TH1F* hMu_MET_Muons_off; //!
+  TH1D* hMu_pt_off; //!
+  TH1D* hMu_mt_off; //!
+  TH1D* hMu_MET_Muons_off; //!
   
   /// defining the output file name and tree that we will put in the output 
   /// ntuple, also the one branch that will be in that tree 
