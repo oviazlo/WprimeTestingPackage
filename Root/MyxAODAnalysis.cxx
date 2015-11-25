@@ -278,7 +278,11 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
-  m_event->retrieve(jets, "AntiKt4EMTopoJets");
+  if ( !m_event->retrieve(jets, "AntiKt4EMTopoJets").isSuccess() ){ 
+    Error("execute()", "Failed to retrieve AntiKt4EMTopoJets container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
   xAOD::shallowCopyContainer(*jets);
   xAOD::setOriginalObjectLink(*jets, *metJets.first); 
