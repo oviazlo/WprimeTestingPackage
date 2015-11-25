@@ -257,6 +257,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       }
     }
         
+    /// TODO verify this cut somehow...
     if ((elPair.second+elPair.first)!=nOverlapElec)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
@@ -274,27 +275,56 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Muon Veto");
   }
   
-  /*
+  
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
   m_tEvent->retrieve(jets, "AntiKt4EMTopoJets);
   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> 
-  calibJets = xAOD::shallowCopyContainer(*jets);
-  xAOD::setOriginalObjectLink(*jets, *calibJets.first); 
-  for(const auto& jet : *calibJets.first) {
+  metJets = xAOD::shallowCopyContainer(*jets);
+  xAOD::setOriginalObjectLink(*jets, *metJets.first); 
+  for(const auto& jet : *metJets.first) {
     CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
     if(result != CP::CorrectionCode::Ok){
           throw std::runtime_error("Error when calibrating jets. Exiting." );
     }
   }
-//   m_tEvent->record(calibJets.first, "CalibAntiKt4EMTopoJets");
-//   m_tEvent->record(calibJets.second,"CalibAntiKt4EMTopoJetsAux.");
+//   m_tEvent->record(metJets.first, "CalibAntiKt4EMTopoJets");
+//   m_tEvent->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
+  
+  /// metPhotons
+  const xAOD::PhotonContainer* photons(0);
+  m_event->retrieve( photons, "Photons");
+  if ( !m_event->retrieve( photons, "Photons" ).isSuccess() ){ 
+    Error("execute()", "Failed to retrieve Photons container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
   
   /// preselect photons for MET
-  xAOD::PhotonContainer* metPhotons = new xAOD::PhotonContainer();
-  xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
-  metPhotons->setStore( metPhotonsAux ); ///< Connect the two
+  /// TODO do I need to make hardcopy here?
+  /// or maybe I can just preselect food photons?
+  /// WARNING implementation with hardcopy
+//   xAOD::PhotonContainer* metPhotons = new xAOD::PhotonContainer();
+//   xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
+//   metPhotons->setStore( metPhotonsAux ); ///< Connect the two
+//   
+//   for(const auto& ph : *photons) {
+//     if( !CutsMETMaker::accept(ph) ) continue;
+// 
+//     double photonPt = ph->pt() * 0.001;
+//     if ( photonPt < 25.0 ) continue;
+// 
+//     double photonEta = ph->caloCluster()->etaBE(2);
+//     if ( abs(photonEta) >= 2.37 ) continue;
+//     if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
+//     
+//     /// WARNING it's strange as for me. But it's way it's done in tutorial
+//     xAOD::Photon* photon = new xAOD::Photon();
+//     metPhotons->push_back( photon );
+//     *photon= *ph; /// copies auxdata from one auxstore to the other
+//   }
   
+  /// WARNING implementation with only preselection
+  ConstDataVector<xAOD::MuonContainer> metPhotons(SG::VIEW_ELEMENTS); 
   for(const auto& ph : *photons) {
     if( !CutsMETMaker::accept(ph) ) continue;
 
@@ -304,15 +334,94 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     double photonEta = ph->caloCluster()->etaBE(2);
     if ( abs(photonEta) >= 2.37 ) continue;
     if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
-    
-    /// WARNING it's strange as for me. But it's way it's done in tutorial
-    xAOD::Photon* photon = new xAOD::Photon();
-    metPhotons->push_back( photon );
-    *photon= *ph; /// copies auxdata from one auxstore to the other
+    metPhotons.push_back(photon); 
   }
-  */
+  
+  /// metTaus
+  const xAOD::TauJetContainer* taus(0);
+  m_event->retrieve( taus, "Taus");
+  if ( !m_event->retrieve( taus, "Taus" ).isSuccess() ){ 
+    Error("execute()", "Failed to retrieve Taus container. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
+  /// WARNING implementation with only preselection
+  ConstDataVector<xAOD::MuonContainer> metTaus(SG::VIEW_ELEMENTS); 
+  for(const auto& tau : *taus) {
+    if( !CutsMETMaker::accept(tau) ) continue;
+    metTaus.push_back(tau); 
+  }
+ 
+  /// metElectrons
+  ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
+  for (const auto& elec : *classifiedElectrons) {
+    if (elec->auxdata< bool >( "signal" )) metElectrons.push_back(elec);
+  }
 
+  /// metMuons
+  ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
+  for (const auto& muon : *classifiedMuons) {
+    if (elec->auxdata< bool >( "signal" )) metMuons.push_back(muon);
+  }
+  
+  /// Recalculate MET
+  bool doJVTCut = true;
+  std::string softTerm = "PVSoftTrk";
+  std::string finalTerm = "FinalTrk";
+
+  xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
+  xAOD::MissingETAuxContainer* met_aux = new xAOD::MissingETAuxContainer;
+  met->setStore(met_aux);
+
+  const xAOD::MissingETAssociationMap* metMap(0);
+  m_tEvent->retrieve( metMap, "METAssoc_AntiKt4EMTopo" );
+  
+  const xAOD::MissingETContainer* metcore(0);
+  m_tEvent->retrieve( metcore, "MET_Core_AntiKt4EMTopo" );
+  
+  m_metMaker = new met::METMaker("METMakerTool");
+  ATH_CHECK( m_metMaker->initialize() );
+
+  m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
+                           metMuons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
+                           metElectrons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
+                           metPhotons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
+                           metTaus.asDataVector(), metMap);
+  m_metMaker->rebuildJetMET("RefJet", softTerm, met,
+                            metJets.asDataVector(), metcore, metMap, doJVTCut);                                              
+
+  m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
+  
+  cout << "met = " << met << endl;
   
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
