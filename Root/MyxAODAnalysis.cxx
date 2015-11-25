@@ -278,7 +278,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
-  m_tEvent->retrieve(jets, "AntiKt4EMTopoJets);
+  m_event->retrieve(jets, "AntiKt4EMTopoJets");
   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
   xAOD::shallowCopyContainer(*jets);
   xAOD::setOriginalObjectLink(*jets, *metJets.first); 
@@ -288,8 +288,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
           throw std::runtime_error("Error when calibrating jets. Exiting." );
     }
   }
-//   m_tEvent->record(metJets.first, "CalibAntiKt4EMTopoJets");
-//   m_tEvent->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
+//   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
+//   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
   
   /// metPhotons
   const xAOD::PhotonContainer* photons(0);
@@ -334,7 +334,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     double photonEta = ph->caloCluster()->etaBE(2);
     if ( abs(photonEta) >= 2.37 ) continue;
     if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
-    metPhotons.push_back(photon); 
+    metPhotons.push_back(ph); 
   }
   
   /// metTaus
@@ -346,22 +346,22 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
   
   /// WARNING implementation with only preselection
-  ConstDataVector<xAOD::MuonContainer> metTaus(SG::VIEW_ELEMENTS); 
+  ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS); 
   for(const auto& tau : *taus) {
     if( !CutsMETMaker::accept(tau) ) continue;
-    metTaus.push_back(tau); 
+    metTaus.push_back(tau);
   }
  
   /// metElectrons
   ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-  for (const auto& elec : *classifiedElectrons) {
+  for (const auto& elec : *classifiedElectrons.first) {
     if (elec->auxdata< bool >( "signal" )) metElectrons.push_back(elec);
   }
 
   /// metMuons
   ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-  for (const auto& muon : *classifiedMuons) {
-    if (elec->auxdata< bool >( "signal" )) metMuons.push_back(muon);
+  for (const auto& muon : *classifiedMuons.first) {
+    if (muon->auxdata< bool >( "signal" )) metMuons.push_back(muon);
   }
   
   /// Recalculate MET
