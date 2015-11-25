@@ -264,7 +264,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Muon Veto");
   }
   
-  
+  /*
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
   EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
@@ -348,7 +348,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   for (const auto& muon : *classifiedMuons.first) {
     if (muon->auxdata< bool >( "signal" )) metMuons.push_back(muon);
   }
-  
+  */
   /// Recalculate MET
 //   bool doJVTCut = true;
 //   std::string softTerm = "PVSoftTrk";
