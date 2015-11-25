@@ -281,7 +281,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
 //   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
 //   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
-  /*
+  
   /// metPhotons
   const xAOD::PhotonContainer* photons(0);
   EL_RETURN_CHECK("retrieve Photons",
@@ -348,7 +348,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   for (const auto& muon : *classifiedMuons.first) {
     if (muon->auxdata< bool >( "signal" )) metMuons.push_back(muon);
   }
-  */
+  
   /// Recalculate MET
 //   bool doJVTCut = true;
 //   std::string softTerm = "PVSoftTrk";
