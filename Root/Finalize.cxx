@@ -124,6 +124,7 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
   TKey *key;
   cout << "List of created hists:" << endl;
   while ((key = (TKey*)next())) {
+    cout << key->GetName() << endl;
     TClass *cl = gROOT->GetClass(key->GetClassName());
     if (!cl->InheritsFrom("TH1")) continue;
     TH1 *h = (TH1*)key->ReadObj();
