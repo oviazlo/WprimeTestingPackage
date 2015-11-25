@@ -408,7 +408,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   double leptonPhi;
   
   if (m_runElectronChannel){
-    leptonEt = metElectrons[0]->Et() * 0.001;
+    leptonEt = metElectrons[0]->pt() * 0.001;
     leptonPhi = metElectrons[0]->phi();
   }
   else{
@@ -417,7 +417,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
   
   double mT = sqrt( 2 * missingEt * leptonEt * 
-  (1 - cos( deltaPhi(leptonPhi, missingEtPhi) ) ) );
+  (1 - TMath::Cos( TMath::DeltaPhi(leptonPhi, missingEtPhi) ) ) );
   
   if (mT<mtCut)
     return EL::StatusCode::SUCCESS;
