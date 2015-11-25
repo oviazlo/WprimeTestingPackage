@@ -366,9 +366,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
                   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
   
-  m_metMaker = new met::METMaker("METMakerTool");
-  EL_RETURN_CHECK("init m_metMaker", m_metMaker->initialize() );
-
   m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
                            metMuons.asDataVector(), metMap);
   m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
@@ -383,9 +380,19 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
   
-  cout << "met = " << met << endl;
+  xAOD::MissingET * finalTrkMet = (*met)["FinalTrk"];
+  if ( finalTrkMet == 0) { //check we retrieved the clust term
+      ATH_MSG_ERROR("getMET - finalTrkMet == 0");
+      return false;
+  }
+  m_met_et     = finalTrkMet->met()/1000.;
+  m_met_sumet  = finalTrkMet->sumet()/1000.;
+  m_met_phi    = finalTrkMet->phi();
   
-  /// FIXME exit from execute here for debugging purpose
+  cout << "m_met_et = " << m_met_et << endl;
+  cout << "m_met_sumet = " << m_met_sumet << endl;
+  cout << "m_met_phi = " << m_met_phi << endl;
+  
   return EL::StatusCode::SUCCESS;
 }
 
