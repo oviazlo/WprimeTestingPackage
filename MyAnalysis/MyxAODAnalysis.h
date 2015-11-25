@@ -92,6 +92,9 @@
 
 #include <MyAnalysis/HistObjectDumper.h>
 #include <MyAnalysis/BitsetCutflow.h>
+#include <MyAnalysis/WprimeHist.h>
+#include <MyAnalysis/WprimeSample.h>
+
 #include <METUtilities/METMaker.h>
 
 /// include files for using the trigger tools
