@@ -8,8 +8,6 @@
 ///
 ///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>
-#include <TCollection.h>
-#include <TKey.h>
 
 /// this is needed to distribute the algorithm to the workers
 ClassImp(MyxAODAnalysis)
@@ -120,16 +118,7 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
       m_trigDecisionTool = 0;
    }
 
-  TIter next(gDirectory->GetListOfKeys());
-  TKey *key;
-  cout << "List of created hists:" << endl;
-  while ((key = (TKey*)next())) {
-    cout << key->GetName() << endl;
-    TClass *cl = gROOT->GetClass(key->GetClassName());
-    if (!cl->InheritsFrom("TH1")) continue;
-    TH1 *h = (TH1*)key->ReadObj();
-    cout << h->GetName() << endl;
-  }
+
   
   return EL::StatusCode::SUCCESS;
 }
