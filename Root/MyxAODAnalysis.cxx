@@ -281,7 +281,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
 //   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
 //   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
-  
+  /*
   /// metPhotons
   const xAOD::PhotonContainer* photons(0);
   EL_RETURN_CHECK("retrieve Photons",
@@ -310,7 +310,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //     metPhotons->push_back( photon );
 //     *photon= *ph; /// copies auxdata from one auxstore to the other
 //   }
-  /*
+  
   /// WARNING implementation with only preselection
   ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS); 
   for(const auto& ph : *photons) {
