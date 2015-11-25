@@ -28,11 +28,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   ///--------------------------- 
 
 //   const xAOD::EventInfo* eventInfo = 0;
-  if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
-    Error("execute()", "Failed to retrieve event info collection. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
-
+  EL_RETURN_CHECK("retrieve EventInfo",
+                  m_event->retrieve( eventInfo, "EventInfo");
   EventNumber = eventInfo->eventNumber();  
 
   bool isMC = false;
@@ -47,10 +44,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     
     /// Create truth vertice container
     const xAOD::TruthVertexContainer* truthVertices = 0;
-    if ( !m_event->retrieve( truthVertices, "TruthVertices" ).isSuccess() ){ 
-      Error("execute()","Failed to retrieve TruthVertices container. Exiting.");
-      return EL::StatusCode::FAILURE;
-    }
+    EL_RETURN_CHECK("retrieve TruthVertices", 
+                    m_event->retrieve( truthVertices, "TruthVertices" ));
     
     /// Start iterating over truth container
     xAOD::TruthVertexContainer::const_iterator truthV_itr; 
@@ -108,10 +103,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// Primary vertex
   const xAOD::VertexContainer* vertices = 0;
-  if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ 
-    Error("execute()","Failed to retrieve PrimaryVertices container. Exiting.");
-    return EL::StatusCode::FAILURE;
-  }
+  EL_RETURN_CHECK("retrieve PrimaryVertices", 
+                  m_event->retrieve( vertices, "PrimaryVertices" ));
   
   xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
   xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
@@ -164,10 +157,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
 
   const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ 
-    Error("execute()", "Failed to retrieve Muons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+  EL_RETURN_CHECK("retrieve Muons",
+                  m_event->retrieve( muons, "Muons" ));
   
   std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> classifiedMuons = 
   xAOD::shallowCopyContainer(*muons);
@@ -206,11 +197,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
 
   const xAOD::ElectronContainer* electrons(0);
-  m_event->retrieve( electrons, "Electrons");
-  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ 
-    Error("execute()", "Failed to retrieve Electrons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+  
+  EL_RETURN_CHECK("retrieve Electrons",
+                  m_event->retrieve( electrons, "Electrons" ));
   
   std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> 
   classifiedElectrons = xAOD::shallowCopyContainer(*electrons);
@@ -278,10 +267,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
-  if ( !m_event->retrieve(jets, "AntiKt4EMTopoJets").isSuccess() ){ 
-    Error("execute()", "Failed to retrieve AntiKt4EMTopoJets container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+  EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
+                  m_event->retrieve(jets, "AntiKt4EMTopoJets"));
   
   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
   xAOD::shallowCopyContainer(*jets);
@@ -297,11 +284,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// metPhotons
   const xAOD::PhotonContainer* photons(0);
-  m_event->retrieve( photons, "Photons");
-  if ( !m_event->retrieve( photons, "Photons" ).isSuccess() ){ 
-    Error("execute()", "Failed to retrieve Photons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+  EL_RETURN_CHECK("retrieve Photons",
+                  m_event->retrieve( photons, "Photons" ));
   
   /// preselect photons for MET
   /// TODO do I need to make hardcopy here?
@@ -343,11 +327,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// metTaus
   const xAOD::TauJetContainer* taus(0);
-  m_event->retrieve( taus, "Taus");
-  if ( !m_event->retrieve( taus, "Taus" ).isSuccess() ){ 
-    Error("execute()", "Failed to retrieve Taus container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+  EL_RETURN_CHECK("retrieve Taus",
+                  m_event->retrieve( taus, "Taus" ));
   
   /// WARNING implementation with only preselection
   ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS); 
@@ -378,10 +359,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //   met->setStore(met_aux);
 // 
 //   const xAOD::MissingETAssociationMap* metMap(0);
-//   m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" );
+//   EL_RETURN_CHECK("retrieve METAssoc_AntiKt4EMTopo",
+//                   m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" ));
 //   
 //   const xAOD::MissingETContainer* metcore(0);
-//   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" );
+//   EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
+//                   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
 //   
 //   m_metMaker = new met::METMaker("METMakerTool");
 //   EL_RETURN_CHECK("init m_metMaker", m_metMaker->initialize() );
