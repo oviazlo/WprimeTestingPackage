@@ -389,9 +389,17 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   double m_met_sumet  = finalTrkMet->sumet()/1000.;
   double m_met_phi    = finalTrkMet->phi();
   
-  cout << "m_met_et = " << m_met_et << endl;
-  cout << "m_met_sumet = " << m_met_sumet << endl;
-  cout << "m_met_phi = " << m_met_phi << endl;
+  double metCut;
+  if (m_runElectronChannel)
+    metCut = 65.0;
+  else
+    metCut = 55.0;
+  
+  if (m_met_et<metCut)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("MET");
+  
+  
   
   return EL::StatusCode::SUCCESS;
 }
