@@ -385,21 +385,43 @@ EL::StatusCode MyxAODAnalysis :: execute ()
       throw std::runtime_error("Pointer finalTrkMet is NULL. Exiting." );
   }
   
-  double m_met_et     = finalTrkMet->met()/1000.;
+  double missingEt    = finalTrkMet->met()/1000.;
   double m_met_sumet  = finalTrkMet->sumet()/1000.;
-  double m_met_phi    = finalTrkMet->phi();
+  double missingEtPhi = finalTrkMet->phi();
   
   double metCut;
-  if (m_runElectronChannel)
+  double mtCut;
+  if (m_runElectronChannel){
     metCut = 65.0;
-  else
+    mtCut = 130.0; 
+  }
+  else{
     metCut = 55.0;
+    mtCut = 110.0;
+  }
   
-  if (m_met_et<metCut)
+  if (missingEt<metCut)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("MET");
   
+  double leptonEt;
+  double leptonPhi;
   
+  if (m_runElectronChannel){
+    leptonEt = metElectrons[0]->Et() * 0.001;
+    leptonPhi = metElectrons[0]->phi();
+  }
+  else{
+    leptonEt = metMuons[0]->pt() * 0.001;
+    leptonPhi = metMuons[0]->phi();
+  }
+  
+  double mT = sqrt( 2 * missingEt * leptonEt * 
+  (1 - cos( deltaPhi(leptonPhi, missingEtPhi) ) ) );
+  
+  if (mT<mtCut)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("mT");
   
   return EL::StatusCode::SUCCESS;
 }
