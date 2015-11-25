@@ -416,8 +416,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     leptonPhi = metMuons[0]->phi();
   }
   
+  float deltaPhi = TMath::Abs(leptonPhi-missingEtPhi);
+  if(deltaPhi > TMath::Pi())
+        deltaPhi = TMath::TwoPi() - deltaPhi;
+  
   double mT = sqrt( 2 * missingEt * leptonEt * 
-  (1 - TMath::Cos( TMath::DeltaPhi(leptonPhi, missingEtPhi) ) ) );
+  (1 - TMath::Cos( deltaPhi ) ) );
   
   if (mT<mtCut)
     return EL::StatusCode::SUCCESS;
