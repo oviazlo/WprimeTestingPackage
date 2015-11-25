@@ -29,7 +29,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 
 //   const xAOD::EventInfo* eventInfo = 0;
   EL_RETURN_CHECK("retrieve EventInfo",
-                  m_event->retrieve( eventInfo, "EventInfo");
+                  m_event->retrieve( eventInfo, "EventInfo"));
   EventNumber = eventInfo->eventNumber();  
 
   bool isMC = false;
@@ -388,28 +388,4 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
