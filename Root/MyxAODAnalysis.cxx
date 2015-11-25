@@ -391,7 +391,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
                            metTaus.asDataVector(), metMap);
   m_metMaker->rebuildJetMET("RefJet", softTerm, met,
-                            metJets.first->asDataVector(), metcore, metMap, 
+                            metJets.first, metcore, metMap, 
                             doJVTCut);                                              
 
   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
