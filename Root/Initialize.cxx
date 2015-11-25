@@ -91,16 +91,16 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   TString config = "JES_MC15Prerecommendation_April2015.config"; 
   /// String describing the calibration sequence to apply (see above)
   TString calibSeq ="JetArea_Residual_Origin_EtaJES_GSC" ; 
-//   m_jetCalibrationTool = new JetCalibrationTool();
-//   CHECK (m_jetCalibrationTool->setProperty("JetCollection",jetAlgo));
-//   CHECK (m_jetCalibrationTool->setProperty("ConfigFile",config));
-//   CHECK (m_jetCalibrationTool->setProperty("CalibSequence",calibSeq));
-//   CHECK (m_jetCalibrationTool->setProperty("IsData",isData));
-//   
-//   if (! m_jetCalibrationTool->initialize().isSuccess() ){
-//     Error("initialize()", "Failed to properly initialize the JES Tool. "
-//     "Exiting." );
-//   }
+  
+  m_jetCalibrationTool = new JetCalibrationTool();
+  CHECK (m_jetCalibrationTool->setProperty("JetCollection",jetAlgo));
+  CHECK (m_jetCalibrationTool->setProperty("ConfigFile",config));
+  CHECK (m_jetCalibrationTool->setProperty("CalibSequence",calibSeq));
+  CHECK (m_jetCalibrationTool->setProperty("IsData",isData));
+  
+  EL_RETURN_CHECK("initialize jetCalibrationTool",
+                  m_jetCalibrationTool->initialize());
+  }
   cout << "initialise jet calib done"<<endl;
   m_metMaker = new met::METMaker("METMakerTool");
   //m_metMaker->msg().setLevel( MSG::DEBUG ); // or DEBUG or VERBOSE

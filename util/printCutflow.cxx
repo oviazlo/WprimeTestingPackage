@@ -35,7 +35,7 @@ namespace
   const size_t ERROR_UNHANDLED_EXCEPTION = 2; 
   const size_t HELP_CALLED = 3;
   
-  namespace po = boost::program_options;
+  namespace po = boost::program_options; 
  
 } /// namespace 
 

@@ -28,11 +28,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   ///--------------------------- 
 
 //   const xAOD::EventInfo* eventInfo = 0;
-  if( ! m_event->retrieve( eventInfo, "EventInfo").isSuccess() ){
-    Error("execute()", "Failed to retrieve event info collection. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
-
+  EL_RETURN_CHECK("retrieve EventInfo",
+                  m_event->retrieve( eventInfo, "EventInfo"));
   EventNumber = eventInfo->eventNumber();  
 
   bool isMC = false;
@@ -47,10 +44,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     
     /// Create truth vertice container
     const xAOD::TruthVertexContainer* truthVertices = 0;
-    if ( !m_event->retrieve( truthVertices, "TruthVertices" ).isSuccess() ){ 
-      Error("execute()","Failed to retrieve TruthVertices container. Exiting.");
-      return EL::StatusCode::FAILURE;
-    }
+    EL_RETURN_CHECK("retrieve TruthVertices", 
+                    m_event->retrieve( truthVertices, "TruthVertices" ));
     
     /// Start iterating over truth container
     xAOD::TruthVertexContainer::const_iterator truthV_itr; 
@@ -108,10 +103,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// Primary vertex
   const xAOD::VertexContainer* vertices = 0;
-  if ( !m_event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ){ 
-    Error("execute()","Failed to retrieve PrimaryVertices container. Exiting.");
-    return EL::StatusCode::FAILURE;
-  }
+  EL_RETURN_CHECK("retrieve PrimaryVertices", 
+                  m_event->retrieve( vertices, "PrimaryVertices" ));
   
   xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
   xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
@@ -133,44 +126,39 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// triggers  
   /// list of triggers to use
-  std::vector<std::string> triggerChains = {"HLT_mu50.*"};
+  std::vector<std::string> triggerChains = {"HLT_mu50*"};
   if (m_runElectronChannel){
     triggerChains.erase (triggerChains.begin()+1);
+    triggerChains.push_back("HLT_e24_lhmedium_L1EM20VH");
     triggerChains.push_back("HLT_e60_lhmedium*");
     triggerChains.push_back("HLT_e120_lhloose*");
   }
   
-  bool passOR = false;
+  bool passTriggerOR = false;
   
   for(std::vector<std::string>::iterator it = triggerChains.begin(); it != 
     triggerChains.end(); ++it) {
-    bool passTrigger = true;
+    
     auto chainGroup = m_trigDecisionTool->getChainGroup(*it);
     for(auto &trig : chainGroup->getListOfTriggers()) {
       auto cg = m_trigDecisionTool->getChainGroup(trig);
-      std::string thisTrig = trig;
-      if (cg->isPassed()==false){
-        passTrigger = false;
-      }
-      else{
+      if (cg->isPassed()==true){
+        passTriggerOR = true;
         m_BitsetCutflow->FillCutflow(*it);
       }
-      passOR = (passOR || passTrigger);
     }
   }
   
   if(m_doNotApplyTriggerCuts){
-    if (passOR==false)
+    if (passTriggerOR==false)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Trigger");
   }
   
 
   const xAOD::MuonContainer* muons = 0;
-  if ( !m_event->retrieve( muons, "Muons" ).isSuccess() ){ 
-    Error("execute()", "Failed to retrieve Muons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+  EL_RETURN_CHECK("retrieve Muons",
+                  m_event->retrieve( muons, "Muons" ));
   
   std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> classifiedMuons = 
   xAOD::shallowCopyContainer(*muons);
@@ -209,11 +197,9 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   }
 
   const xAOD::ElectronContainer* electrons(0);
-  m_event->retrieve( electrons, "Electrons");
-  if ( !m_event->retrieve( electrons, "Electrons" ).isSuccess() ){ 
-    Error("execute()", "Failed to retrieve Electrons container. Exiting." );
-    return EL::StatusCode::FAILURE;
-  }
+  
+  EL_RETURN_CHECK("retrieve Electrons",
+                  m_event->retrieve( electrons, "Electrons" ));
   
   std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> 
   classifiedElectrons = xAOD::shallowCopyContainer(*electrons);
@@ -234,7 +220,34 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   elPair = SelectElectrons( classifiedElectrons.first, m_runElectronChannel );
 
   if (!m_runElectronChannel){
-    if (elPair.first!=0 || elPair.second!=0)
+    
+    /// check dR for all vetoed electrons with selected muon
+    xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
+    xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
+    
+    xAOD::ElectronContainer::iterator elec_itr = classifiedElectrons.first->begin();
+    xAOD::ElectronContainer::iterator elec_end = classifiedElectrons.first->end();
+    
+    int nOverlapElec = 0;
+    
+    for( ; muon_itr != muon_end; ++muon_itr ) {
+      if ((*muon_itr)->auxdata< bool >( "signal" )){
+        TLorentzVector part_muon = (*muon_itr)->p4();
+        for( ; elec_itr != elec_end; ++elec_itr ) {
+          if ((*elec_itr)->auxdata< bool >( "veto" ) || 
+              (*elec_itr)->auxdata< bool >( "signal" )){
+            TLorentzVector part_elec = (*elec_itr)->p4();
+            double dR = part_muon.DeltaR(part_elec);
+            if (dR<0.1) 
+              nOverlapElec++;
+          }
+        }
+        break;
+      }
+    }
+        
+    /// TODO verify this cut somehow...
+    if ((elPair.second+elPair.first)!=nOverlapElec)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
   }
@@ -251,27 +264,55 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Muon Veto");
   }
   
-  /*
+  
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
-  m_tEvent->retrieve(jets, "AntiKt4EMTopoJets);
-  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> 
-  calibJets = xAOD::shallowCopyContainer(*jets);
-  xAOD::setOriginalObjectLink(*jets, *calibJets.first); 
-  for(const auto& jet : *calibJets.first) {
-    CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
-    if(result != CP::CorrectionCode::Ok){
-          throw std::runtime_error("Error when calibrating jets. Exiting." );
-    }
-  }
-//   m_tEvent->record(calibJets.first, "CalibAntiKt4EMTopoJets");
-//   m_tEvent->record(calibJets.second,"CalibAntiKt4EMTopoJetsAux.");
+  EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
+                  m_event->retrieve(jets, "AntiKt4EMTopoJets"));
+  
+//   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
+//   xAOD::shallowCopyContainer(*jets);
+//   xAOD::setOriginalObjectLink(*jets, *metJets.first); 
+//   for(const auto& jet : *metJets.first) {
+//     CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
+//     if(result != CP::CorrectionCode::Ok){
+//           throw std::runtime_error("Error when calibrating jets. Exiting." );
+//     }
+//   }
+//   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
+//   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
+  /*
+  /// metPhotons
+  const xAOD::PhotonContainer* photons(0);
+  EL_RETURN_CHECK("retrieve Photons",
+                  m_event->retrieve( photons, "Photons" ));
   
   /// preselect photons for MET
-  xAOD::PhotonContainer* metPhotons = new xAOD::PhotonContainer();
-  xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
-  metPhotons->setStore( metPhotonsAux ); ///< Connect the two
+  /// TODO do I need to make hardcopy here?
+  /// or maybe I can just preselect food photons?
+  /// WARNING implementation with hardcopy
+//   xAOD::PhotonContainer* metPhotons = new xAOD::PhotonContainer();
+//   xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
+//   metPhotons->setStore( metPhotonsAux ); ///< Connect the two
+//   
+//   for(const auto& ph : *photons) {
+//     if( !CutsMETMaker::accept(ph) ) continue;
+// 
+//     double photonPt = ph->pt() * 0.001;
+//     if ( photonPt < 25.0 ) continue;
+// 
+//     double photonEta = ph->caloCluster()->etaBE(2);
+//     if ( abs(photonEta) >= 2.37 ) continue;
+//     if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
+//     
+//     /// WARNING it's strange as for me. But it's way it's done in tutorial
+//     xAOD::Photon* photon = new xAOD::Photon();
+//     metPhotons->push_back( photon );
+//     *photon= *ph; /// copies auxdata from one auxstore to the other
+//   }
   
+  /// WARNING implementation with only preselection
+  ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS); 
   for(const auto& ph : *photons) {
     if( !CutsMETMaker::accept(ph) ) continue;
 
@@ -281,15 +322,70 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     double photonEta = ph->caloCluster()->etaBE(2);
     if ( abs(photonEta) >= 2.37 ) continue;
     if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
-    
-    /// WARNING it's strange as for me. But it's way it's done in tutorial
-    xAOD::Photon* photon = new xAOD::Photon();
-    metPhotons->push_back( photon );
-    *photon= *ph; /// copies auxdata from one auxstore to the other
+    metPhotons.push_back(ph); 
+  }
+  
+  /// metTaus
+  const xAOD::TauJetContainer* taus(0);
+  EL_RETURN_CHECK("retrieve Taus",
+                  m_event->retrieve( taus, "Taus" ));
+  
+  /// WARNING implementation with only preselection
+  ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS); 
+  for(const auto& tau : *taus) {
+    if( !CutsMETMaker::accept(tau) ) continue;
+    metTaus.push_back(tau);
+  }
+ 
+  /// metElectrons
+  ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
+  for (const auto& elec : *classifiedElectrons.first) {
+    if (elec->auxdata< bool >( "signal" )) metElectrons.push_back(elec);
+  }
+
+  /// metMuons
+  ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
+  for (const auto& muon : *classifiedMuons.first) {
+    if (muon->auxdata< bool >( "signal" )) metMuons.push_back(muon);
   }
   */
-
+  /// Recalculate MET
+//   bool doJVTCut = true;
+//   std::string softTerm = "PVSoftTrk";
+//   std::string finalTerm = "FinalTrk";
+// 
+//   xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
+//   xAOD::MissingETAuxContainer* met_aux = new xAOD::MissingETAuxContainer;
+//   met->setStore(met_aux);
+// 
+//   const xAOD::MissingETAssociationMap* metMap(0);
+//   EL_RETURN_CHECK("retrieve METAssoc_AntiKt4EMTopo",
+//                   m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" ));
+//   
+//   const xAOD::MissingETContainer* metcore(0);
+//   EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
+//                   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
+//   
+//   m_metMaker = new met::METMaker("METMakerTool");
+//   EL_RETURN_CHECK("init m_metMaker", m_metMaker->initialize() );
+// 
+//   m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
+//                            metMuons.asDataVector(), metMap);
+//   m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
+//                            metElectrons.asDataVector(), metMap);
+//   m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
+//                            metPhotons.asDataVector(), metMap);
+//   m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
+//                            metTaus.asDataVector(), metMap);
+//   m_metMaker->rebuildJetMET("RefJet", softTerm, met,
+//                             metJets.first, metcore, metMap, 
+//                             doJVTCut);                                              
+// 
+//   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
+//   
+//   cout << "met = " << met << endl;
   
   /// FIXME exit from execute here for debugging purpose
   return EL::StatusCode::SUCCESS;
 }
+
