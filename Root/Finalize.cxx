@@ -8,7 +8,7 @@
 ///
 ///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>
-#include <TIter.h>
+#include <TCollection.h>
 #include <TKey.h>
 
 /// this is needed to distribute the algorithm to the workers
