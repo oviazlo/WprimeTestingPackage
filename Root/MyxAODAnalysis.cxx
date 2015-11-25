@@ -279,8 +279,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
   m_tEvent->retrieve(jets, "AntiKt4EMTopoJets);
-  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> 
-  metJets = xAOD::shallowCopyContainer(*jets);
+  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
+  xAOD::shallowCopyContainer(*jets);
   xAOD::setOriginalObjectLink(*jets, *metJets.first); 
   for(const auto& jet : *metJets.first) {
     CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
@@ -374,10 +374,10 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   met->setStore(met_aux);
 
   const xAOD::MissingETAssociationMap* metMap(0);
-  m_tEvent->retrieve( metMap, "METAssoc_AntiKt4EMTopo" );
+  m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" );
   
   const xAOD::MissingETContainer* metcore(0);
-  m_tEvent->retrieve( metcore, "MET_Core_AntiKt4EMTopo" );
+  m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" );
   
   m_metMaker = new met::METMaker("METMakerTool");
   ATH_CHECK( m_metMaker->initialize() );
