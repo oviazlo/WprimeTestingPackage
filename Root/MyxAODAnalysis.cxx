@@ -380,7 +380,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" );
   
   m_metMaker = new met::METMaker("METMakerTool");
-  ATH_CHECK( m_metMaker->initialize() );
+  EL_RETURN_CHECK("init m_metMaker", m_metMaker->initialize() );
 
   m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
                            metMuons.asDataVector(), metMap);
