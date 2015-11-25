@@ -328,7 +328,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   /// metTaus
   const xAOD::TauJetContainer* taus(0);
   EL_RETURN_CHECK("retrieve TauRecContainer",
-                  m_event->retrieve( taus, "TauRecContainer" ));
+                  m_event->retrieve( taus, "TauJet" ));
   
   /// WARNING implementation with only preselection
   ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS); 
