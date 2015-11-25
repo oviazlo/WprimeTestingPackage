@@ -264,7 +264,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Muon Veto");
   }
   
-  /*
+  
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
   EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
@@ -310,7 +310,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //     metPhotons->push_back( photon );
 //     *photon= *ph; /// copies auxdata from one auxstore to the other
 //   }
-  
+  /*
   /// WARNING implementation with only preselection
   ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS); 
   for(const auto& ph : *photons) {
