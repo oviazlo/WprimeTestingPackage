@@ -270,15 +270,15 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
                   m_event->retrieve(jets, "AntiKt4EMTopoJets"));
   
-  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
-  xAOD::shallowCopyContainer(*jets);
-  xAOD::setOriginalObjectLink(*jets, *metJets.first); 
-  for(const auto& jet : *metJets.first) {
-    CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
-    if(result != CP::CorrectionCode::Ok){
-          throw std::runtime_error("Error when calibrating jets. Exiting." );
-    }
-  }
+//   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
+//   xAOD::shallowCopyContainer(*jets);
+//   xAOD::setOriginalObjectLink(*jets, *metJets.first); 
+//   for(const auto& jet : *metJets.first) {
+//     CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
+//     if(result != CP::CorrectionCode::Ok){
+//           throw std::runtime_error("Error when calibrating jets. Exiting." );
+//     }
+//   }
 //   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
 //   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
   /*
