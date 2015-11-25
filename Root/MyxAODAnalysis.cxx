@@ -324,7 +324,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //   }
   
   /// WARNING implementation with only preselection
-  ConstDataVector<xAOD::MuonContainer> metPhotons(SG::VIEW_ELEMENTS); 
+  ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS); 
   for(const auto& ph : *photons) {
     if( !CutsMETMaker::accept(ph) ) continue;
 
@@ -391,7 +391,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
                            metTaus.asDataVector(), metMap);
   m_metMaker->rebuildJetMET("RefJet", softTerm, met,
-                            metJets.asDataVector(), metcore, metMap, doJVTCut);                                              
+                            metJets.first.asDataVector(), metcore, metMap, 
+                            doJVTCut);                                              
 
   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
   
