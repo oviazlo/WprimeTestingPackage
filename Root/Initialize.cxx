@@ -205,9 +205,11 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     "primaryVertexContainer","PrimaryVertices"));
   
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20151012/";
-  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty(
+  EL_RETURN_CHECK( "m_LHToolTight2015 setProperty ConfigFile", 
+                   m_LHToolTight2015->setProperty(
     "ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf"));
-  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
+  EL_RETURN_CHECK( "m_LHToolMedium2015  setProperty ConfigFile", 
+                   m_LHToolMedium2015->setProperty(
     "ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2015.conf"));
   
   EL_RETURN_CHECK( "initialize", m_LHToolTight2015->initialize() );
