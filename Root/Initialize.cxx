@@ -100,8 +100,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   
   EL_RETURN_CHECK("initialize jetCalibrationTool",
                   m_jetCalibrationTool->initialize());
-  }
-  cout << "initialise jet calib done"<<endl;
+  
   m_metMaker = new met::METMaker("METMakerTool");
   //m_metMaker->msg().setLevel( MSG::DEBUG ); // or DEBUG or VERBOSE
   if ( ! m_metMaker->initialize().isSuccess() ){
