@@ -107,15 +107,15 @@ int main( int argc, char* argv[] ) {
     
     h_pt->Draw();
     h_pt->GetXaxis()->SetRangeUser(0,5000.0);
-    can->SaveAs("pT.eps");
+    can->SaveAs("pT.png");
     
     h_MET->GetXaxis()->SetRangeUser(0,5000.0);
     h_MET->Draw();
-    can->SaveAs("MET.eps");
+    can->SaveAs("MET.png");
     
     h_Mt->GetXaxis()->SetRangeUser(0,5000.0);
     h_Mt->Draw();
-    can->SaveAs("mT.eps");
+    can->SaveAs("mT.png");
   }
   
   return 0;
