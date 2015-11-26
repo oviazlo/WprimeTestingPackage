@@ -96,10 +96,16 @@ int main( int argc, char* argv[] ) {
   /// Print what we found:
   sh.print();
 
+  /// scan the number of events in each root file 
+  SH::scanNEvents (sh);
+  
   /// Create an EventLoop job:
   EL::Job job;
   job.sampleHandler( sh );
 
+  /// WARNING testing
+  sh.setMetaDouble (EL::Job::optEventsPerWorker, 5000);
+  
   /// Specify that we only want to run on 1k events
   if (nEvents!=-1)
     job.options()->setDouble(EL::Job::optMaxEvents, nEvents);
