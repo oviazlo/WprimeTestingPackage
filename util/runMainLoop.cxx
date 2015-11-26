@@ -90,13 +90,13 @@ int main( int argc, char* argv[] ) {
       /// iridium cluster
       inputFilePath = gSystem->ExpandPathName
 //       ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
-      ("/nfs/shared/pp/oviazlo/xAOD/testSH");
-//       ("/nfs/shared/pp/oviazlo/xAOD/p2452");
+//       ("/nfs/shared/pp/oviazlo/xAOD/testSH");
+      ("/nfs/shared/pp/oviazlo/xAOD/p2452");
     }
   }
 
   SH::ScanDir()
-  .samplePattern ("data*Main.merge.DAOD_EXOT9*")
+  .samplePattern ("mc15*Wmintau*")
   .scan (sh, inputFilePath);
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
