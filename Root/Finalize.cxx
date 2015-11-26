@@ -75,7 +75,7 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
     m_JERTool = 0;
   }
   */
-  Info("finalize()", "Number of clean events = %i", m_numCleanEvents);
+
   /// Muon calibration and smearing tool
   if(m_muonCalibrationAndSmearingTool){
     delete m_muonCalibrationAndSmearingTool;

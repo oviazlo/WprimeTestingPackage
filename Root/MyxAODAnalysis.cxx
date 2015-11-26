@@ -92,13 +92,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if(!isMC){
     if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
       || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
-      || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
+//       || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
       || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
     {
       return EL::StatusCode::SUCCESS; 
     }
   }
-  m_numCleanEvents++;
   m_BitsetCutflow->FillCutflow("EventCleaning");
   
   /// Primary vertex

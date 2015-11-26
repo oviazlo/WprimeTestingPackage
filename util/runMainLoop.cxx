@@ -98,16 +98,19 @@ int main( int argc, char* argv[] ) {
   sh.print();
 
   /// scan the number of events in each root file 
-  SH::scanNEvents (sh);
+  if ( vm.count("nEventsPerJob") )
+    SH::scanNEvents (sh);
   
   /// Create an EventLoop job:
   EL::Job job;
   job.sampleHandler( sh );
 
-  /// WARNING testing
-  sh.setMetaDouble (EL::Job::optEventsPerWorker, 5000);
+  /// specify nEventsPerJob
+  if ( vm.count("nEventsPerJob") )
+    sh.setMetaDouble (EL::Job::optEventsPerWorker, 
+                      vm["nEventsPerJob"].as<unsigned int>());
   
-  /// Specify that we only want to run on 1k events
+  /// Specify nEvents to run on
   if (nEvents!=-1)
     job.options()->setDouble(EL::Job::optMaxEvents, nEvents);
 
@@ -198,7 +201,8 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("help,h", "Print help messages") 
       ("folder,f", po::value<string>(), "output working-folder name")
       ("nWorkers,w", po::value<unsigned int>(), "number of workers")
-      ("nFilesPerJob,j", po::value<unsigned int>(), "number of files per job")
+      ("nFilesPerJob", po::value<unsigned int>(), "number of files per job")
+      ("nEventsPerJob", po::value<unsigned int>(), "number of events per job")
       ("proof,p", "enable PROOF-Lite mode") 
       ("noSmearing", "don't do lepton calibration and smearing") 
       ("electronChannel,e", "run electron selection") 
