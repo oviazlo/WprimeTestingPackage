@@ -88,7 +88,7 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  SH::ScanDir()
+  SH::scanDir()
   .sampleDepth (0)
   .scan (sh, inputFilePath);
   
