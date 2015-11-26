@@ -162,14 +162,18 @@ int main( int argc, char* argv[] ) {
     }
   }
   
-  if ( vm.count("proof") ){/// Run the job using the local/direct driver:
+  if ( vm.count("proofDriver") ){/// Run the job using the local/direct driver:
     EL::ProofDriver driver;
     if ( vm.count("nWorkers") ){
       driver.numWorkers = vm["nWorkers"].as<unsigned int>();  
     }
     driver.submit( job, submitDir );
   }
-  else if(vm.count("slurm")){
+  else if(vm.count("directDriver")){
+    EL::DirectDriver driver;
+    driver.submit( job, submitDir );
+  }
+  else{/// Run the job using the local/direct driver:
     system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
     " export PATH=$PATH:~/bin");
     std::string slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
@@ -178,10 +182,7 @@ int main( int argc, char* argv[] ) {
     job.options()->setBool(EL::Job::optResetShell, false);
     job.options()->setString(EL::Job::optSubmitFlags, slurmOptions);
     driver->submit(job, submitDir);
-  }
-  else{/// Run the job using the local/direct driver:
-    EL::DirectDriver driver;
-    driver.submit( job, submitDir );
+    
   }
   
   return 0;
@@ -203,11 +204,11 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("nWorkers,w", po::value<unsigned int>(), "number of workers")
       ("nFilesPerJob", po::value<unsigned int>(), "number of files per job")
       ("nEventsPerJob", po::value<unsigned int>(), "number of events per job")
-      ("proof,p", "enable PROOF-Lite mode") 
+      ("proofDriver,p", "run with ProofDriver - PROOF-Lite mode") 
       ("noSmearing", "don't do lepton calibration and smearing") 
       ("electronChannel,e", "run electron selection") 
       ("overwrite,o", "overwrite output folder") 
-      ("slurm,s", "run on batch system SLURM") 
+      ("directDriver", "run with DirectDriver") 
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
     try 
