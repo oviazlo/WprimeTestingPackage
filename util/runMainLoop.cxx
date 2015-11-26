@@ -95,7 +95,7 @@ int main( int argc, char* argv[] ) {
   }
 
   SH::ScanDir()
-  .sampleDepth (0)
+  .samplePostfix ("physics_Main.merge.DAOD_EXOT9*")
   .scan (sh, inputFilePath);
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
