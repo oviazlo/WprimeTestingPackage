@@ -104,7 +104,7 @@ int main( int argc, char* argv[] ) {
   if (nEvents!=-1)
     job.options()->setDouble(EL::Job::optMaxEvents, nEvents);
 
-  if ( vm.count("nFilesPerJob") ){
+  if ( vm.count("nFilesPerJob") )
     job.options()->setDouble (EL::Job::optFilesPerWorker, 
                               vm["nWorkers"].as<unsigned int>());
   /// define an output and an ntuple associated to that output 
