@@ -78,7 +78,7 @@ int main( int argc, char* argv[] ) {
     if (found!=std::string::npos){
       /// alarik cluster machines
       inputFilePath = gSystem->ExpandPathName
-      ("/lunarc/nobackup/users/oviazlo/xAOD/p2425");
+      ("/lunarc/nobackup/users/oviazlo/xAOD/cutFlow");
     }
     else{
       /// iridium cluster
