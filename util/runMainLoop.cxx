@@ -83,7 +83,8 @@ int main( int argc, char* argv[] ) {
     else{
       /// iridium cluster
       inputFilePath = gSystem->ExpandPathName
-      ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
+//       ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
+      ("/nfs/shared/pp/oviazlo/xAOD/testSH");
     }
   }
 
