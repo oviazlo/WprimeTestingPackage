@@ -106,14 +106,14 @@ int main( int argc, char* argv[] ) {
     gPad->SetLogy();
     
     h_pt->Draw();
-    h_pt->GetXaxis()->SetRangeUser(0,5000.0);
+    h_pt->GetXaxis()->SetRangeUser(0,1000.0);
     can->SaveAs("pT.png");
     
-    h_MET->GetXaxis()->SetRangeUser(0,5000.0);
+    h_MET->GetXaxis()->SetRangeUser(0,1000.0);
     h_MET->Draw();
     can->SaveAs("MET.png");
     
-    h_Mt->GetXaxis()->SetRangeUser(0,5000.0);
+    h_Mt->GetXaxis()->SetRangeUser(0,1000.0);
     h_Mt->Draw();
     can->SaveAs("mT.png");
   }
