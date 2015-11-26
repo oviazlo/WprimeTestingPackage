@@ -106,7 +106,7 @@ int main( int argc, char* argv[] ) {
 
   if ( vm.count("nFilesPerJob") )
     job.options()->setDouble (EL::Job::optFilesPerWorker, 
-                              vm["nWorkers"].as<unsigned int>());
+                              vm["nFilesPerJob"].as<unsigned int>());
   /// define an output and an ntuple associated to that output 
   //    EL::OutputStream output  ("myOutput");
   //    job.outputAdd (output);
