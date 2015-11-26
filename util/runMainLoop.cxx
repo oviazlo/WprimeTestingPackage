@@ -6,6 +6,7 @@
 #include "EventLoop/DirectDriver.h"
 #include "EventLoop/LSFDriver.h"
 #include "SampleHandler/DiskListLocal.h"
+#include "SampleHandler/ToolsSplit.h"
 #include <TSystem.h>
 
 #include "MyAnalysis/MyxAODAnalysis.h"
