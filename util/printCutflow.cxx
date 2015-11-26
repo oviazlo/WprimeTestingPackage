@@ -86,21 +86,21 @@ int main( int argc, char* argv[] ) {
     SetAtlasStyle();
     
     /// read pt, MET, Mt histograms, make them pretty and save them
-    TH1F* h_pt = (TH1F*)mySample->readHist ("muon/stage2_allCuts/pt");
-    TH1F* h_MET = (TH1F*)mySample->readHist ("h_MET_RefFinalFix");
-    TH1F* h_Mt = (TH1F*)mySample->readHist ("h_Mt_muonPtCut");
+    TH1F* h_pt = (TH1F*)mySample->readHist ("h_pt");
+    TH1F* h_MET = (TH1F*)mySample->readHist ("h_met");
+    TH1F* h_Mt = (TH1F*)mySample->readHist ("h_mt");
     
-    h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
-    h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
-    h_Mt->GetXaxis()->SetTitle("m_{T} [GeV]");
-    
-    h_pt->GetYaxis()->SetTitle("Counts");
-    h_MET->GetYaxis()->SetTitle("Counts");
-    h_Mt->GetYaxis()->SetTitle("Counts");
-    
-    h_pt->SetTitle("");
-    h_MET->SetTitle("");
-    h_Mt->SetTitle("");
+//     h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
+//     h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+//     h_Mt->GetXaxis()->SetTitle("m_{T} [GeV]");
+//     
+//     h_pt->GetYaxis()->SetTitle("Counts");
+//     h_MET->GetYaxis()->SetTitle("Counts");
+//     h_Mt->GetYaxis()->SetTitle("Counts");
+//     
+//     h_pt->SetTitle("");
+//     h_MET->SetTitle("");
+//     h_Mt->SetTitle("");
     
     TCanvas *can = new TCanvas();
     gPad->SetLogy();

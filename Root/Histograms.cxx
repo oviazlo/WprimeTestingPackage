@@ -37,15 +37,15 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 //   h_MET_Et = new TH1F("h_MET_Et", "h_MET_Et", 
 //   h_MET_phi = new TH1F("h_MET_phi", "h_MET_phi", 
     
-  hMu_pt_off = (TH1D*)WprimeHist::standard("pt","","","");
+  hMu_pt_off = (TH1D*)WprimeHist::standard("pt","h","","");
 //   hMu_pt_off->SetName("hMu_pt_off");
   wk()->addOutput(hMu_pt_off); 
   
-  hMu_mt_off = (TH1D*)WprimeHist::standard("mt","","","");
+  hMu_mt_off = (TH1D*)WprimeHist::standard("mt","h","","");
 //   hMu_mt_off->SetName("hMu_mt_off");
   wk()->addOutput(hMu_mt_off);
 
-  hMu_MET_Muons_off = (TH1D*)WprimeHist::standard("met","","","");
+  hMu_MET_Muons_off = (TH1D*)WprimeHist::standard("met","h","","");
 //   hMu_MET_Muons_off->SetName("hMu_MET_Muons_off");
   wk()->addOutput(hMu_MET_Muons_off); 
   
