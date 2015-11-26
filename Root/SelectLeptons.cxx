@@ -165,10 +165,16 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
       m_BitsetCutflow->FillCutflow( "el_pt",fillInCutflow );
     
     /// do significance 
-    const xAOD::TrackParticle *tp = (*el_itr)->trackParticle();
-    double d0_sig = xAOD::TrackingHelpers::d0significance
-      ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
-        eventInfo->beamPosSigmaXY() );
+    /// FIXME make it back
+//     const xAOD::TrackParticle *tp = (*el_itr)->trackParticle();
+//     double d0_sig = xAOD::TrackingHelpers::d0significance
+//       ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
+//         eventInfo->beamPosSigmaXY() );
+    double d0_sig = TMath::Abs((*el_itr)->trackParticle()->d0()) /
+          TMath::Sqrt(
+            (*el_itr)->trackParticle()->
+            definingParametersCovMatrix()(0,0)
+            + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
     if (d0_sig>5.0) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("d0",fillInCutflow);
