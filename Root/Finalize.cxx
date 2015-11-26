@@ -118,7 +118,10 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
       m_trigDecisionTool = 0;
    }
 
-
+   cout << "List of created hists:" << endl;
+   cout << hMu_pt_off->GetName() << endl;
+   cout << hMu_mt_off->GetName() << endl;
+   cout << hMu_MET_Muons_off->GetName() << endl;
   
   return EL::StatusCode::SUCCESS;
 }
