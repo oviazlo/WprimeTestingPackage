@@ -155,6 +155,16 @@ int main( int argc, char* argv[] ) {
     }
     driver.submit( job, submitDir );
   }
+  else if(vm.count("slurm")){
+    system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
+    " export PATH=$PATH:~/bin");
+    std::string slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
+    " -p short -t 2:00:00";
+    EL::Driver* driver = new EL::LSFDriver;
+    job.options()->setBool(EL::Job::optResetShell, false);
+    job.options()->setString(EL::Job::optSubmitFlags, slurmOptions);
+    driver->submit(job, submitDir);
+  }
   else{/// Run the job using the local/direct driver:
     EL::DirectDriver driver;
     driver.submit( job, submitDir );
@@ -181,6 +191,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("noSmearing", "don't do lepton calibration and smearing") 
       ("electronChannel,e", "run electron selection") 
       ("overwrite,o", "overwrite output folder") 
+      ("slurm,s", "run on batch system SLURM") 
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
     try 
