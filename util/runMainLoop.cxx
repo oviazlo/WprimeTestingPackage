@@ -160,7 +160,7 @@ int main( int argc, char* argv[] ) {
     system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
     " export PATH=$PATH:~/bin");
     std::string slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
-    " -p short -t 2:00:00";
+    " -p long -t 2:00:00";
     EL::Driver* driver = new EL::LSFDriver;
     job.options()->setBool(EL::Job::optResetShell, false);
     job.options()->setString(EL::Job::optSubmitFlags, slurmOptions);
