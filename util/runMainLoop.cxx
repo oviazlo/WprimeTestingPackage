@@ -91,11 +91,12 @@ int main( int argc, char* argv[] ) {
       inputFilePath = gSystem->ExpandPathName
 //       ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
       ("/nfs/shared/pp/oviazlo/xAOD/testSH");
+//       ("/nfs/shared/pp/oviazlo/xAOD/p2452");
     }
   }
 
   SH::ScanDir()
-  .samplePostfix ("physics_Main.merge.DAOD_EXOT9*")
+  .samplePattern ("data*Main.merge.DAOD_EXOT9*")
   .scan (sh, inputFilePath);
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
