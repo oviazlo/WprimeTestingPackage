@@ -52,7 +52,7 @@ int main( int argc, char* argv[] ) {
 
   /// Take the submit directory from the input if provided:
   std::string folder = "submitDir";
-  if (vm.count(folder))
+  if (vm.count("folder"))
     folder = vm["folder"].as<std::string>();
   else
     cout << "[INFO]\tread cutflow from default directory: " << folder << endl;
@@ -102,7 +102,7 @@ int main( int argc, char* argv[] ) {
 //     h_MET->SetTitle("");
 //     h_Mt->SetTitle("");
     
-    TCanvas *can = new TCanvas();
+    TCanvas *can = new TCanvas("can","can",800,800);
     gPad->SetLogy();
     
     h_pt->Draw();
