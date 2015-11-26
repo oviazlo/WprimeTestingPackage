@@ -10,6 +10,7 @@
 #include "SampleHandler/SampleHandler.h"
 #include "SampleHandler/ToolsDiscovery.h"
 #include <SampleHandler/ScanDir.h>
+#include "SampleHandler/Sample.h"
 
 #include <TSystem.h>
 
@@ -99,7 +100,8 @@ int main( int argc, char* argv[] ) {
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
   {
-    cout << (*iter).name() << endl;
+    Sample *sample = sh.at (iter);
+    cout << sample->name() << endl;
   }
   
   return 0;
