@@ -102,7 +102,7 @@ int main( int argc, char* argv[] ) {
 //     h_MET->SetTitle("");
 //     h_Mt->SetTitle("");
     
-    TCanvas *can = new TCanvas();
+    TCanvas *can = new TCanvas("can","can",800,800);
     gPad->SetLogy();
     
     h_pt->Draw();
