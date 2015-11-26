@@ -174,10 +174,20 @@ int main( int argc, char* argv[] ) {
     driver.submit( job, submitDir );
   }
   else{/// Run the job using the local/direct driver:
-    system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
-    " export PATH=$PATH:~/bin");
-    std::string slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
+    std::string slurmOptions;
+    std::size_t found = hostName.find("alarik");
+    if (found!=std::string::npos){
+      system("mkdir -p ~/bin/; ln -s /sw_adm/pkg/slurm/2.6.5/bin/sbatch"
+      " ~/bin/bsub; export PATH=$PATH:~/bin");
+      slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
+    " -p snic -t 2:00:00";
+    }
+    else{
+      system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
+      " export PATH=$PATH:~/bin");
+      slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
     " -p long -t 2:00:00";
+    }
     EL::Driver* driver = new EL::LSFDriver;
     job.options()->setBool(EL::Job::optResetShell, false);
     job.options()->setString(EL::Job::optSubmitFlags, slurmOptions);
