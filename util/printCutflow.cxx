@@ -37,7 +37,7 @@ namespace
   
   namespace po = boost::program_options; 
  
-} /// namespace 
+} /// namespace  
 
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
 TStyle* AtlasStyle();
