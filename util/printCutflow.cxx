@@ -86,9 +86,9 @@ int main( int argc, char* argv[] ) {
     SetAtlasStyle();
     
     /// read pt, MET, Mt histograms, make them pretty and save them
-    TH1F* h_pt = (TH1F*)mySample->readHist ("h_pt");
-    TH1F* h_MET = (TH1F*)mySample->readHist ("h_met");
-    TH1F* h_Mt = (TH1F*)mySample->readHist ("h_mt");
+    TH1D* h_pt = (TH1D*)mySample->readHist ("h_pt");
+    TH1D* h_MET = (TH1D*)mySample->readHist ("h_met");
+    TH1D* h_Mt = (TH1D*)mySample->readHist ("h_mt");
     
 //     h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
 //     h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
