@@ -6,8 +6,6 @@
 ///
 ///*****************************************************************************
 #include <MyAnalysis/MyxAODAnalysis.h>
-#include <TCollection.h>
-#include <TKey.h>
 
 EL::StatusCode MyxAODAnalysis :: histInitialize ()
 {
@@ -50,21 +48,6 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
   hMu_MET_Muons_off = (TH1D*)WprimeHist::standard("met","","","");
 //   hMu_MET_Muons_off->SetName("hMu_MET_Muons_off");
   wk()->addOutput(hMu_MET_Muons_off); 
-  
-  TIter next(gDirectory->GetListOfKeys());
-  TKey *key;
-  cout << "List of created hists:" << endl;
-  while ((key = (TKey*)next())) {
-    cout << key->GetName() << endl;
-    TClass *cl = gROOT->GetClass(key->GetClassName());
-    if (!cl->InheritsFrom("TH1")) continue;
-    TH1 *h = (TH1*)key->ReadObj();
-    cout << h->GetName() << endl;
-  }
-  
-  
-  
-  
   
   /// [Jet histos]
 //   h_zPrimVtx = new TH1F("h_zPrimVtx", "h_zPrimVtx", 6000, -300.0, 300); 
