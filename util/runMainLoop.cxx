@@ -1,15 +1,20 @@
 #include "xAODRootAccess/Init.h"
-#include "SampleHandler/SampleHandler.h"
-#include "SampleHandler/ToolsDiscovery.h"
+
 #include "EventLoop/Job.h"
 #include "EventLoop/ProofDriver.h"
 #include "EventLoop/DirectDriver.h"
 #include "EventLoop/LSFDriver.h"
+
 #include "SampleHandler/DiskListLocal.h"
 #include "SampleHandler/ToolsSplit.h"
+#include "SampleHandler/SampleHandler.h"
+#include "SampleHandler/ToolsDiscovery.h"
+#include <SampleHandler/ScanDir.h>
+
 #include <TSystem.h>
 
 #include "MyAnalysis/MyxAODAnalysis.h"
+
 #include <EventLoopAlgs/NTupleSvc.h>
 #include <EventLoop/OutputStream.h>
 
@@ -88,7 +93,7 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  SH::scanDir()
+  SH::ScanDir()
   .sampleDepth (0)
   .scan (sh, inputFilePath);
   
