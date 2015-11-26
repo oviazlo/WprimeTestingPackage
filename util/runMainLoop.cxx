@@ -4,6 +4,7 @@
 #include "EventLoop/Job.h"
 #include "EventLoop/ProofDriver.h"
 #include "EventLoop/DirectDriver.h"
+#include "EventLoop/LSFDriver.h"
 #include "SampleHandler/DiskListLocal.h"
 #include <TSystem.h>
 
