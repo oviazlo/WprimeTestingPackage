@@ -88,8 +88,12 @@ int main( int argc, char* argv[] ) {
     }
   }
 
-  SH::DiskListLocal list (inputFilePath);
-  SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
+  SH::ScanDir()
+  .sampleDepth (0)
+  .scan (sh, inputFilePath);
+  
+//   SH::DiskListLocal list (inputFilePath);
+//   SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
   
   /// Set the name of the input TTree. It's always "CollectionTree"
   /// for xAOD files.
