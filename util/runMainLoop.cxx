@@ -99,7 +99,7 @@ int main( int argc, char* argv[] ) {
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
   {
-    SH::Sample *sample = *iter;
+    Sample *sample = *iter;
     cout << sample->name () << endl;
   }
   
