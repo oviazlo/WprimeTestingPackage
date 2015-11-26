@@ -97,6 +97,14 @@ int main( int argc, char* argv[] ) {
   .sampleDepth (0)
   .scan (sh, inputFilePath);
   
+  for (SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
+  {
+    Sample *sample = *iter;
+    cout << sample->name () << endl;
+  }
+  
+  return 0;
+  
 //   SH::DiskListLocal list (inputFilePath);
 //   SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
   
