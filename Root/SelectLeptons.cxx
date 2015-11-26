@@ -72,9 +72,9 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
 //     double d0_sig = xAOD::TrackingHelpers::d0significance
 //       ( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), 
 //         eventInfo->beamPosSigmaXY() );
-    double d0_sig = TMath::Abs((*muon_itr).primaryTrackParticle()->d0()) /
+    double d0_sig = TMath::Abs((*muon_itr)->primaryTrackParticle()->d0()) /
               TMath::Sqrt(
-                (*muon_itr).primaryTrackParticle()->
+                (*muon_itr)->primaryTrackParticle()->
                 definingParametersCovMatrix()(0,0)
                 + eventInfo->beamPosSigmaX()*eventInfo->beamPosSigmaX() );
     if (d0_sig>3.0) continue;
