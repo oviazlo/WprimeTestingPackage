@@ -97,9 +97,9 @@ int main( int argc, char* argv[] ) {
   .sampleDepth (0)
   .scan (sh, inputFilePath);
   
-  for (SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
+  for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
   {
-    Sample *sample = *iter;
+    SH::Sample *sample = *iter;
     cout << sample->name () << endl;
   }
   
