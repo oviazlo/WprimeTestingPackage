@@ -105,8 +105,6 @@ int main( int argc, char* argv[] ) {
     cout << sample->name() << endl;
   }
   
-  return 0;
-  
 //   SH::DiskListLocal list (inputFilePath);
 //   SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
   
@@ -143,6 +141,9 @@ int main( int argc, char* argv[] ) {
   //    EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
   //    job.algsAdd (ntuple);
 
+  job.options()->setDouble (EL::Job::optCacheSize, 10*1024*1024);
+  job.options()->setDouble (EL::Job::optCacheLearnEntries, 50);
+    
   /// Add our analysis to the job:
   MyxAODAnalysis* alg = new MyxAODAnalysis();
   job.algsAdd( alg );
