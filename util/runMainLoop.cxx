@@ -95,8 +95,12 @@ int main( int argc, char* argv[] ) {
     }
   }
 
+  std::string strSamplePattert = "mc15*Wmintau*";
+  if ( vm.count("samplePattern") )
+    strSamplePattert = vm["samplePattern"].as<std::string>();
+  
   SH::ScanDir()
-  .samplePattern ("mc15*Wmintau*")
+  .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
@@ -240,6 +244,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("electronChannel,e", "run electron selection") 
       ("overwrite,o", "overwrite output folder") 
       ("directDriver", "run with DirectDriver") 
+      ("samplePattern", po::value<string>(),"specify Sample Pattern")
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
     try 
