@@ -245,6 +245,7 @@ public:
     CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
     CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
     
+    
     const xAOD::EventInfo* eventInfo = 0; //!
     
   #endif /// not __CINT__
