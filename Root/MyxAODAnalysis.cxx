@@ -163,7 +163,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::shallowCopyContainer(*muons);
   xAOD::setOriginalObjectLink(*muons, *classifiedMuons.first); 
   for(const auto& muon : *classifiedMuons.first) { /// loop over muoncopy vector
-    if (muon->eta()>3.0) continue; /// WARNING FIXME temprorary hack
+    if (muon->eta()>2.5) continue; /// WARNING FIXME temprorary hack
     CP::CorrectionCode result = 
     m_muonCalibrationAndSmearingTool->applyCorrection(*muon); 
     if(result != CP::CorrectionCode::Ok){
