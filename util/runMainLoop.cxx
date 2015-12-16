@@ -122,8 +122,11 @@ int main( int argc, char* argv[] ) {
   /// Print what we found:
   sh.print();
 
-//   if ( vm.count("mergeSamples") )
-//   SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "mc15*");
+  if ( vm.count("mergeSamples") )
+    SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "mc15*");
+  
+  /// Print what we found:
+  sh.print();
   
   /// scan the number of events in each root file 
   if ( vm.count("nEventsPerJob") )
