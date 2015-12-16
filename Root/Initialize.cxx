@@ -238,7 +238,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     count[i]=0;
   }  
 
-  m_LPXKfactorTool = new m_LPXKfactorTool("m_LPXKfactorTool");
+  m_LPXKfactorTool = new LPXKfactorTool("m_LPXKfactorTool");
   
   return EL::StatusCode::SUCCESS;
 }
