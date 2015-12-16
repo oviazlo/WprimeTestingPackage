@@ -58,6 +58,9 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
   h_event_filterEfficiency = (TH1D*)WprimeHist::standard("evtwt_filterEff","h","","");
   wk()->addOutput(h_event_filterEfficiency);
   
+  h_event_totalWeight = (TH1D*)WprimeHist::standard("evtwt","h","","");
+  wk()->addOutput(h_event_totalWeight);
+  
   /// [Jet histos]
 //   h_zPrimVtx = new TH1F("h_zPrimVtx", "h_zPrimVtx", 6000, -300.0, 300); 
 //   wk()->addOutput (h_zPrimVtx);

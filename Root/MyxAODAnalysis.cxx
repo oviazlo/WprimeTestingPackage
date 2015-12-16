@@ -426,10 +426,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("mT");
   
-  hMu_pt_off->Fill(leptonEt);
-  hMu_mt_off->Fill(mT);
-  hMu_MET_Muons_off->Fill(missingEt);
-
   /// get MC weights
   weightkFactor = eventInfo->auxdecor<double>("KfactorWeight");
   weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
@@ -438,6 +434,16 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   h_event_crossSectionWeight->Fill(weightCrossSection);
   h_event_kFactor->Fill(weightkFactor);
   h_event_filterEfficiency->Fill(weighfilterEfficiency);
+  
+  double totalWeight = weighfilterEfficiency*weightkFactor*weightCrossSection;
+  
+  h_event_totalWeight->Fill(totalWeight);
+  
+  hMu_pt_off->Fill(leptonEt,totalWeight);
+  hMu_mt_off->Fill(mT,totalWeight);
+  hMu_MET_Muons_off->Fill(missingEt,totalWeight);
+
+ 
   
   return EL::StatusCode::SUCCESS;
 }
