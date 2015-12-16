@@ -105,6 +105,15 @@ TH1* WprimeHist::standard(Name name, Name hpname, Name sel, Name hptitle) {
   } else if ( name == "evtwt" ) {
     htitle += " event weight; Event weight" + ylab;
     return create(hname, htitle, 200, -10, 10);
+  } else if ( name == "evtwt_xSec" ) {
+    htitle += " xSec event weight; xSec Event weight" + ylab;
+    return create(hname, htitle, 200, -10, 10);
+  } else if ( name == "evtwt_filterEff" ) {
+    htitle += " filterEff event weight; filterEff Event weight" + ylab;
+    return create(hname, htitle, 200, -10, 10);
+  } else if ( name == "evtwt_kFactor" ) {
+    htitle += " kFactor event weight; kFactor Event weight" + ylab;
+    return create(hname, htitle, 200, -10, 10);
   } else if ( name == "mtlimit" ) {
     htitle += " m_{T}; m_{T} [GeV]" + ylab;
     return create(hname, htitle, 40, 0, 5000);

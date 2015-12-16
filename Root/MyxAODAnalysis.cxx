@@ -37,6 +37,17 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     isMC = true;
   }
   
+//   eventInfo->auxdecor<double>("KfactorWeight")
+  
+  /// get MC weights
+  weightkFactor = eventInfo->auxdata<double>("KfactorWeight");
+  weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
+  weightCrossSection = 1.0/m_LPXKfactorTool->getMCCrossSection(); ///TODO make proper implementation
+  
+  h_event_crossSectionWeight->Fill(weightCrossSection);
+  h_event_kFactor->Fill(weightkFactor);
+  h_event_filterEfficiency->Fill(weighfilterEfficiency);
+  
   /// Muon Truth matching. Check do we have muon from W' decay
   /// WARNING do we need it for all MCs?
   if(isMC && m_doWprimeTruthMatching){
@@ -425,7 +436,6 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if (mT<mtCut)
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("mT");
-  
   
   hMu_pt_off->Fill(leptonEt);
   hMu_mt_off->Fill(mT);
