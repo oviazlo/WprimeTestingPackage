@@ -40,7 +40,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
 //   eventInfo->auxdecor<double>("KfactorWeight")
   
   /// get MC weights
-  weightkFactor = eventInfo->auxdata<double>("KfactorWeight");
+  weightkFactor = eventInfo->auxdecor<double>("KfactorWeight");
   weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
   weightCrossSection = 1.0/m_LPXKfactorTool->getMCCrossSection(); ///TODO make proper implementation
   
