@@ -103,7 +103,8 @@ int main( int argc, char* argv[] ) {
   }
   
   SH::ScanDir()
-  .samplePattern (strSamplePattert)
+//   .samplePattern (strSamplePattert)
+  .sampleDepth (0)
   .scan (sh, inputFilePath);
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
