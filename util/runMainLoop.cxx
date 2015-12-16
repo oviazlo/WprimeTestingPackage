@@ -123,7 +123,7 @@ int main( int argc, char* argv[] ) {
   sh.print();
 
   if ( vm.count("mergeSamples") )
-  SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "*");
+  SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "mc15*");
   
   /// scan the number of events in each root file 
   if ( vm.count("nEventsPerJob") )
