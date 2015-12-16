@@ -110,7 +110,7 @@ int main( int argc, char* argv[] ) {
   sh.print();
 
   if ( vm.count("mergeSamples") )
-    SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "mc15*");
+    SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "mc15_13TeV.*");
   
   /// Print what we found:
   sh.print();
