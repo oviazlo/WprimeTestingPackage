@@ -64,7 +64,7 @@ int main( int argc, char* argv[] ) {
 //   sh.load ((folder + "/hist").c_str());
 
   SH::ScanDir()
-  .samplePattern ("hist-*")
+  .samplePattern ("hist-*root")
   .scan (sh, folder);
   
   /// Print what we found:
