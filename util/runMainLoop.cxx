@@ -110,7 +110,8 @@ int main( int argc, char* argv[] ) {
   sh.print();
 
   if ( vm.count("mergeSamples") )
-    SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "mc15_13TeV.*");
+    /// WARNING hardcoded merging template --> FIXME works only for MC so far
+    SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "mc15_13TeV.*"); 
   
   /// Print what we found:
   sh.print();
@@ -208,13 +209,13 @@ int main( int argc, char* argv[] ) {
     if (found!=std::string::npos){
       system("mkdir -p ~/bin/; ln -s /sw_adm/pkg/slurm/2.6.5/bin/sbatch"
       " ~/bin/bsub; export PATH=$PATH:~/bin");
-      slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
+      slurmOptions = "-n 1 --cpus-per-task 1 --mem=4000"
     " -p snic -t 2:00:00";
     }
     else{
       system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
       " export PATH=$PATH:~/bin");
-      slurmOptions = "-n 1 --cpus-per-task 1 --mem=2000"
+      slurmOptions = "-n 1 --cpus-per-task 1 --mem=4000"
     " -p long -t 2:00:00";
     }
     EL::Driver* driver = new EL::LSFDriver;
