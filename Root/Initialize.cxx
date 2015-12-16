@@ -243,6 +243,8 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
   CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
   
+  EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
+  
   return EL::StatusCode::SUCCESS;
 }
 
