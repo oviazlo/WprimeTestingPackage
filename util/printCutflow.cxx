@@ -6,6 +6,7 @@
 #include "EventLoop/ProofDriver.h"
 #include "EventLoop/DirectDriver.h"
 #include "SampleHandler/DiskListLocal.h"
+#include <SampleHandler/ScanDir.h>
 #include <TSystem.h>
 #include <TH1F.h>
 #include <TCanvas.h>
