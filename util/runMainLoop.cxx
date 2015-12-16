@@ -114,12 +114,8 @@ int main( int argc, char* argv[] ) {
   
 //   SH::DiskListLocal list (inputFilePath);
 //   SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
-  
-  /// Set the name of the input TTree. It's always "CollectionTree"
-  /// for xAOD files.
-  sh.setMetaString( "nc_tree", "CollectionTree" );
 
-  /// Print what we found:
+/// Print what we found:
   sh.print();
 
   if ( vm.count("mergeSamples") )
@@ -127,6 +123,11 @@ int main( int argc, char* argv[] ) {
   
   /// Print what we found:
   sh.print();
+  
+  /// Set the name of the input TTree. It's always "CollectionTree"
+  /// for xAOD files.
+  sh.setMetaString( "nc_tree", "CollectionTree" );
+
   
   /// scan the number of events in each root file 
   if ( vm.count("nEventsPerJob") )
