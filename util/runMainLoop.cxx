@@ -101,6 +101,9 @@ int main( int argc, char* argv[] ) {
     strSamplePattert = vm["samplePattern"].as<std::string>();
   }
   
+  if ( vm.count("mergeSamples") )
+    SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "*");
+  
   SH::ScanDir()
   .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
@@ -250,6 +253,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("overwrite,o", "overwrite output folder") 
       ("directDriver", "run with DirectDriver") 
       ("info", "set message level to INFO") 
+      ("mergeSamples", po::value<string>(),"merge everything in one sample; specify final sample name")
       ("samplePattern", po::value<string>(),"specify Sample Pattern")
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
