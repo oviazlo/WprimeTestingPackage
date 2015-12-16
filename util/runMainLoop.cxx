@@ -105,15 +105,6 @@ int main( int argc, char* argv[] ) {
   SH::ScanDir()
   .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
-  
-  for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
-  {
-    SH::Sample *sample = *iter;
-    cout << sample->name() << endl;
-  }
-  
-//   SH::DiskListLocal list (inputFilePath);
-//   SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
 
 /// Print what we found:
   sh.print();
