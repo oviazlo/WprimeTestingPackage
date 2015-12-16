@@ -49,6 +49,15 @@ EL::StatusCode MyxAODAnalysis :: histInitialize ()
 //   hMu_MET_Muons_off->SetName("hMu_MET_Muons_off");
   wk()->addOutput(hMu_MET_Muons_off); 
   
+  h_event_crossSectionWeight = (TH1D*)WprimeHist::standard("evtwt_xSec","h","","");
+  wk()->addOutput(h_event_crossSectionWeight);
+  
+  h_event_kFactor = (TH1D*)WprimeHist::standard("evtwt_kFactor","h","","");
+  wk()->addOutput(h_event_kFactor);
+  
+  h_event_filterEfficiency = (TH1D*)WprimeHist::standard("evtwt_filterEff","h","","");
+  wk()->addOutput(h_event_filterEfficiency);
+  
   /// [Jet histos]
 //   h_zPrimVtx = new TH1F("h_zPrimVtx", "h_zPrimVtx", 6000, -300.0, 300); 
 //   wk()->addOutput (h_zPrimVtx);

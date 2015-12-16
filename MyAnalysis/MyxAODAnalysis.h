@@ -54,6 +54,9 @@
 #include "METInterface/IMETMaker.h"
 #include "METUtilities/CutsMETMaker.h"
 
+/// LPXKfactorTool tool
+#include "LPXKfactorTool/LPXKfactorTool.h"
+
 #include <TFile.h>
 #include <TMath.h>
 #include <TLorentzVector.h>
@@ -167,6 +170,10 @@ public:
   float OldMissingEt; //!
   float TransverseMass; //!
   
+  float weighfilterEfficiency; //!
+  float weightkFactor; //!
+  float weightCrossSection; //!
+  
   /// variables that don't get filled at submission time should be
   /// protected from being send from the submission node to the worker
   /// node (done by the //!)
@@ -179,7 +186,6 @@ public:
   AsgElectronLikelihoodTool* m_LHToolMedium2015; //!
   
   int m_eventCounter; //!
-
   int m_numCleanEvents; //!
   int m_counter1;
   int m_counter2;
@@ -220,6 +226,11 @@ public:
   TH1D* hMu_mt_off; //!
   TH1D* hMu_MET_Muons_off; //!
   
+  /// EventInfo
+  TH1D* h_event_crossSectionWeight; //!
+  TH1D* h_event_kFactor; //!
+  TH1D* h_event_filterEfficiency; //!
+  
   /// defining the output file name and tree that we will put in the output 
   /// ntuple, also the one branch that will be in that tree 
   std::string outputName; //!
@@ -245,6 +256,7 @@ public:
     CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
     CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
     
+    LPXKfactorTool* m_LPXKfactorTool; //!
     
     const xAOD::EventInfo* eventInfo = 0; //!
     
@@ -277,6 +289,7 @@ std::pair<unsigned int, unsigned int> SelectElectrons(
                                   xAOD::ElectronContainer* electrons,
                                   bool fillInCutflow);
   
+
   /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
 };
