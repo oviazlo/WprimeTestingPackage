@@ -103,8 +103,7 @@ int main( int argc, char* argv[] ) {
   }
   
   SH::ScanDir()
-//   .samplePattern (strSamplePattert)
-  .sampleDepth (0)
+  .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
   
   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); ++ iter)
@@ -123,8 +122,8 @@ int main( int argc, char* argv[] ) {
   /// Print what we found:
   sh.print();
 
-  if ( vm.count("mergeSamples") )
-  SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "mc15*");
+//   if ( vm.count("mergeSamples") )
+//   SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "mc15*");
   
   /// scan the number of events in each root file 
   if ( vm.count("nEventsPerJob") )
@@ -255,7 +254,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("overwrite,o", "overwrite output folder") 
       ("directDriver", "run with DirectDriver") 
       ("info", "set message level to INFO") 
-      ("mergeSamples", po::value<string>(),"merge everything in one sample; specify final sample name")
+//       ("mergeSamples", po::value<string>(),"merge everything in one sample; specify final sample name")
       ("samplePattern", po::value<string>(),"specify Sample Pattern")
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
