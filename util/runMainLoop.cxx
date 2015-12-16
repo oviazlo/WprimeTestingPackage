@@ -102,9 +102,6 @@ int main( int argc, char* argv[] ) {
     strSamplePattert = vm["samplePattern"].as<std::string>();
   }
   
-  if ( vm.count("mergeSamples") )
-    SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "*");
-  
   SH::ScanDir()
   .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
@@ -125,6 +122,9 @@ int main( int argc, char* argv[] ) {
   /// Print what we found:
   sh.print();
 
+  if ( vm.count("mergeSamples") )
+  SH::mergeSamples (sh, vm["samplePattern"].as<std::string>(), "*");
+  
   /// scan the number of events in each root file 
   if ( vm.count("nEventsPerJob") )
     SH::scanNEvents (sh);
