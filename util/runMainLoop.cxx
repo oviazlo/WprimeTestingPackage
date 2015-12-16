@@ -96,8 +96,10 @@ int main( int argc, char* argv[] ) {
   }
 
   std::string strSamplePattert = "mc15*Wmintau*";
-  if ( vm.count("samplePattern") )
+  if ( vm.count("samplePattern") ){
+    cout << "Looking for a pattern: " << vm["samplePattern"].as<std::string>() << endl;
     strSamplePattert = vm["samplePattern"].as<std::string>();
+  }
   
   SH::ScanDir()
   .samplePattern (strSamplePattert)
