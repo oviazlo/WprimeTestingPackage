@@ -60,8 +60,12 @@ int main( int argc, char* argv[] ) {
   // Construct the samples to run on:
   SH::SampleHandler sh;
 
-  sh.load ((folder + "/hist").c_str());
+//   sh.load ((folder + "/hist").c_str());
 
+  SH::ScanDir()
+  .samplePattern (strSamplePattert)
+  .scan (sh, inputFilePath);
+  
   /// Print what we found:
   sh.print();
 
