@@ -61,12 +61,10 @@ int main( int argc, char* argv[] ) {
   // Construct the samples to run on:
   SH::SampleHandler sh;
 
-//   sh.load ((folder + "/hist").c_str());
+  sh.load ((folder + "/hist").c_str());
 
-  SH::ScanDir()
-  .samplePattern ("hist-*root")
-  .scan (sh, folder);
-  
+  SH::mergeSamples (sh, "final", "mc15*");  
+
   /// Print what we found:
   sh.print();
 
