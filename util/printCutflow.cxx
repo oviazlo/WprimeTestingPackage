@@ -75,7 +75,7 @@ int main( int argc, char* argv[] ) {
     return -1;
   }
   
-  SH::Sample* mySample = sh.at(0);
+  SH::Sample* mySample = sh.begin();
   
   /// get histogram
   TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
