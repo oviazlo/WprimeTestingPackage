@@ -230,6 +230,7 @@ public:
   TH1D* h_event_crossSectionWeight; //!
   TH1D* h_event_kFactor; //!
   TH1D* h_event_filterEfficiency; //!
+  TH1D* h_event_totalWeight; //!
   
   /// defining the output file name and tree that we will put in the output 
   /// ntuple, also the one branch that will be in that tree 
