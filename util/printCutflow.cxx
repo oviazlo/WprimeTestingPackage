@@ -7,6 +7,7 @@
 #include "EventLoop/DirectDriver.h"
 #include "SampleHandler/DiskListLocal.h"
 #include <SampleHandler/ScanDir.h>
+#include <SampleHandler/ToolsJoin.h>
 #include <TSystem.h>
 #include <TH1F.h>
 #include <TCanvas.h>
