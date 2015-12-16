@@ -11,6 +11,7 @@
 #include "SampleHandler/ToolsDiscovery.h"
 #include <SampleHandler/ScanDir.h>
 #include "SampleHandler/Sample.h"
+#include <SampleHandler/ToolsJoin.h>
 
 #include <TSystem.h>
 
