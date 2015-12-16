@@ -64,9 +64,10 @@ int main( int argc, char* argv[] ) {
 
   sh.load ((folder + "/hist").c_str());
 
-  SH::mergeSamples (sh, "final", "mc15*");  
+  sh.print();
+  
+  SH::mergeSamples (sh, "final", "mc15_13TeV.*");  
 
-  /// Print what we found:
   sh.print();
 
   if (sh.size()!=1){
