@@ -63,8 +63,8 @@ int main( int argc, char* argv[] ) {
 //   sh.load ((folder + "/hist").c_str());
 
   SH::ScanDir()
-  .samplePattern (strSamplePattert)
-  .scan (sh, inputFilePath);
+  .sampleDepth (0)
+  .scan (sh, folder);
   
   /// Print what we found:
   sh.print();
