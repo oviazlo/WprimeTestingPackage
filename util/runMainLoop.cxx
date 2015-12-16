@@ -187,6 +187,9 @@ int main( int argc, char* argv[] ) {
     }
   }
   
+  if (vm.count("info"))
+    alg->setMsgLevel (MSG::INFO);
+    
   if ( vm.count("proofDriver") ){/// Run the job using the local/direct driver:
     EL::ProofDriver driver;
     if ( vm.count("nWorkers") ){
@@ -244,6 +247,7 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("electronChannel,e", "run electron selection") 
       ("overwrite,o", "overwrite output folder") 
       ("directDriver", "run with DirectDriver") 
+      ("info", "set message level to INFO") 
       ("samplePattern", po::value<string>(),"specify Sample Pattern")
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
