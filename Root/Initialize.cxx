@@ -239,6 +239,9 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   }  
 
   m_LPXKfactorTool = new LPXKfactorTool("m_LPXKfactorTool");
+  CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
+  CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
+  CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
   
   return EL::StatusCode::SUCCESS;
 }
