@@ -114,13 +114,17 @@ int main( int argc, char* argv[] ) {
 /// Print what we found:
   sh.print();
 
-  cout << "Make attampt of merging:" << endl;
+  
   
   if ( vm.count("mergeSamples") ){
+    string sampleMergePattern;
     if (strSamplePattert.find("data")!=std::string::npos)
-      SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "data15_13TeV.*"); 
+      sampleMergePattern = "data15_13TeV.*";
     else
-      SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "mc15_13TeV.*"); 
+      sampleMergePattern = "mc15_13TeV.*";
+    cout << "Make attampt of merging sample with pattern: " << sampleMergePattern << 
+    " to one sample with name: " << vm["mergeSamples"].as<std::string>() << endl;
+    SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), sampleMergePattern); 
   }
   
   /// Print what we found:
