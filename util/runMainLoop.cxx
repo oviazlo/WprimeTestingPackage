@@ -72,6 +72,12 @@ int main( int argc, char* argv[] ) {
   hostNameChArr = getenv("HOSTNAME");
   string hostName(hostNameChArr);
   
+  std::string strSamplePattert = "mc15*Wmintau*";
+  if ( vm.count("samplePattern") ){
+    cout << "Looking for a pattern: " << vm["samplePattern"].as<std::string>() << endl;
+    strSamplePattert = vm["samplePattern"].as<std::string>();
+  }
+  
   /// define which input-path to use
   /// look for HOSTNAME env. variable
   std::size_t found = hostName.find("cern");
@@ -89,19 +95,18 @@ int main( int argc, char* argv[] ) {
     }
     else{
       /// iridium cluster
-      inputFilePath = gSystem->ExpandPathName
-//       ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
-//       ("/nfs/shared/pp/oviazlo/xAOD/testSH");
-      ("/nfs/shared/pp/oviazlo/xAOD/p2452");
+      if (strSamplePattert.find("data")!=std::string::npos)
+        inputFilePath = gSystem->ExpandPathName
+        ("/nfs/shared/pp/oviazlo/xAOD/p2436");
+      else
+        inputFilePath = gSystem->ExpandPathName
+        ("/nfs/shared/pp/oviazlo/xAOD/p2452");
+//         ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
+//         ("/nfs/shared/pp/oviazlo/xAOD/testSH");
+
     }
   }
 
-  std::string strSamplePattert = "mc15*Wmintau*";
-  if ( vm.count("samplePattern") ){
-    cout << "Looking for a pattern: " << vm["samplePattern"].as<std::string>() << endl;
-    strSamplePattert = vm["samplePattern"].as<std::string>();
-  }
-  
   SH::ScanDir()
   .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
