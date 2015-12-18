@@ -109,9 +109,12 @@ int main( int argc, char* argv[] ) {
 /// Print what we found:
   sh.print();
 
-  if ( vm.count("mergeSamples") )
-    /// WARNING hardcoded merging template --> FIXME works only for MC so far
-    SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "mc15_13TeV.*"); 
+  if ( vm.count("mergeSamples") ){
+    if (strSamplePattert.find("data")!=std::string::npos)
+      SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "data15_13TeV.*"); 
+    else
+      SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "mc15_13TeV.*"); 
+  }
   
   /// Print what we found:
   sh.print();
