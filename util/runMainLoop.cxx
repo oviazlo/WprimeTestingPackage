@@ -114,6 +114,8 @@ int main( int argc, char* argv[] ) {
 /// Print what we found:
   sh.print();
 
+  cout << "Make attampt of merging:" << endl;
+  
   if ( vm.count("mergeSamples") ){
     if (strSamplePattert.find("data")!=std::string::npos)
       SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), "data15_13TeV.*"); 
