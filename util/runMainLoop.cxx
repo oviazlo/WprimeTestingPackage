@@ -217,19 +217,20 @@ int main( int argc, char* argv[] ) {
   if (vm.count("info"))
     alg->setMsgLevel (MSG::INFO);
     
+  EL::Driver* driver;
   if ( vm.count("proofDriver") ){/// Run the job using the local/direct driver:
-    EL::ProofDriver driver;
+    driver = new EL::ProofDriver;
     if ( vm.count("nWorkers") ){
-      driver.numWorkers = vm["nWorkers"].as<unsigned int>();  
+      driver->numWorkers = vm["nWorkers"].as<unsigned int>();  
     }
-    driver.submit( job, submitDir );
+    driver->submit( job, submitDir );
   }
   else if(vm.count("directDriver")){
-    EL::DirectDriver driver;
-    driver.submit( job, submitDir );
+    driver = new EL::DirectDriver;
+    driver->submit( job, submitDir );
   }
   else{/// Local/Direct Driver:
-    EL::Driver* driver = new EL::LSFDriver;
+    driver = new EL::LSFDriver;
     std::string slurmSystemDependentOptions;
     
     if (systemType == ALARIK){
@@ -248,7 +249,7 @@ int main( int argc, char* argv[] ) {
     }
     else if (systemType == CERN){
       slurmSystemDependentOptions = "-L /bin/bash";
-      driver.shellInit = "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/"
+      driver->shellInit = "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/"
       "repo/ATLASLocalRootBase && source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh";
     }
     
