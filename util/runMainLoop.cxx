@@ -103,7 +103,7 @@ int main( int argc, char* argv[] ) {
   
   /// define which input-path to use
   /// look for HOSTNAME env. variable
-  std::size_t found = hostName.find("cern");
+  found = hostName.find("cern");
   if (found!=std::string::npos){
     /// CERN machines
     inputFilePath = gSystem->ExpandPathName
