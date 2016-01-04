@@ -6,6 +6,8 @@
 #include "EventLoop/ProofDriver.h"
 #include "EventLoop/DirectDriver.h"
 #include "SampleHandler/DiskListLocal.h"
+#include <SampleHandler/ScanDir.h>
+#include <SampleHandler/ToolsJoin.h>
 #include <TSystem.h>
 #include <TH1F.h>
 #include <TCanvas.h>
@@ -37,7 +39,7 @@ namespace
   
   namespace po = boost::program_options; 
  
-} /// namespace 
+} /// namespace  
 
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
 TStyle* AtlasStyle();
@@ -52,7 +54,7 @@ int main( int argc, char* argv[] ) {
 
   /// Take the submit directory from the input if provided:
   std::string folder = "submitDir";
-  if (vm.count(folder))
+  if (vm.count("folder"))
     folder = vm["folder"].as<std::string>();
   else
     cout << "[INFO]\tread cutflow from default directory: " << folder << endl;
@@ -62,7 +64,10 @@ int main( int argc, char* argv[] ) {
 
   sh.load ((folder + "/hist").c_str());
 
-  /// Print what we found:
+  sh.print();
+  
+  SH::mergeSamples (sh, "final", "mc15_13TeV.*");  
+
   sh.print();
 
   if (sh.size()!=1){
@@ -70,11 +75,11 @@ int main( int argc, char* argv[] ) {
     return -1;
   }
   
-  SH::Sample* mySample = sh.at(0);
+  SH::Sample* mySample = *(sh.begin());
   
   /// get histogram
   TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
- 
+  
   for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
     int binContent = cutflowHist->GetBinContent(i);
     if (binContent<=0) break;
@@ -86,36 +91,36 @@ int main( int argc, char* argv[] ) {
     SetAtlasStyle();
     
     /// read pt, MET, Mt histograms, make them pretty and save them
-    TH1F* h_pt = (TH1F*)mySample->readHist ("muon/stage2_allCuts/pt");
-    TH1F* h_MET = (TH1F*)mySample->readHist ("h_MET_RefFinalFix");
-    TH1F* h_Mt = (TH1F*)mySample->readHist ("h_Mt_muonPtCut");
+    TH1D* h_pt = (TH1D*)mySample->readHist ("h_pt");
+    TH1D* h_MET = (TH1D*)mySample->readHist ("h_met");
+    TH1D* h_Mt = (TH1D*)mySample->readHist ("h_mt");
     
-    h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
-    h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
-    h_Mt->GetXaxis()->SetTitle("m_{T} [GeV]");
+//     h_pt->GetXaxis()->SetTitle("p_{T}^{#mu} [GeV]");
+//     h_MET->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+//     h_Mt->GetXaxis()->SetTitle("m_{T} [GeV]");
+//     
+//     h_pt->GetYaxis()->SetTitle("Counts");
+//     h_MET->GetYaxis()->SetTitle("Counts");
+//     h_Mt->GetYaxis()->SetTitle("Counts");
+//     
+//     h_pt->SetTitle("");
+//     h_MET->SetTitle("");
+//     h_Mt->SetTitle("");
     
-    h_pt->GetYaxis()->SetTitle("Counts");
-    h_MET->GetYaxis()->SetTitle("Counts");
-    h_Mt->GetYaxis()->SetTitle("Counts");
-    
-    h_pt->SetTitle("");
-    h_MET->SetTitle("");
-    h_Mt->SetTitle("");
-    
-    TCanvas *can = new TCanvas();
+    TCanvas *can = new TCanvas("can","can",800,800);
     gPad->SetLogy();
     
     h_pt->Draw();
-    h_pt->GetXaxis()->SetRangeUser(0,5000.0);
-    can->SaveAs("pT.eps");
+    h_pt->GetXaxis()->SetRangeUser(0,1000.0);
+    can->SaveAs("pT.png");
     
-    h_MET->GetXaxis()->SetRangeUser(0,5000.0);
+    h_MET->GetXaxis()->SetRangeUser(0,1000.0);
     h_MET->Draw();
-    can->SaveAs("MET.eps");
+    can->SaveAs("MET.png");
     
-    h_Mt->GetXaxis()->SetRangeUser(0,5000.0);
+    h_Mt->GetXaxis()->SetRangeUser(0,1000.0);
     h_Mt->Draw();
-    can->SaveAs("mT.eps");
+    can->SaveAs("mT.png");
   }
   
   return 0;

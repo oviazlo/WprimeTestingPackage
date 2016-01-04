@@ -91,17 +91,17 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   TString config = "JES_MC15Prerecommendation_April2015.config"; 
   /// String describing the calibration sequence to apply (see above)
   TString calibSeq ="JetArea_Residual_Origin_EtaJES_GSC" ; 
-//   m_jetCalibrationTool = new JetCalibrationTool();
+  
+  m_jetCalibrationTool = 
+  new JetCalibrationTool(name, jetAlgo, config, calibSeq, isData);
 //   CHECK (m_jetCalibrationTool->setProperty("JetCollection",jetAlgo));
 //   CHECK (m_jetCalibrationTool->setProperty("ConfigFile",config));
 //   CHECK (m_jetCalibrationTool->setProperty("CalibSequence",calibSeq));
 //   CHECK (m_jetCalibrationTool->setProperty("IsData",isData));
-//   
-//   if (! m_jetCalibrationTool->initialize().isSuccess() ){
-//     Error("initialize()", "Failed to properly initialize the JES Tool. "
-//     "Exiting." );
-//   }
-  cout << "initialise jet calib done"<<endl;
+  
+  EL_RETURN_CHECK("initialize jetCalibrationTool",
+                  m_jetCalibrationTool->initializeTool(name));
+  
   m_metMaker = new met::METMaker("METMakerTool");
   //m_metMaker->msg().setLevel( MSG::DEBUG ); // or DEBUG or VERBOSE
   if ( ! m_metMaker->initialize().isSuccess() ){
@@ -205,9 +205,11 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     "primaryVertexContainer","PrimaryVertices"));
   
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20151012/";
-  EL_RETURN_CHECK( "initialize", m_LHToolTight2015->setProperty(
+  EL_RETURN_CHECK( "m_LHToolTight2015 setProperty ConfigFile", 
+                   m_LHToolTight2015->setProperty(
     "ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf"));
-  EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
+  EL_RETURN_CHECK( "m_LHToolMedium2015  setProperty ConfigFile", 
+                   m_LHToolMedium2015->setProperty(
     "ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2015.conf"));
   
   EL_RETURN_CHECK( "initialize", m_LHToolTight2015->initialize() );
@@ -236,6 +238,13 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     count[i]=0;
   }  
 
+  m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
+  CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
+  CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
+  CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
+  
+  EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
+  
   return EL::StatusCode::SUCCESS;
 }
 

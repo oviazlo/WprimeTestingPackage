@@ -92,13 +92,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   if(!isMC){
     if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
       || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
-      || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
+//       || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
       || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
     {
       return EL::StatusCode::SUCCESS; 
     }
   }
-  m_numCleanEvents++;
   m_BitsetCutflow->FillCutflow("EventCleaning");
   
   /// Primary vertex
@@ -164,6 +163,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   xAOD::shallowCopyContainer(*muons);
   xAOD::setOriginalObjectLink(*muons, *classifiedMuons.first); 
   for(const auto& muon : *classifiedMuons.first) { /// loop over muoncopy vector
+    if (abs(muon->eta())>2.5) continue; /// WARNING FIXME temprorary hack
     CP::CorrectionCode result = 
     m_muonCalibrationAndSmearingTool->applyCorrection(*muon); 
     if(result != CP::CorrectionCode::Ok){
@@ -209,7 +209,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_eleCalibrationTool->applyCorrection(*electron); 
     if(result != CP::CorrectionCode::Ok){
       cout << "electron pt " << electron->pt()<< " eta " << electron->eta()<<endl;
-      throw std::runtime_error("Error when calibrating muons. Exiting." );
+      throw std::runtime_error("Error when calibrating electrons. Exiting." );
     }
   }
 
@@ -264,24 +264,23 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Muon Veto");
   }
   
-  
   /// calibrate jets for MET
   const xAOD::JetContainer* jets(0);
   EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
                   m_event->retrieve(jets, "AntiKt4EMTopoJets"));
   
-//   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
-//   xAOD::shallowCopyContainer(*jets);
-//   xAOD::setOriginalObjectLink(*jets, *metJets.first); 
-//   for(const auto& jet : *metJets.first) {
-//     CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
-//     if(result != CP::CorrectionCode::Ok){
-//           throw std::runtime_error("Error when calibrating jets. Exiting." );
-//     }
-//   }
+  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
+  xAOD::shallowCopyContainer(*jets);
+  xAOD::setOriginalObjectLink(*jets, *metJets.first); 
+  for(const auto& jet : *metJets.first) {
+    CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
+    if(result != CP::CorrectionCode::Ok){
+          throw std::runtime_error("Error when calibrating jets. Exiting." );
+    }
+  }
 //   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
 //   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
-  /*
+  
   /// metPhotons
   const xAOD::PhotonContainer* photons(0);
   EL_RETURN_CHECK("retrieve Photons",
@@ -327,8 +326,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   
   /// metTaus
   const xAOD::TauJetContainer* taus(0);
-  EL_RETURN_CHECK("retrieve Taus",
-                  m_event->retrieve( taus, "Taus" ));
+  EL_RETURN_CHECK("retrieve TauRecContainer",
+                  m_event->retrieve( taus, "TauJets" ));
   
   /// WARNING implementation with only preselection
   ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS); 
@@ -348,44 +347,105 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   for (const auto& muon : *classifiedMuons.first) {
     if (muon->auxdata< bool >( "signal" )) metMuons.push_back(muon);
   }
-  */
-  /// Recalculate MET
-//   bool doJVTCut = true;
-//   std::string softTerm = "PVSoftTrk";
-//   std::string finalTerm = "FinalTrk";
-// 
-//   xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
-//   xAOD::MissingETAuxContainer* met_aux = new xAOD::MissingETAuxContainer;
-//   met->setStore(met_aux);
-// 
-//   const xAOD::MissingETAssociationMap* metMap(0);
-//   EL_RETURN_CHECK("retrieve METAssoc_AntiKt4EMTopo",
-//                   m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" ));
-//   
-//   const xAOD::MissingETContainer* metcore(0);
-//   EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
-//                   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
-//   
-//   m_metMaker = new met::METMaker("METMakerTool");
-//   EL_RETURN_CHECK("init m_metMaker", m_metMaker->initialize() );
-// 
-//   m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
-//                            metMuons.asDataVector(), metMap);
-//   m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
-//                            metElectrons.asDataVector(), metMap);
-//   m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
-//                            metPhotons.asDataVector(), metMap);
-//   m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
-//                            metTaus.asDataVector(), metMap);
-//   m_metMaker->rebuildJetMET("RefJet", softTerm, met,
-//                             metJets.first, metcore, metMap, 
-//                             doJVTCut);                                              
-// 
-//   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
-//   
-//   cout << "met = " << met << endl;
   
-  /// FIXME exit from execute here for debugging purpose
+  /// Recalculate MET
+  bool doJVTCut = true;
+  std::string softTerm = "PVSoftTrk";
+  std::string finalTerm = "FinalTrk";
+
+  xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
+  xAOD::MissingETAuxContainer* met_aux = new xAOD::MissingETAuxContainer;
+  met->setStore(met_aux);
+
+  const xAOD::MissingETAssociationMap* metMap(0);
+  EL_RETURN_CHECK("retrieve METAssoc_AntiKt4EMTopo",
+                  m_event->retrieve( metMap, "METAssoc_AntiKt4EMTopo" ));
+  
+  const xAOD::MissingETContainer* metcore(0);
+  EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
+                  m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
+  
+  m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
+                           metMuons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
+                           metElectrons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
+                           metPhotons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
+                           metTaus.asDataVector(), metMap);
+  m_metMaker->rebuildJetMET("RefJet", softTerm, met,
+                            metJets.first, metcore, metMap, 
+                            doJVTCut);                                              
+
+  m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
+  
+  xAOD::MissingET * finalTrkMet = (*met)["FinalTrk"];
+  if ( finalTrkMet == 0) {
+      throw std::runtime_error("Pointer finalTrkMet is NULL. Exiting." );
+  }
+  
+  double missingEt    = finalTrkMet->met()/1000.;
+  double m_met_sumet  = finalTrkMet->sumet()/1000.;
+  double missingEtPhi = finalTrkMet->phi();
+  
+  double metCut;
+  double mtCut;
+  if (m_runElectronChannel){
+    metCut = 65.0;
+    mtCut = 130.0; 
+  }
+  else{
+    metCut = 55.0;
+    mtCut = 110.0;
+  }
+  
+  if (missingEt<metCut)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("MET");
+  
+  double leptonEt;
+  double leptonPhi;
+  
+  if (m_runElectronChannel){
+    leptonEt = metElectrons[0]->pt() * 0.001;
+    leptonPhi = metElectrons[0]->phi();
+  }
+  else{
+    leptonEt = metMuons[0]->pt() * 0.001;
+    leptonPhi = metMuons[0]->phi();
+  }
+  
+  float deltaPhi = TMath::Abs(leptonPhi-missingEtPhi);
+  if(deltaPhi > TMath::Pi())
+        deltaPhi = TMath::TwoPi() - deltaPhi;
+  
+  double mT = sqrt( 2 * missingEt * leptonEt * 
+  (1 - TMath::Cos( deltaPhi ) ) );
+  
+  if (mT<mtCut)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("mT");
+  
+  /// get MC weights
+  m_LPXKfactorTool->execute();
+  weightkFactor = eventInfo->auxdecor<double>("KfactorWeight");
+  weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
+  weightCrossSection = m_LPXKfactorTool->getMCCrossSection(); ///TODO make proper implementation
+  
+  h_event_crossSectionWeight->Fill(weightCrossSection);
+  h_event_kFactor->Fill(weightkFactor);
+  h_event_filterEfficiency->Fill(weighfilterEfficiency);
+  
+  double totalWeight = weighfilterEfficiency*weightkFactor*weightCrossSection;
+  
+  h_event_totalWeight->Fill(totalWeight);
+  
+  hMu_pt_off->Fill(leptonEt,totalWeight);
+  hMu_mt_off->Fill(mT,totalWeight);
+  hMu_MET_Muons_off->Fill(missingEt,totalWeight);
+
+ 
+  
   return EL::StatusCode::SUCCESS;
 }
 

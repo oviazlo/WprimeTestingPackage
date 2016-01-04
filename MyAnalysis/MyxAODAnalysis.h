@@ -54,6 +54,9 @@
 #include "METInterface/IMETMaker.h"
 #include "METUtilities/CutsMETMaker.h"
 
+/// LPXKfactorTool tool
+#include "LPXKfactorTool/LPXKfactorTool.h"
+
 #include <TFile.h>
 #include <TMath.h>
 #include <TLorentzVector.h>
@@ -92,6 +95,9 @@
 
 #include <MyAnalysis/HistObjectDumper.h>
 #include <MyAnalysis/BitsetCutflow.h>
+#include <MyAnalysis/WprimeHist.h>
+#include <MyAnalysis/WprimeSample.h>
+
 #include <METUtilities/METMaker.h>
 
 /// include files for using the trigger tools
@@ -164,6 +170,10 @@ public:
   float OldMissingEt; //!
   float TransverseMass; //!
   
+  float weighfilterEfficiency; //!
+  float weightkFactor; //!
+  float weightCrossSection; //!
+  
   /// variables that don't get filled at submission time should be
   /// protected from being send from the submission node to the worker
   /// node (done by the //!)
@@ -176,46 +186,52 @@ public:
   AsgElectronLikelihoodTool* m_LHToolMedium2015; //!
   
   int m_eventCounter; //!
-
   int m_numCleanEvents; //!
   int m_counter1;
   int m_counter2;
 
-  TH1 *h_ptmuon; //!
+  ///
+  /// h_<object>_<variable>_<specialCutSet>
+  ///
+  /// possible objects:
+  /// - event
+  /// - lepton
+  /// - vetoElectron
+  /// - vetoMuon
+  /// - MET
+  /// - leptonMET
+  /// - 
   
-  TH1 *h_jetPt_LooseBadJets; //!
-  TH1 *h_jetPt_VeryLooseBadJets; //!
+  /// event hists
+  TH1F *h_event_nJets; //!
+  TH1F *h_event_nJets_Pt40; //!
 
-  TH1 *h_nSelectedMuons; //!
+  /// lepton hists
+  TH1F *h_lepton_d0Significance; //!
+  TH1F *h_lepton_z0SinTheta; //!
+  TH1F *h_lepton_Pt; //!
+  TH1F *h_lepton_eta; //!
+  TH1F *h_lepton_phi; //!
 
-  TH1 *h_MET_RefFinalFix; //!
-  TH1 *h_MET_RefJet; //!
-  TH1 *h_MET_RefCore; //!
-  TH1 *h_MET_MyJet; //!
-  TH1 *h_MET_RefTau; //!
-  TH1 *h_MET_RefMuon; //!
-  TH1 *h_MET_RefGamma; //!
-  TH1 *h_MET_RefElectron; //!
-  TH1 *h_MET_RefSoft; //!
-  TH1 *h_MET_RefTrack; //!
-  TH1 *h_MET_RefFinalNew; //!  
-  TH1 *h_MET_RefFinalFix_test; //!
-
-  TH1 *h_MET_OldJet; //!
-  TH1 *h_MET_OldTau; //!
-  TH1 *h_MET_OldMuon; //!
-  TH1 *h_MET_OldGamma; //!
-  TH1 *h_MET_OldElectron; //!
-  TH1 *h_MET_OldSoft; //!
-  TH1 *h_MET_OldTrack; //!
+  /// leptonMET hists
+  TH1F *h_leptonMET_deltaPhi; //!
+  TH1F *h_leptonMET_Mt; //!  
   
-  TH1 *h_Mt; //!
-  TH1 *h_Mt_muonPtCut; //!
-  
-  TH1 *h_zPrimVtx; //!
-  
-  TH1 *h_truthMET; //!
+  /// MET hists
+  TH1F *h_MET_Et; //!
+  TH1F *h_MET_phi; //!
 
+  /// Magnar histogramming way
+  TH1D* hMu_pt_off; //!
+  TH1D* hMu_mt_off; //!
+  TH1D* hMu_MET_Muons_off; //!
+  
+  /// EventInfo
+  TH1D* h_event_crossSectionWeight; //!
+  TH1D* h_event_kFactor; //!
+  TH1D* h_event_filterEfficiency; //!
+  TH1D* h_event_totalWeight; //!
+  
   /// defining the output file name and tree that we will put in the output 
   /// ntuple, also the one branch that will be in that tree 
   std::string outputName; //!
@@ -237,22 +253,11 @@ public:
     CP::MuonSelectionTool* m_looseMuonSelection; //!
     /// MuonCalibrationAndSmearing
     CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
-//     CP::IsolationSelectionTool *m_isolationSelectionTool; //!
-    //~ CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
-    //METUtility *m_METUtil;
-    
-    CP::IsolationSelectionTool* iso_1; //!
-    CP::IsolationSelectionTool* iso_2; //!
-    CP::IsolationSelectionTool* iso_3; //!
-    CP::IsolationSelectionTool* iso_4; //! 
-    CP::IsolationSelectionTool* iso_5; //!
-    CP::IsolationSelectionTool* iso_6; //!
-    CP::IsolationSelectionTool* iso_7; //!
-    CP::IsolationSelectionTool* iso_8; //!
-    CP::IsolationSelectionTool* iso_9; //!
 
     CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
     CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
+    
+    LPXKfactorTool* m_LPXKfactorTool; //!
     
     const xAOD::EventInfo* eventInfo = 0; //!
     
@@ -285,6 +290,7 @@ std::pair<unsigned int, unsigned int> SelectElectrons(
                                   xAOD::ElectronContainer* electrons,
                                   bool fillInCutflow);
   
+
   /// this is needed to distribute the algorithm to the workers
   ClassDef(MyxAODAnalysis, 1);
 };

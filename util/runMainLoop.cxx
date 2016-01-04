@@ -1,13 +1,22 @@
 #include "xAODRootAccess/Init.h"
-#include "SampleHandler/SampleHandler.h"
-#include "SampleHandler/ToolsDiscovery.h"
+
 #include "EventLoop/Job.h"
 #include "EventLoop/ProofDriver.h"
 #include "EventLoop/DirectDriver.h"
+#include "EventLoop/LSFDriver.h"
+
 #include "SampleHandler/DiskListLocal.h"
+#include "SampleHandler/ToolsSplit.h"
+#include "SampleHandler/SampleHandler.h"
+#include "SampleHandler/ToolsDiscovery.h"
+#include <SampleHandler/ScanDir.h>
+#include "SampleHandler/Sample.h"
+#include <SampleHandler/ToolsJoin.h>
+
 #include <TSystem.h>
 
 #include "MyAnalysis/MyxAODAnalysis.h"
+
 #include <EventLoopAlgs/NTupleSvc.h>
 #include <EventLoop/OutputStream.h>
 
@@ -63,6 +72,12 @@ int main( int argc, char* argv[] ) {
   hostNameChArr = getenv("HOSTNAME");
   string hostName(hostNameChArr);
   
+  std::string strSamplePattert = "mc15*Wmintau*";
+  if ( vm.count("samplePattern") ){
+    cout << "Looking for a pattern: " << vm["samplePattern"].as<std::string>() << endl;
+    strSamplePattert = vm["samplePattern"].as<std::string>();
+  }
+  
   /// define which input-path to use
   /// look for HOSTNAME env. variable
   std::size_t found = hostName.find("cern");
@@ -76,39 +91,79 @@ int main( int argc, char* argv[] ) {
     if (found!=std::string::npos){
       /// alarik cluster machines
       inputFilePath = gSystem->ExpandPathName
-      ("/lunarc/nobackup/users/oviazlo/xAOD/p2425");
+      ("/lunarc/nobackup/users/oviazlo/xAOD/cutFlow");
     }
     else{
       /// iridium cluster
-      inputFilePath = gSystem->ExpandPathName
-      ("/nfs/shared/pp/oviazlo/xAOD/p2425"); 
+      if (strSamplePattert.find("data")!=std::string::npos)
+        inputFilePath = gSystem->ExpandPathName
+        ("/nfs/shared/pp/oviazlo/xAOD/p2436");
+      else
+        inputFilePath = gSystem->ExpandPathName
+        ("/nfs/shared/pp/oviazlo/xAOD/p2452");
+//         ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
+//         ("/nfs/shared/pp/oviazlo/xAOD/testSH");
+
     }
   }
 
-  SH::DiskListLocal list (inputFilePath);
-  SH::scanDir (sh, list, "DAOD_EXOT9.*root*");
+  SH::ScanDir()
+  .samplePattern (strSamplePattert)
+  .scan (sh, inputFilePath);
+
+/// Print what we found:
+  sh.print();
+
+  
+  
+  if ( vm.count("mergeSamples") ){
+    string sampleMergePattern;
+    if (strSamplePattert.find("data")!=std::string::npos)
+      sampleMergePattern = "data15_13TeV.*";
+    else
+      sampleMergePattern = "mc15_13TeV.*";
+    cout << "Make attampt of merging sample with pattern: " << sampleMergePattern << 
+    " to one sample with name: " << vm["mergeSamples"].as<std::string>() << endl;
+    SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), sampleMergePattern); 
+  }
+  
+  /// Print what we found:
+  sh.print();
   
   /// Set the name of the input TTree. It's always "CollectionTree"
   /// for xAOD files.
   sh.setMetaString( "nc_tree", "CollectionTree" );
 
-  /// Print what we found:
-  sh.print();
-
+  
+  /// scan the number of events in each root file 
+  if ( vm.count("nEventsPerJob") )
+    SH::scanNEvents (sh);
+  
   /// Create an EventLoop job:
   EL::Job job;
   job.sampleHandler( sh );
 
-  /// Specify that we only want to run on 1k events
+  /// specify nEventsPerJob
+  if ( vm.count("nEventsPerJob") )
+    sh.setMetaDouble (EL::Job::optEventsPerWorker, 
+                      vm["nEventsPerJob"].as<unsigned int>());
+  
+  /// Specify nEvents to run on
   if (nEvents!=-1)
     job.options()->setDouble(EL::Job::optMaxEvents, nEvents);
 
+  if ( vm.count("nFilesPerJob") )
+    job.options()->setDouble (EL::Job::optFilesPerWorker, 
+                              vm["nFilesPerJob"].as<unsigned int>());
   /// define an output and an ntuple associated to that output 
   //    EL::OutputStream output  ("myOutput");
   //    job.outputAdd (output);
   //    EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
   //    job.algsAdd (ntuple);
 
+  job.options()->setDouble (EL::Job::optCacheSize, 10*1024*1024);
+  job.options()->setDouble (EL::Job::optCacheLearnEntries, 50);
+    
   /// Add our analysis to the job:
   MyxAODAnalysis* alg = new MyxAODAnalysis();
   job.algsAdd( alg );
@@ -148,16 +203,42 @@ int main( int argc, char* argv[] ) {
     }
   }
   
-  if ( vm.count("proof") ){/// Run the job using the local/direct driver:
+  if (vm.count("info"))
+    alg->setMsgLevel (MSG::INFO);
+    
+  if ( vm.count("proofDriver") ){/// Run the job using the local/direct driver:
     EL::ProofDriver driver;
     if ( vm.count("nWorkers") ){
       driver.numWorkers = vm["nWorkers"].as<unsigned int>();  
     }
     driver.submit( job, submitDir );
   }
-  else{/// Run the job using the local/direct driver:
+  else if(vm.count("directDriver")){
     EL::DirectDriver driver;
     driver.submit( job, submitDir );
+  }
+  else{/// Run the job using the local/direct driver:
+    std::string slurmOptions;
+    std::size_t found = hostName.find("alarik");
+    if (found!=std::string::npos){
+      system("mkdir -p ~/bin/; ln -s /sw_adm/pkg/slurm/2.6.5/bin/sbatch"
+      " ~/bin/bsub; export PATH=$PATH:~/bin");
+      slurmOptions = "-n 1 --cpus-per-task 1"
+//       " --mem=4000"
+    " -p snic -t 2:00:00";
+    }
+    else{
+      system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
+      " export PATH=$PATH:~/bin");
+      slurmOptions = "-n 1 --cpus-per-task 1"
+//       " --mem=4000"
+    " -p long -t 2:00:00";
+    }
+    EL::Driver* driver = new EL::LSFDriver;
+    job.options()->setBool(EL::Job::optResetShell, false);
+    job.options()->setString(EL::Job::optSubmitFlags, slurmOptions);
+    driver->submit(job, submitDir);
+    
   }
   
   return 0;
@@ -177,10 +258,16 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("help,h", "Print help messages") 
       ("folder,f", po::value<string>(), "output working-folder name")
       ("nWorkers,w", po::value<unsigned int>(), "number of workers")
-      ("proof,p", "enable PROOF-Lite mode") 
+      ("nFilesPerJob", po::value<unsigned int>(), "number of files per job")
+      ("nEventsPerJob", po::value<unsigned int>(), "number of events per job")
+      ("proofDriver,p", "run with ProofDriver - PROOF-Lite mode") 
       ("noSmearing", "don't do lepton calibration and smearing") 
       ("electronChannel,e", "run electron selection") 
       ("overwrite,o", "overwrite output folder") 
+      ("directDriver", "run with DirectDriver") 
+      ("info", "set message level to INFO") 
+      ("mergeSamples", po::value<string>(),"merge everything in one sample; specify final sample name")
+      ("samplePattern", po::value<string>(),"specify Sample Pattern")
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
       ;
     try 
