@@ -101,32 +101,23 @@ int main( int argc, char* argv[] ) {
   
   cout << endl << "Code is running on system " << systemMap[systemType] << endl << endl;
   
-  /// define which input-path to use
-  /// look for HOSTNAME env. variable
-  found = hostName.find("cern");
-  if (found!=std::string::npos){
-    /// CERN machines
+  if (systemType == CERN){
     inputFilePath = gSystem->ExpandPathName
     ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data");
   }
-  else{
-    std::size_t found = hostName.find("alarik");
-    if (found!=std::string::npos){
-      /// alarik cluster machines
+  else if (systemType == ALARIK){
+    inputFilePath = gSystem->ExpandPathName
+    ("/lunarc/nobackup/users/oviazlo/xAOD/cutFlow");
+  }
+  else if (systemType == IRIDIUM){
+    if (strSamplePattert.find("data")!=std::string::npos)
       inputFilePath = gSystem->ExpandPathName
-      ("/lunarc/nobackup/users/oviazlo/xAOD/cutFlow");
-    }
-    else{
-      /// iridium cluster
-      if (strSamplePattert.find("data")!=std::string::npos)
-        inputFilePath = gSystem->ExpandPathName
-        ("/nfs/shared/pp/oviazlo/xAOD/p2436");
-      else
-        inputFilePath = gSystem->ExpandPathName
-        ("/nfs/shared/pp/oviazlo/xAOD/p2452");
-//         ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
-//         ("/nfs/shared/pp/oviazlo/xAOD/testSH");
-    }
+      ("/nfs/shared/pp/oviazlo/xAOD/p2436");
+    else
+      inputFilePath = gSystem->ExpandPathName
+      ("/nfs/shared/pp/oviazlo/xAOD/p2452");
+//       ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
+//       ("/nfs/shared/pp/oviazlo/xAOD/testSH");
   }
 
   SH::ScanDir()
@@ -134,7 +125,7 @@ int main( int argc, char* argv[] ) {
   .scan (sh, inputFilePath);
 
 /// Print what we found:
-  sh.print();
+//   sh.print();
   
   if ( vm.count("mergeSamples") ){
     string sampleMergePattern;
