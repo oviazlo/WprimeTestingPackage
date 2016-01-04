@@ -48,7 +48,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
     isData = false;
   }
-  cout << "isData flag = " << isData<<endl;
+  cout << "isData flag = " << isData <<endl;
   
   /// count number of events
   m_eventCounter = 0;
@@ -238,12 +238,19 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     count[i]=0;
   }  
 
-  m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
-  CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
-  CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
-  CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
-  
-  EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
+  if (!isData){
+    m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
+    CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
+    CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
+    CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
+    
+    EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
+  }
+  else{
+    weightkFactor = 1.0;
+    weighfilterEfficiency = 1.0;
+    weightCrossSection = 1.0;
+  }
   
   return EL::StatusCode::SUCCESS;
 }
