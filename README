@@ -1,0 +1,4 @@
+[Known Issues]
+- attempt to submit too much jobs produce this error (got this error for 1300 jobs):
+    submitEventLoop:/build1/atnight/localbuilds/nightlies/AnalysisBase-2.3.X/AnalysisBase/rel_nightly/EventLoop/Root/LSFDriver.cxx:62:exception: failed to execute:
+
