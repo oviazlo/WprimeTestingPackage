@@ -99,7 +99,7 @@ int main( int argc, char* argv[] ) {
       systemType = IRIDIUM;
   }
   
-  cout << endl << "Code is running on system " << systemMap[systemType] << endl << endl;
+  cout << "[JobSetup]\tCode is running on system " << systemMap[systemType] << endl;
   
   if (systemType == CERN){
     inputFilePath = gSystem->ExpandPathName
@@ -120,6 +120,8 @@ int main( int argc, char* argv[] ) {
 //       ("/nfs/shared/pp/oviazlo/xAOD/testSH");
   }
 
+  cout << "[JobSetup]\tLooking for a sample pattern: " << strSamplePattert << endl << endl;
+  
   SH::ScanDir()
   .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
@@ -133,7 +135,7 @@ int main( int argc, char* argv[] ) {
       sampleMergePattern = "data15_13TeV.*";
     else
       sampleMergePattern = "mc15_13TeV.*";
-    cout << "Make attampt of merging sample with pattern: " << sampleMergePattern << 
+    cout << "[JobSetup]\tMake attampt of merging sample with pattern: " << sampleMergePattern << 
     " to one sample with name: " << vm["mergeSamples"].as<std::string>() << endl;
     SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), sampleMergePattern); 
   }
