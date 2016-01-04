@@ -228,26 +228,32 @@ int main( int argc, char* argv[] ) {
     EL::DirectDriver driver;
     driver.submit( job, submitDir );
   }
-  else{/// Run the job using the local/direct driver:
-    std::string slurmOptions;
-    std::size_t found = hostName.find("alarik");
-    if (found!=std::string::npos){
+  else{/// Local/Direct Driver:
+    EL::Driver* driver = new EL::LSFDriver;
+    std::string slurmSystemDependentOptions;
+    
+    if (systemType == ALARIK){
       system("mkdir -p ~/bin/; ln -s /sw_adm/pkg/slurm/2.6.5/bin/sbatch"
       " ~/bin/bsub; export PATH=$PATH:~/bin");
-      slurmOptions = "-n 1 --cpus-per-task 1"
+      slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
 //       " --mem=4000"
     " -p snic -t 2:00:00";
     }
-    else{
+    else if (systemType == IRIDIUM){
       system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
       " export PATH=$PATH:~/bin");
-      slurmOptions = "-n 1 --cpus-per-task 1"
+      slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
 //       " --mem=4000"
     " -p long -t 2:00:00";
     }
-    EL::Driver* driver = new EL::LSFDriver;
+    else if (systemType == CERN){
+      slurmSystemDependentOptions = "-L /bin/bash";
+      driver.shellInit = "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/"
+      "repo/ATLASLocalRootBase && source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh";
+    }
+    
     job.options()->setBool(EL::Job::optResetShell, false);
-    job.options()->setString(EL::Job::optSubmitFlags, slurmOptions);
+    job.options()->setString(EL::Job::optSubmitFlags, slurmSystemDependentOptions);
     driver->submit(job, submitDir);
     
   }
