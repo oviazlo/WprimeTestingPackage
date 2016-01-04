@@ -229,7 +229,7 @@ int main( int argc, char* argv[] ) {
     driver.submit( job, submitDir );
   }
   else{/// Local/Direct Driver:
-    EL::Driver* driver = new EL::LSFDriver;
+    EL::LSFDriver* driver = new EL::LSFDriver;
     std::string slurmSystemDependentOptions;
     
     if (systemType == ALARIK){
