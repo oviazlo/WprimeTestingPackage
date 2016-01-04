@@ -84,7 +84,6 @@ int main( int argc, char* argv[] ) {
   
   std::string strSamplePattert = "mc15*Wmintau*";
   if ( vm.count("samplePattern") ){
-    cout << "Looking for a pattern: " << vm["samplePattern"].as<std::string>() << endl;
     strSamplePattert = vm["samplePattern"].as<std::string>();
   }
   
@@ -99,7 +98,7 @@ int main( int argc, char* argv[] ) {
       systemType = IRIDIUM;
   }
   
-  cout << endl << "Code is running on system " << systemMap[systemType] << endl << endl;
+  cout << "[JobSetup]\tCode is running on system: " << systemMap[systemType] << endl;
   
   if (systemType == CERN){
     inputFilePath = gSystem->ExpandPathName
@@ -120,6 +119,8 @@ int main( int argc, char* argv[] ) {
 //       ("/nfs/shared/pp/oviazlo/xAOD/testSH");
   }
 
+  cout << "[JobSetup]\tLooking for a sample pattern: " << strSamplePattert << endl << endl;
+  
   SH::ScanDir()
   .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
@@ -133,7 +134,7 @@ int main( int argc, char* argv[] ) {
       sampleMergePattern = "data15_13TeV.*";
     else
       sampleMergePattern = "mc15_13TeV.*";
-    cout << "Make attampt of merging sample with pattern: " << sampleMergePattern << 
+    cout << "[JobSetup]\tMake attampt of merging sample with pattern: " << sampleMergePattern << 
     " to one sample with name: " << vm["mergeSamples"].as<std::string>() << endl;
     SH::mergeSamples (sh, vm["mergeSamples"].as<std::string>(), sampleMergePattern); 
   }
@@ -228,26 +229,32 @@ int main( int argc, char* argv[] ) {
     EL::DirectDriver driver;
     driver.submit( job, submitDir );
   }
-  else{/// Run the job using the local/direct driver:
-    std::string slurmOptions;
-    std::size_t found = hostName.find("alarik");
-    if (found!=std::string::npos){
+  else{/// Local/Direct Driver:
+    EL::LSFDriver* driver = new EL::LSFDriver;
+    std::string slurmSystemDependentOptions;
+    
+    if (systemType == ALARIK){
       system("mkdir -p ~/bin/; ln -s /sw_adm/pkg/slurm/2.6.5/bin/sbatch"
       " ~/bin/bsub; export PATH=$PATH:~/bin");
-      slurmOptions = "-n 1 --cpus-per-task 1"
+      slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
 //       " --mem=4000"
     " -p snic -t 2:00:00";
     }
-    else{
+    else if (systemType == IRIDIUM){
       system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
       " export PATH=$PATH:~/bin");
-      slurmOptions = "-n 1 --cpus-per-task 1"
+      slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
 //       " --mem=4000"
-    " -p long -t 2:00:00";
+    " -p short -t 2:00:00";
     }
-    EL::Driver* driver = new EL::LSFDriver;
+    else if (systemType == CERN){
+      slurmSystemDependentOptions = "-L /bin/bash -q 1nh";
+      driver->shellInit = "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/"
+      "repo/ATLASLocalRootBase && source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh";
+    }
+    
     job.options()->setBool(EL::Job::optResetShell, false);
-    job.options()->setString(EL::Job::optSubmitFlags, slurmOptions);
+    job.options()->setString(EL::Job::optSubmitFlags, slurmSystemDependentOptions);
     driver->submit(job, submitDir);
     
   }
