@@ -245,7 +245,7 @@ int main( int argc, char* argv[] ) {
       " export PATH=$PATH:~/bin");
       slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
 //       " --mem=4000"
-    " -p short -t 2:00:00";
+    " -p long -t 2:00:00";
     }
     else if (systemType == CERN){
       slurmSystemDependentOptions = "-L /bin/bash -q 1nh";
