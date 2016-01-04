@@ -217,20 +217,19 @@ int main( int argc, char* argv[] ) {
   if (vm.count("info"))
     alg->setMsgLevel (MSG::INFO);
     
-  EL::Driver* driver;
   if ( vm.count("proofDriver") ){/// Run the job using the local/direct driver:
-    driver = new EL::ProofDriver;
+    EL::ProofDriver driver;
     if ( vm.count("nWorkers") ){
-      driver->numWorkers = vm["nWorkers"].as<unsigned int>();  
+      driver.numWorkers = vm["nWorkers"].as<unsigned int>();  
     }
-    driver->submit( job, submitDir );
+    driver.submit( job, submitDir );
   }
   else if(vm.count("directDriver")){
-    driver = new EL::DirectDriver;
-    driver->submit( job, submitDir );
+    EL::DirectDriver driver;
+    driver.submit( job, submitDir );
   }
   else{/// Local/Direct Driver:
-    driver = new EL::LSFDriver;
+    EL::Driver* driver = new EL::LSFDriver;
     std::string slurmSystemDependentOptions;
     
     if (systemType == ALARIK){
