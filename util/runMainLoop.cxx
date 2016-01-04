@@ -84,7 +84,6 @@ int main( int argc, char* argv[] ) {
   
   std::string strSamplePattert = "mc15*Wmintau*";
   if ( vm.count("samplePattern") ){
-    cout << "Looking for a pattern: " << vm["samplePattern"].as<std::string>() << endl;
     strSamplePattert = vm["samplePattern"].as<std::string>();
   }
   
@@ -99,7 +98,7 @@ int main( int argc, char* argv[] ) {
       systemType = IRIDIUM;
   }
   
-  cout << "[JobSetup]\tCode is running on system " << systemMap[systemType] << endl;
+  cout << "[JobSetup]\tCode is running on system: " << systemMap[systemType] << endl;
   
   if (systemType == CERN){
     inputFilePath = gSystem->ExpandPathName
@@ -249,7 +248,7 @@ int main( int argc, char* argv[] ) {
     " -p long -t 2:00:00";
     }
     else if (systemType == CERN){
-      slurmSystemDependentOptions = "-L /bin/bash";
+      slurmSystemDependentOptions = "-L /bin/bash -q 1nh";
       driver->shellInit = "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/"
       "repo/ATLASLocalRootBase && source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh";
     }
