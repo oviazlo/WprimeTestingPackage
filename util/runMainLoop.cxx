@@ -125,7 +125,7 @@ int main( int argc, char* argv[] ) {
   .scan (sh, inputFilePath);
 
 /// Print what we found:
-//   sh.print();
+//   sh.print(); FIXME
   
   if ( vm.count("mergeSamples") ){
     string sampleMergePattern;
@@ -139,7 +139,7 @@ int main( int argc, char* argv[] ) {
   }
   
   /// Print what we found:
-  sh.print();
+//   sh.print(); FIXME
   
   /// Set the name of the input TTree. It's always "CollectionTree"
   /// for xAOD files.
