@@ -427,10 +427,12 @@ EL::StatusCode MyxAODAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("mT");
   
   /// get MC weights
-  m_LPXKfactorTool->execute();
-  weightkFactor = eventInfo->auxdecor<double>("KfactorWeight");
-  weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
-  weightCrossSection = m_LPXKfactorTool->getMCCrossSection(); ///TODO make proper implementation
+  if (isMC){
+    m_LPXKfactorTool->execute();
+    weightkFactor = eventInfo->auxdecor<double>("KfactorWeight");
+    weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
+    weightCrossSection = m_LPXKfactorTool->getMCCrossSection(); ///TODO make proper implementation
+  }
   
   h_event_crossSectionWeight->Fill(weightCrossSection);
   h_event_kFactor->Fill(weightkFactor);
