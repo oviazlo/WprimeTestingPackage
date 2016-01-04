@@ -48,7 +48,7 @@ map<size_t,string> systemMap = boost::assign::map_list_of (CERN,"CERN")
 (IRIDIUM,"IRIDIUM") (ALARIK,"ALARIK");
 
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
-size_t system;
+size_t systemType;
 
 int main( int argc, char* argv[] ) {
  
@@ -90,16 +90,16 @@ int main( int argc, char* argv[] ) {
   
   std::size_t found = hostName.find("cern");
   if (found!=std::string::npos)
-    system = CERN;
+    systemType = CERN;
   else{
     std::size_t found = hostName.find("alarik");
     if (found!=std::string::npos)
-      system = ALARIK;
+      systemType = ALARIK;
     else
-      system = IRIDIUM;
+      systemType = IRIDIUM;
   }
   
-  cout << endl << "Code is running on system " << systemMap[system] << endl << endl;
+  cout << endl << "Code is running on system " << systemMap[systemType] << endl << endl;
   
   /// define which input-path to use
   /// look for HOSTNAME env. variable
