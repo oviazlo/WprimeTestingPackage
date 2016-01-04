@@ -24,8 +24,10 @@
 #include "boost/program_options.hpp"
 #include <boost/algorithm/string.hpp>
 #include "boost/filesystem.hpp"
+#include "boost/assign.hpp" /// map_list_of
 
 #include <stdlib.h>     /* getenv */
+#include <map>
 
 namespace 
 { 
@@ -36,9 +38,17 @@ namespace
   
   namespace po = boost::program_options;
  
+  const size_t CERN=0;
+  const size_t IRIDIUM=1;
+  const size_t ALARIK=2;
+  
 } /// namespace 
 
+map<size_t,string> systemMap = boost::assign::map_list_of (CERN,"CERN") 
+(IRIDIUM,"IRIDIUM") (ALARIK,"ALARIK");
+
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
+size_t systemType;
 
 int main( int argc, char* argv[] ) {
  
@@ -78,11 +88,24 @@ int main( int argc, char* argv[] ) {
     strSamplePattert = vm["samplePattern"].as<std::string>();
   }
   
+  std::size_t found = hostName.find("cern");
+  if (found!=std::string::npos)
+    systemType = CERN;
+  else{
+    std::size_t found = hostName.find("alarik");
+    if (found!=std::string::npos)
+      systemType = ALARIK;
+    else
+      systemType = IRIDIUM;
+  }
+  
+  cout << endl << "Code is running on system " << systemMap[systemType] << endl << endl;
+  
   /// define which input-path to use
   /// look for HOSTNAME env. variable
-  std::size_t found = hostName.find("cern");
+  found = hostName.find("cern");
   if (found!=std::string::npos){
-    /// cern machines
+    /// CERN machines
     inputFilePath = gSystem->ExpandPathName
     ("/afs/cern.ch/work/o/oviazlo/Wprime/AnalysisFramework/rel20/data");
   }
@@ -103,7 +126,6 @@ int main( int argc, char* argv[] ) {
         ("/nfs/shared/pp/oviazlo/xAOD/p2452");
 //         ("/nfs/shared/pp/oviazlo/xAOD/cutFlow"); 
 //         ("/nfs/shared/pp/oviazlo/xAOD/testSH");
-
     }
   }
 
@@ -113,8 +135,6 @@ int main( int argc, char* argv[] ) {
 
 /// Print what we found:
   sh.print();
-
-  
   
   if ( vm.count("mergeSamples") ){
     string sampleMergePattern;
