@@ -24,7 +24,7 @@
 #include "boost/program_options.hpp"
 #include <boost/algorithm/string.hpp>
 
-#include <HelpFunctions.h>
+#include "HelpFunctions.h"
 
 map<string,string> sampleMap;
 

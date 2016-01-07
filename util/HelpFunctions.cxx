@@ -1,4 +1,4 @@
-#include <HelpFunctions.h>
+#include "HelpFunctions.h"
 
 void SetAtlasStyle()
 {
