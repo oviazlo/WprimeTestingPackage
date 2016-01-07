@@ -12,7 +12,8 @@ std::string WprimeHist_lepton = "l";
 
 //**********************************************************************
 
-TH1* WprimeHist::create(Name name, Name title, int xbin, double xmin, double xmax) {
+TH1* WprimeHist::create(Name name, Name title, int xbin, double xmin, 
+                        double xmax) {
   TH1* ph = new TH1D(name.c_str(), title.c_str(), xbin, xmin, xmax);
   ph->Sumw2();
   return ph;
@@ -24,7 +25,8 @@ TH1* WprimeHist::create(Name name, Name title, int xbin, double* bins) {
   return ph;
 }
 
-TH1* WprimeHist::createlog(Name name, Name title, int xbin, double xmin, double xmax) {
+TH1* WprimeHist::createlog(Name name, Name title, int xbin, double xmin, 
+                           double xmax) {
   if ( xmin <= 0 ) return 0;
   if ( xmax <= xmin ) return 0;
   if ( xbin <= 0 ) return 0;
@@ -152,10 +154,12 @@ TH1* WprimeHist::standard(Name name, Name hpname, Name sel, Name hptitle) {
     htitle += " MS - ID q/p; (q/p)_{MS}-(q/p)_{ID} [TeV^{-1}]" + ylab;
     return create(hname, htitle, 100, -5.0, 5.0);
   } else if ( name == "qpdifferr" ) {
-    htitle += " MS - ID q/p error; #sigma((q/p)_{MS}-(q/p)_{ID}) [TeV^{-1}]" + ylab;
+    htitle += " MS - ID q/p error; #sigma((q/p)_{MS}-(q/p)_{ID}) [TeV^{-1}]" 
+              + ylab;
     return create(hname, htitle, 50, 0.0, 5.0);
   } else if ( name == "qpdiffsig" ) {
-    htitle += " MS - ID q/p sgnificance; ((q/p)_{MS}-(q/p)_{ID})/#sigma((q/p)_{MS}-(q/p)_{ID})" + ylab;
+    htitle += " MS - ID q/p sgnificance; ((q/p)_{MS}-(q/p)_{ID})/#sigma((q/p)"
+              "_{MS}-(q/p)_{ID})" + ylab;
     return create(hname, htitle, 200, -10, 10);
   // Filled from generator level information
   } else if ( name == "ptgen" ) {

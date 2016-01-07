@@ -1,3 +1,4 @@
+/// EventLoop/xAOD
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"
 #include "SampleHandler/Sample.h"
@@ -8,23 +9,38 @@
 #include "SampleHandler/DiskListLocal.h"
 #include <SampleHandler/ScanDir.h>
 #include <SampleHandler/ToolsJoin.h>
-#include <TSystem.h>
-#include <TH1F.h>
-#include <TCanvas.h>
-
-//~ #include "AtlasStyle.C"
-//~ #include "AtlasUtils.C"
-//~ #include "AtlasUtils.h"
-
-#include "MyAnalysis/MyxAODAnalysis.h"
 #include <EventLoopAlgs/NTupleSvc.h>
 #include <EventLoop/OutputStream.h>
 
+/// ROOT
+#include <TSystem.h>
+#include <TH1F.h>
+#include <TCanvas.h>
+#include <TColor.h>
+#include <Rtypes.h>
+
+/// std C/C++
+#include <fstream>
+
+/// private
+#include "MyAnalysis/MyxAODAnalysis.h"
 #include "HelpFunctions.h"
 
-#include <fstream>      // std::ifstream
+const char *tmpArr[] = {"h_pt","h_met","h_mt"};
 
+struct histStruct{
+  unsigned int nHist = 3;
+  const char **histName = tmpArr;
+  map<string,TH1D*> histMap;
+};
+
+
+void setHistStyle(TH1D* inHist, Color_t kColor);
+void setHistStyle(histStruct inHistStruct, Color_t kColor);
+TH1D* getSummedHistOverSample(SH::SampleHandler sh, string histName);
 map<string,string> sampleMap;
+Color_t colorArr[] = {kBlack, kRed, kGreen, kBlue, kViolet};
+
 
 int main( int argc, char* argv[] ) {
 
@@ -52,100 +68,100 @@ int main( int argc, char* argv[] ) {
   vector<string> samples, tags;
   
   while(sampleListStream.good()){
-    std::string sample, tag;
+    std::string sample = "";
+    std::string tag = "";
     sampleListStream >> sample >> tag; 
+    if (sample == "" || tag == "")
+      continue;
     samples.push_back(sample);
     tags.push_back(tag);
+    cout << "[INFO]\tread sample-tag pair: {" << sample << "," << tag << "}" 
+         << endl;
   }
+  
+  if (samples.size()!=tags.size() || samples.size()==0){
+    cout << "[ERROR]\tsamples.size() = " << samples.size() << 
+            ", tags.size() = " << tags.size() << endl;
+            return -1;
+  }
+  
+  vector<histStruct> myHists;
+  
+  histStruct tmpHistStruct;
   
   for (int i=0; i<samples.size(); i++){
+    SH::SampleHandler sh;
+    cout << "[INFO]\tRead samples from dir: " << samples[i] << endl;
+    sh.load (samples[i] + "/hist");
     
+    for (int i=0; i<tmpHistStruct.nHist; i++){
+      string histName = tmpHistStruct.histName[i];
+      tmpHistStruct.histMap[histName] = getSummedHistOverSample(sh,histName);
+    }
+    
+    setHistStyle(tmpHistStruct,colorArr[i]);
+    myHists.push_back(tmpHistStruct);
   }
-  
-  
-//     /// Construct the samples to run on:
-//   SH::SampleHandler sh;
-// 
-//   cout << "[INFO]\tRead samples from dir: " << folder << endl;
-//   sh.load (folder + "/hist");
-//  
-//   TH1D* h_ptSum;
-//   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
-//       ++ iter){
-//     cout << (*iter)->name() << endl;
-//   
-//     TH1D* h_pt = (TH1D*)(*iter)->readHist ("h_pt");
-//   
-//     if (iter==sh.begin()){
-//       h_ptSum = h_pt;
-//       h_ptSum->SaveAs(("0_h_ptSum.C"));
-//     }
-//     else
-//       h_ptSum->Add(h_pt);
-//   
-//   }
-//   
-//   h_ptSum->SaveAs((folder + "_h_ptSum.C").c_str());
-  
-  
-  /*
-  /// Construct the samples to run on:
-  SH::SampleHandler sh;
 
-  sh.load ((folder + "/hist").c_str());
-
-  cout << "[INFO]\tSize of read sample: " << sh.size() << endl;
-  if (sh.size()<1){
-    cout << "[ERROR]\tSize of sample is zero... Aborting execution!" << endl;
-    return 0;
+  unsigned int nHistInStruct = myHists[0].nHist;
+    
+  TCanvas* tmpCan = new TCanvas("c","c",nHistInStruct*600,600);
+  tmpCan->Divide(nHistInStruct,1);
+  for (int iSample=0; iSample<myHists.size(); iSample++){
+    histStruct tmpHistStruct = myHists[iSample];
+    for (int iHistType=0; iHistType<tmpHistStruct.nHist; iHistType++){
+      string histName = tmpHistStruct.histName[iHistType];
+      TH1D* tmpHist = tmpHistStruct.histMap[histName];
+      tmpCan->cd(iHistType+1);
+      if (iSample==0){
+        tmpHist->Draw();
+        gPad->SetLogx();
+      }
+      else
+        tmpHist->Draw("same");
+    }
   }
+  tmpCan->SaveAs("bigTest.png");
   
-  SH::Sample* mySample = *(sh.begin());
-  
-  std::size_t found = mySample->name().find("mc15");
-  string mergePattern;
-  if (found!=std::string::npos)
-    mergePattern = "mc15_13TeV.*";
-  else
-    mergePattern = "data15_13TeV.*";
-
-  cout << "[INFO]\tNumber of samples in directory: " << sh.size() << endl;
-  cout << "[INFO]\tUse merge pattern: " << mergePattern << endl;
-  SH::mergeSamples (sh, "final", mergePattern);  
-  cout << "[INFO]\tNumber of samples after merging: " << sh.size() << endl;
-
-  if (sh.size()!=1){
-    cout << "[ERROR]\tNumber of samples after merging are not equal 1. "
-    "Print all samples after merging:" << endl;
-    sh.print();
-    return -1;
-  }
-  
-  SetAtlasStyle();
-  
-  /// read pt, MET, Mt histograms, make them pretty and save them
-  TH1D* h_pt = (TH1D*)mySample->readHist ("h_pt");
-  TH1D* h_MET = (TH1D*)mySample->readHist ("h_met");
-  TH1D* h_Mt = (TH1D*)mySample->readHist ("h_mt");
-  
-  TCanvas *can = new TCanvas("can","can",800,800);
-  gPad->SetLogy();
-  
-  h_pt->Draw();
-  h_pt->GetXaxis()->SetRangeUser(0,1000.0);
-  can->SaveAs("pT.png");
-  
-  h_MET->GetXaxis()->SetRangeUser(0,1000.0);
-  h_MET->Draw();
-  can->SaveAs("MET.png");
-  
-  h_Mt->GetXaxis()->SetRangeUser(0,1000.0);
-  h_Mt->Draw();
-  can->SaveAs("mT.png");
-  
-  */
   
   return 0;
 }
+
+TH1D* getSummedHistOverSample(SH::SampleHandler sh, string histName){
+  TH1D* outHist = NULL;
+  
+  for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
+      ++ iter){
+    TH1D* tmpHist = (TH1D*)(*iter)->readHist (histName.c_str());
+
+    if (tmpHist==NULL){
+      cout << "[ERROR]\tCannot read hist " << histName << " of typy TH1D "
+              "from sample " << (*iter)->name() << ". Skip sample!" << endl;
+      continue;
+    }
+
+    if (outHist==NULL)
+      outHist = (TH1D*)tmpHist->Clone((histName+"_summed").c_str());
+    else
+      outHist->Add(tmpHist);
+  }
+  
+  return outHist;
+}
+
+void setHistStyle(histStruct inHistStruct, Color_t kColor){
+  for (int i=0; i<inHistStruct.nHist; i++){
+    string histName = inHistStruct.histName[i];
+    setHistStyle(inHistStruct.histMap[histName],kColor);
+  }
+}
+
+void setHistStyle(TH1D* inHist, Color_t kColor){
+  if (inHist==NULL)
+    return;
+  inHist->SetLineWidth(2);
+  inHist->SetLineColor(kColor);
+}
+
 
 

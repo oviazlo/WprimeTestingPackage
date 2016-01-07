@@ -20,11 +20,13 @@ public:
 
   /// Create from name, title and binning.
   /// These just call the similar TH1F constructors.
-  static TH1* create(Name name, Name title, int xbin, double xmin, double xmax);
+  static TH1* create(Name name, Name title, int xbin, double xmin, 
+                     double xmax);
   static TH1* create(Name name, Name title, int xbin, double* bins);
 
   /// Create histogram with log binning.
-  static TH1* createlog(Name name, Name title, int xbin, double xmin, double xmax);
+  static TH1* createlog(Name name, Name title, int xbin, double xmin, 
+                        double xmax);
 
   /// Create a standard Wprime histogram with a name and title.
   /// Return null if the name is not recogized.
