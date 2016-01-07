@@ -49,10 +49,44 @@ int main( int argc, char* argv[] ) {
   std::ifstream sampleListStream;
   sampleListStream.open (sampleList.c_str(), std::ifstream::in);
 
+  vector<string> samples, tags;
+  
   while(sampleListStream.good()){
     std::string sample, tag;
     sampleListStream >> sample >> tag; 
+    samples.push_back(sample);
+    tags.push_back(tag);
   }
+  
+  for (int i=0; i<samples.size(); i++){
+    
+  }
+  
+  
+//     /// Construct the samples to run on:
+//   SH::SampleHandler sh;
+// 
+//   cout << "[INFO]\tRead samples from dir: " << folder << endl;
+//   sh.load (folder + "/hist");
+//  
+//   TH1D* h_ptSum;
+//   for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
+//       ++ iter){
+//     cout << (*iter)->name() << endl;
+//   
+//     TH1D* h_pt = (TH1D*)(*iter)->readHist ("h_pt");
+//   
+//     if (iter==sh.begin()){
+//       h_ptSum = h_pt;
+//       h_ptSum->SaveAs(("0_h_ptSum.C"));
+//     }
+//     else
+//       h_ptSum->Add(h_pt);
+//   
+//   }
+//   
+//   h_ptSum->SaveAs((folder + "_h_ptSum.C").c_str());
+  
   
   /*
   /// Construct the samples to run on:

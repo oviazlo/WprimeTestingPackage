@@ -1,13 +1,20 @@
 #ifndef HelpFunctions_H
 #define HelpFunctions_H
 
+/// ROOT
 #include "TStyle.h"
 #include "TROOT.h"
-#include <iostream>
 
 /// boost
 #include "boost/program_options.hpp"
 #include <boost/algorithm/string.hpp>
+
+/// std C/C++
+#include <iostream>
+// #include <glob.h>
+// #include <vector>
+// #include <string>
+
 
 namespace 
 { 
@@ -19,6 +26,19 @@ namespace
   namespace po = boost::program_options; 
  
 } /// namespace  
+
+// inline std::vector<std::string> glob(const std::string& pat){
+//     using namespace std;
+//     glob_t glob_result;
+//     glob(pat.c_str(),GLOB_TILDE,NULL,&glob_result);
+//     vector<string> ret;
+//     for(unsigned int i=0;i<glob_result.gl_pathc;++i){
+//         ret.push_back(string(glob_result.gl_pathv[i]));
+//     }
+//     globfree(&glob_result);
+//     return ret;
+// }
+
 
 /// parse input arguments
 int parseOptionsWithBoost(po::variables_map &vm, po::options_description desc, 
