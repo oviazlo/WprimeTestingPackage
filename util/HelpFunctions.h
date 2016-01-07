@@ -26,14 +26,6 @@ int parseOptionsWithBoost(po::variables_map &vm, po::options_description desc,
 
 #include "HelpFunctions.h"
 
-void SetAtlasStyle()
-{
-  std::cout << "\nApplying ATLAS style settings...\n" << std::endl ;
-  TStyle* atlasStyle = AtlasStyle();
-  gROOT->SetStyle("ATLAS");
-  gROOT->ForceStyle();
-}
-
 TStyle* AtlasStyle() 
 {
   TStyle *atlasStyle = new TStyle("ATLAS","Atlas style");
@@ -109,7 +101,13 @@ TStyle* AtlasStyle()
 
 }
 
-
+void SetAtlasStyle()
+{
+  std::cout << "\nApplying ATLAS style settings...\n" << std::endl ;
+  TStyle* atlasStyle = AtlasStyle();
+  gROOT->SetStyle("ATLAS");
+  gROOT->ForceStyle();
+}
 
 
 
