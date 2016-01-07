@@ -238,6 +238,10 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     count[i]=0;
   }  
 
+  weightkFactor = 1.0;
+  weighfilterEfficiency = 1.0;
+  weightCrossSection = 1.0;
+  
   if (!isData){
     m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
     CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
@@ -245,11 +249,6 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
     
     EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
-  }
-  else{
-    weightkFactor = 1.0;
-    weighfilterEfficiency = 1.0;
-    weightCrossSection = 1.0;
   }
   
   return EL::StatusCode::SUCCESS;
