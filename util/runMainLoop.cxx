@@ -238,7 +238,7 @@ int main( int argc, char* argv[] ) {
       " ~/bin/bsub; export PATH=$PATH:~/bin");
       slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
 //       " --mem=4000"
-    " -p snic -t 2:00:00";
+    " -p snic -t 2:00:00 -A snic2015-2-63";
     }
     else if (systemType == IRIDIUM){
       system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
