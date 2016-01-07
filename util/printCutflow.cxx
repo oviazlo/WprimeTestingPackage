@@ -70,29 +70,30 @@ int main( int argc, char* argv[] ) {
     return 0;
   }
   
-  sh.print();
+  SH::Sample* mySample = *(sh.begin());
   
-  std::size_t found = sh.at(0)->name().find("mc15");
+  std::size_t found = mySample->name().find("mc15");
   string mergePattern;
   if (found!=std::string::npos)
     mergePattern = "mc15_13TeV.*";
   else
     mergePattern = "data15_13TeV.*";
 
+  cout << "[INFO]\tNumber of samples in directory: " << sh.size() << endl;
   cout << "[INFO]\tUse merge pattern: " << mergePattern << endl;
   SH::mergeSamples (sh, "final", mergePattern);  
-  
-  sh.print();
+  cout << "[INFO]\tNumber of samples after merging: " << sh.size() << endl;
 
   if (sh.size()!=1){
-    cout << "Found more(less) than one sample in folder. Abort!" << endl;
+    cout << "[ERROR]\tNumber of samples after merging are not equal 1. "
+    "Print all samples after merging:" << endl;
+    sh.print();
     return -1;
   }
   
-  SH::Sample* mySample = *(sh.begin());
-  
   /// get histogram
   TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+  cout << "[DEBUG]\tcutflowHist = " << cutflowHist << endl;
   
   for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
     int binContent = cutflowHist->GetBinContent(i);
