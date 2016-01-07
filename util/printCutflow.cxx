@@ -59,12 +59,20 @@ int main( int argc, char* argv[] ) {
   else
     cout << "[INFO]\tread cutflow from default directory: " << folder << endl;
 
-  // Construct the samples to run on:
+  /// Construct the samples to run on:
   SH::SampleHandler sh;
 
   sh.load ((folder + "/hist").c_str());
 
+  cout << "[INFO]\tSize of read sample: " << sh.size() << endl;
+  if (sh.size()<1){
+    cout << "[ERROR]\tSize of sample is zero... Aborting execution!" << endl;
+    return 0;
+  }
+  
   sh.print();
+  
+  cout << "sh.at(0) = " << sh.at(0) << endl;
   
   SH::mergeSamples (sh, "final", "mc15_13TeV.*");  
 
