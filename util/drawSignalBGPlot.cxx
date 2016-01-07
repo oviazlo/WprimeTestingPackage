@@ -24,7 +24,7 @@
 #include "boost/program_options.hpp"
 #include <boost/algorithm/string.hpp>
 
-#include <HelpFunctions.cxx>
+#include <HelpFunctions.h>
 
 map<string,string> sampleMap;
 
@@ -38,11 +38,6 @@ namespace
   namespace po = boost::program_options; 
  
 } /// namespace  
-
-int parseOptionsWithBoost(po::variables_map &vm, po::options_description desc, 
-                          int argc, char* argv[]);
-TStyle* AtlasStyle();
-void SetAtlasStyle();
 
 int main( int argc, char* argv[] ) {
 

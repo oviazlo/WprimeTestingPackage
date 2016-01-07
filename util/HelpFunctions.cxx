@@ -1,6 +1,4 @@
-#include "TStyle.h"
-#include "TROOT.h"
-
+#include <HelpFunctions.h>
 
 void SetAtlasStyle()
 {
