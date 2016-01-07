@@ -49,11 +49,13 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     
     /// Start iterating over truth container
     xAOD::TruthVertexContainer::const_iterator truthV_itr; 
-    for (truthV_itr = truthVertices->begin(); truthV_itr != truthVertices->end();
-         ++truthV_itr ) {
+    for (truthV_itr = truthVertices->begin(); 
+         truthV_itr != truthVertices->end(); ++truthV_itr )
+    {
       if (foundMuonFromWprimeDecay)
         break;
-      for (unsigned int iIn=0; iIn < (*truthV_itr)->nIncomingParticles(); iIn++)
+      for (unsigned int iIn=0; iIn < (*truthV_itr)->nIncomingParticles(); 
+           iIn++)
       {
         /// 34 - Wprime
         if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) { 
