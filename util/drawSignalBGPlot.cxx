@@ -20,10 +20,6 @@
 #include <EventLoopAlgs/NTupleSvc.h>
 #include <EventLoop/OutputStream.h>
 
-/// boost
-#include "boost/program_options.hpp"
-#include <boost/algorithm/string.hpp>
-
 #include "HelpFunctions.h"
 
 #include <fstream>      // std::ifstream

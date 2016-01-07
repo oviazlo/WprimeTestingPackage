@@ -5,6 +5,10 @@
 #include "TROOT.h"
 #include <iostream>
 
+/// boost
+#include "boost/program_options.hpp"
+#include <boost/algorithm/string.hpp>
+
 namespace 
 { 
   const size_t ERROR_IN_COMMAND_LINE = 1; 
