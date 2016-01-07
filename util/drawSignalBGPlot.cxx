@@ -26,26 +26,16 @@
 
 #include "HelpFunctions.h"
 
-map<string,string> sampleMap;
+#include <ifstream>
 
-namespace 
-{ 
-  const size_t ERROR_IN_COMMAND_LINE = 1; 
-  const size_t SUCCESS = 0; 
-  const size_t ERROR_UNHANDLED_EXCEPTION = 2; 
-  const size_t HELP_CALLED = 3;
-  
-  namespace po = boost::program_options; 
- 
-} /// namespace  
+map<string,string> sampleMap;
 
 int main( int argc, char* argv[] ) {
 
   po::options_description desc("Options"); 
   desc.add_options()
     ("help,h", "Print help messages") 
-    ("folder,f", po::value<string>(), "name of folder to read")
-    ("drawHists,d", "draw histograms")
+    ("sampleList,l", po::value<string>(), "file with list of samples and tags")
     ;
   
   /// get global input arguments:
@@ -54,12 +44,22 @@ int main( int argc, char* argv[] ) {
   if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 
   /// Take the submit directory from the input if provided:
-  std::string folder = "submitDir";
-  if (vm.count("folder"))
-    folder = vm["folder"].as<std::string>();
+  std::string sampleList = "sampleList.txt";
+  if (vm.count("sampleList"))
+    sampleList = vm["sampleList"].as<std::string>();
   else
-    cout << "[INFO]\tread cutflow from default directory: " << folder << endl;
+    cout << "[INFO]\tread list of samples from file: " << sampleList << endl;
 
+//   std::ifstream sampleListStream;
+//   sampleListStream.open (sampleList.c_str(), std::ifstream::in);
+// 
+//   while(sampleListStream.good()){
+//     string sample, tag;
+//     file >> sample >> tag; 
+//   }
+
+
+  
   /// Construct the samples to run on:
   SH::SampleHandler sh;
 
@@ -92,30 +92,27 @@ int main( int argc, char* argv[] ) {
     return -1;
   }
   
-
-  if (vm.count("drawHists")){
-    SetAtlasStyle();
-    
-    /// read pt, MET, Mt histograms, make them pretty and save them
-    TH1D* h_pt = (TH1D*)mySample->readHist ("h_pt");
-    TH1D* h_MET = (TH1D*)mySample->readHist ("h_met");
-    TH1D* h_Mt = (TH1D*)mySample->readHist ("h_mt");
-    
-    TCanvas *can = new TCanvas("can","can",800,800);
-    gPad->SetLogy();
-    
-    h_pt->Draw();
-    h_pt->GetXaxis()->SetRangeUser(0,1000.0);
-    can->SaveAs("pT.png");
-    
-    h_MET->GetXaxis()->SetRangeUser(0,1000.0);
-    h_MET->Draw();
-    can->SaveAs("MET.png");
-    
-    h_Mt->GetXaxis()->SetRangeUser(0,1000.0);
-    h_Mt->Draw();
-    can->SaveAs("mT.png");
-  }
+  SetAtlasStyle();
+  
+  /// read pt, MET, Mt histograms, make them pretty and save them
+  TH1D* h_pt = (TH1D*)mySample->readHist ("h_pt");
+  TH1D* h_MET = (TH1D*)mySample->readHist ("h_met");
+  TH1D* h_Mt = (TH1D*)mySample->readHist ("h_mt");
+  
+  TCanvas *can = new TCanvas("can","can",800,800);
+  gPad->SetLogy();
+  
+  h_pt->Draw();
+  h_pt->GetXaxis()->SetRangeUser(0,1000.0);
+  can->SaveAs("pT.png");
+  
+  h_MET->GetXaxis()->SetRangeUser(0,1000.0);
+  h_MET->Draw();
+  can->SaveAs("MET.png");
+  
+  h_Mt->GetXaxis()->SetRangeUser(0,1000.0);
+  h_Mt->Draw();
+  can->SaveAs("mT.png");
   
   return 0;
 }
