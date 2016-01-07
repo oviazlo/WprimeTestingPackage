@@ -26,7 +26,7 @@
 
 #include "HelpFunctions.h"
 
-#include <ifstream>
+#include <fstream>      // std::ifstream
 
 map<string,string> sampleMap;
 
@@ -50,15 +50,13 @@ int main( int argc, char* argv[] ) {
   else
     cout << "[INFO]\tread list of samples from file: " << sampleList << endl;
 
-//   std::ifstream sampleListStream;
-//   sampleListStream.open (sampleList.c_str(), std::ifstream::in);
-// 
-//   while(sampleListStream.good()){
-//     string sample, tag;
-//     file >> sample >> tag; 
-//   }
+  std::ifstream sampleListStream;
+  sampleListStream.open (sampleList.c_str(), std::ifstream::in);
 
-
+  while(sampleListStream.good()){
+    std::string sample, tag;
+    sampleListStream >> sample >> tag; 
+  }
   
   /// Construct the samples to run on:
   SH::SampleHandler sh;
