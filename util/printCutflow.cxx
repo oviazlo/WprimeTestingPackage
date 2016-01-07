@@ -72,7 +72,7 @@ int main( int argc, char* argv[] ) {
   
   sh.print();
   
-  cout << "sh.at(0) = " << sh.at(0) << endl;
+  cout << "sh.at(0)->name() = " << sh.at(0)->name() << endl;
   
   SH::mergeSamples (sh, "final", "mc15_13TeV.*");  
 
