@@ -59,7 +59,6 @@ int main( int argc, char* argv[] ) {
 
   sh.load ((folder + "/hist").c_str());
 
-  cout << "[INFO]\tSize of read sample: " << sh.size() << endl;
   if (sh.size()<1){
     cout << "[ERROR]\tSize of sample is zero... Aborting execution!" << endl;
     return 0;
@@ -78,13 +77,14 @@ int main( int argc, char* argv[] ) {
   cout << "[INFO]\tUse merge pattern: " << mergePattern << endl;
   SH::mergeSamples (sh, "final", mergePattern);  
   cout << "[INFO]\tNumber of samples after merging: " << sh.size() << endl;
-
+  
   if (sh.size()!=1){
     cout << "[ERROR]\tNumber of samples after merging are not equal 1. "
     "Print all samples after merging:" << endl;
     sh.print();
     return -1;
   }
+  cout << "[INFO]\tName of output sample: " << mySample->name() << endl;
   
   /// get histogram
   TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
