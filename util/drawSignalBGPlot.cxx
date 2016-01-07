@@ -54,6 +54,7 @@ int main( int argc, char* argv[] ) {
     sampleListStream >> sample >> tag; 
   }
   
+  /*
   /// Construct the samples to run on:
   SH::SampleHandler sh;
 
@@ -107,6 +108,8 @@ int main( int argc, char* argv[] ) {
   h_Mt->GetXaxis()->SetRangeUser(0,1000.0);
   h_Mt->Draw();
   can->SaveAs("mT.png");
+  
+  */
   
   return 0;
 }
