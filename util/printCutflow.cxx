@@ -72,10 +72,16 @@ int main( int argc, char* argv[] ) {
   
   sh.print();
   
-  cout << "sh.at(0)->name() = " << sh.at(0)->name() << endl;
-  
-  SH::mergeSamples (sh, "final", "mc15_13TeV.*");  
+  std::size_t found = sh.at(0)->name().find("mc15");
+  string mergePattern;
+  if (found!=std::string::npos)
+    mergePattern = "mc15_13TeV.*";
+  else
+    mergePattern = "data15_13TeV.*";
 
+  cout << "[INFO]\tUse merge pattern: " << mergePattern << endl;
+  SH::mergeSamples (sh, "final", mergePattern);  
+  
   sh.print();
 
   if (sh.size()!=1){
