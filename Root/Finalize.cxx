@@ -117,6 +117,11 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
       delete m_trigDecisionTool;
       m_trigDecisionTool = 0;
    }
+   
+   if (m_LPXKfactorTool){
+     delete m_LPXKfactorTool;
+     m_LPXKfactorTool = 0;
+   }
 
    cout << "List of created hists:" << endl;
    cout << hMu_pt_off->GetName() << endl;

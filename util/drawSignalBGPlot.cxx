@@ -34,12 +34,13 @@ struct histStruct{
   map<string,TH1D*> histMap;
 };
 
+map<string,string> sampleMap;
+Color_t colorArr[] = {kBlack, kRed, kGreen, kBlue, kViolet};
 
 void setHistStyle(TH1D* inHist, Color_t kColor);
 void setHistStyle(histStruct inHistStruct, Color_t kColor);
 TH1D* getSummedHistOverSample(SH::SampleHandler sh, string histName);
-map<string,string> sampleMap;
-Color_t colorArr[] = {kBlack, kRed, kGreen, kBlue, kViolet};
+void sumUpFirstSampleToOther(vector<histStruct> inVecHistStruct);
 
 
 int main( int argc, char* argv[] ) {
@@ -59,8 +60,8 @@ int main( int argc, char* argv[] ) {
   std::string sampleList = "sampleList.txt";
   if (vm.count("sampleList"))
     sampleList = vm["sampleList"].as<std::string>();
-  else
-    cout << "[INFO]\tread list of samples from file: " << sampleList << endl;
+  
+  cout << "[INFO]\tread list of samples from file: " << sampleList << endl;
 
   std::ifstream sampleListStream;
   sampleListStream.open (sampleList.c_str(), std::ifstream::in);
@@ -105,8 +106,10 @@ int main( int argc, char* argv[] ) {
 
   unsigned int nHistInStruct = myHists[0].nHist;
     
-  TCanvas* tmpCan = new TCanvas("c","c",nHistInStruct*600,600);
-  tmpCan->Divide(nHistInStruct,1);
+  sumUpFirstSampleToOther(myHists);
+  
+  TCanvas* tmpCan = new TCanvas("c","c",750,nHistInStruct*500);
+  tmpCan->Divide(1,nHistInStruct);
   for (int iSample=0; iSample<myHists.size(); iSample++){
     histStruct tmpHistStruct = myHists[iSample];
     for (int iHistType=0; iHistType<tmpHistStruct.nHist; iHistType++){
@@ -115,7 +118,9 @@ int main( int argc, char* argv[] ) {
       tmpCan->cd(iHistType+1);
       if (iSample==0){
         tmpHist->Draw();
+        tmpHist->GetXaxis()->SetRangeUser(30,10000);
         gPad->SetLogx();
+        gPad->SetLogy();
       }
       else
         tmpHist->Draw("same");
@@ -163,5 +168,16 @@ void setHistStyle(TH1D* inHist, Color_t kColor){
   inHist->SetLineColor(kColor);
 }
 
-
+void sumUpFirstSampleToOther(vector<histStruct> inVecHistStruct){
+  histStruct firstSample = inVecHistStruct[0];
+  for (int iSample=1; iSample<inVecHistStruct.size(); iSample++){
+    histStruct tmpHistStruct = inVecHistStruct[iSample];
+    for (int iHistType=0; iHistType<tmpHistStruct.nHist; iHistType++){
+      string histName = tmpHistStruct.histName[iHistType];
+      TH1D* firstSampleHist = firstSample.histMap[histName];
+      TH1D* tmpHist = tmpHistStruct.histMap[histName];
+      tmpHist->Add(firstSampleHist);
+    }
+  }
+}
 
