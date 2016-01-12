@@ -1,24 +1,25 @@
+/// EventLoop/xAOD headers
 #include "xAODRootAccess/Init.h"
-
 #include "EventLoop/Job.h"
 #include "EventLoop/ProofDriver.h"
 #include "EventLoop/DirectDriver.h"
 #include "EventLoop/LSFDriver.h"
-
 #include "SampleHandler/DiskListLocal.h"
 #include "SampleHandler/ToolsSplit.h"
 #include "SampleHandler/SampleHandler.h"
 #include "SampleHandler/ToolsDiscovery.h"
-#include <SampleHandler/ScanDir.h>
+#include "SampleHandler/ScanDir.h"
 #include "SampleHandler/Sample.h"
-#include <SampleHandler/ToolsJoin.h>
-
-#include <TSystem.h>
-
-#include "MyAnalysis/MyxAODAnalysis.h"
-
+#include "SampleHandler/ToolsJoin.h"
 #include <EventLoopAlgs/NTupleSvc.h>
 #include <EventLoop/OutputStream.h>
+
+/// ROOT
+#include <TSystem.h>
+
+/// private
+#include "MyAnalysis/MyxAODAnalysis.h"
+#include "defaultConfigurations.h"
 
 /// boost
 #include "boost/program_options.hpp"
@@ -26,6 +27,7 @@
 #include "boost/filesystem.hpp"
 #include "boost/assign.hpp" /// map_list_of
 
+/// C/C++ 
 #include <stdlib.h>     /* getenv */
 #include <map>
 
@@ -58,9 +60,12 @@ int main( int argc, char* argv[] ) {
   if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 
   /// Take the submit directory from the input if provided:
-  std::string submitDir = "submitDir";
+  
+  std::string submitDir = configMap["submitDir"];
   if ( vm.count("folder") ){
-    submitDir = vm["folder"].as<std::string>();  
+    submitDir = vm["folder"].as<std::string>();
+    if (submitDir.find("submitDirs/")==std::string::npos)
+      submitDir = "submitDirs/" + submitDir;
   }
 
   int nEvents = -1;
@@ -82,7 +87,7 @@ int main( int argc, char* argv[] ) {
   hostNameChArr = getenv("HOSTNAME");
   string hostName(hostNameChArr);
   
-  std::string strSamplePattert = "mc15*Wmintau*";
+  std::string strSamplePattert = configMap["strSamplePattert"];
   if ( vm.count("samplePattern") ){
     strSamplePattert = vm["samplePattern"].as<std::string>();
   }
@@ -104,17 +109,13 @@ int main( int argc, char* argv[] ) {
   string pathToExtend = "";
   
   if (systemType == CERN){
-    pathToExtend = "/afs/cern.ch/work/o/oviazlo/Wprime/"
-                         "AnalysisFramework/rel20/data/";
+    pathToExtend = configMap["pathToExtend_CERN"];
   }
   else if (systemType == ALARIK){
-    pathToExtend = "/lunarc/nobackup/users/oviazlo/xAOD/";
+    pathToExtend = configMap["pathToExtend_ALARIK"];
   }
   else if (systemType == IRIDIUM){
-    if (strSamplePattert.find("data")!=std::string::npos)
-      pathToExtend = "/nfs/shared/pp/oviazlo/xAOD/";
-    else
-      pathToExtend = "/nfs/shared/pp/oviazlo/xAOD/";
+    pathToExtend = configMap["pathToExtend_IRIDIUM"];
   }
 
   if(vm.count("sampleTag"))
