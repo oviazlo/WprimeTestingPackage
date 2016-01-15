@@ -21,6 +21,7 @@
 
 /// std C/C++
 #include <fstream>
+#include <sstream>
 
 /// private
 #include "MyAnalysis/MyxAODAnalysis.h"
@@ -35,15 +36,22 @@ struct histStruct{
 };
 
 map<string,string> sampleMap;
-Color_t colorArr[] = {kBlack, kRed, kGreen, kBlue, kViolet, kBlack, kRed, 
-  kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed, 
-  kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed};
+Color_t colorArr[] = {kBlack, kBlue, kGreen, kViolet, kOrange, kGreen, kRed, 
+  kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, 
+  kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
+  kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
+  kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
+};
 
 void setHistStyle(TH1D* inHist, Color_t kColor);
 void setHistStyle(histStruct inHistStruct, Color_t kColor);
 TH1D* getSummedHistOverSample(SH::SampleHandler sh, string histName);
+TH1D* getSummedHistOverIterators(SH::SampleHandler::iterator begin, 
+                            SH::SampleHandler::iterator end, string histName);
 void sumUpFirstSampleToOther(vector<histStruct> inVecHistStruct);
-
+map<string,TH1D*> getSummedHistMapPerSample(SH::SampleHandler sh, 
+                                         string histName);
+string getKeyWord(string sampleName);
 
 int main( int argc, char* argv[] ) {
 
@@ -91,6 +99,7 @@ int main( int argc, char* argv[] ) {
   vector<histStruct> myHists;
   
   histStruct tmpHistStruct;
+  map<string, map<string,TH1D*> > supplementaryMap;
   
   for (int i=0; i<samples.size(); i++){
     SH::SampleHandler sh;
@@ -104,10 +113,17 @@ int main( int argc, char* argv[] ) {
     
     setHistStyle(tmpHistStruct,colorArr[i]);
     myHists.push_back(tmpHistStruct);
-  }
-
-  unsigned int nHistInStruct = myHists[0].nHist;
     
+    if (i==0){
+      for (int i=0; i<tmpHistStruct.nHist; i++){
+        string histName = tmpHistStruct.histName[i];
+        supplementaryMap[histName] = getSummedHistMapPerSample(sh,histName);
+      }
+    }
+  }
+  
+  unsigned int nHistInStruct = myHists[0].nHist;
+  
   sumUpFirstSampleToOther(myHists);
   
   TCanvas* tmpCan = new TCanvas("c","c",1000,1000);
@@ -123,6 +139,17 @@ int main( int argc, char* argv[] ) {
         gPad->SetLogy();
         tmpHist->Draw();
         tmpHist->GetXaxis()->SetRangeUser(0,10000);
+        ///********************************************************************
+        /// draw supplementary hist
+        ///********************************************************************
+        unsigned int supplementaryHistCounter = 5;
+        for (map<string,TH1D*>::iterator it = supplementaryMap[histName].begin();
+            it!=supplementaryMap[histName].end(); ++it){
+          setHistStyle((*it).second,colorArr[supplementaryHistCounter]);
+          (*it).second->Draw("H same");
+          supplementaryHistCounter++;
+        }
+        ///********************************************************************
       }
       else
         tmpHist->Draw("same");
@@ -131,16 +158,23 @@ int main( int argc, char* argv[] ) {
     }
   }
   tmpCan->SaveAs("pictures/bigTest.png");
-  
-  
+    
   return 0;
 }
 
+
+
+
+
 TH1D* getSummedHistOverSample(SH::SampleHandler sh, string histName){
+  return getSummedHistOverIterators(sh.begin(), sh.end(), histName);
+}
+
+TH1D* getSummedHistOverIterators(SH::SampleHandler::iterator begin, 
+                            SH::SampleHandler::iterator end, string histName){
   TH1D* outHist = NULL;
-  
-  for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
-      ++ iter){
+  bool printDebug = false;
+  for (SH::SampleHandler::iterator iter = begin; iter != end; ++ iter){
     TH1D* tmpHist = (TH1D*)(*iter)->readHist (histName.c_str());
 
     if (tmpHist==NULL){
@@ -148,7 +182,7 @@ TH1D* getSummedHistOverSample(SH::SampleHandler sh, string histName){
               "from sample " << (*iter)->name() << ". Skip sample!" << endl;
       continue;
     }
-
+    
     if (outHist==NULL)
       outHist = (TH1D*)tmpHist->Clone((histName+"_summed").c_str());
     else
@@ -156,6 +190,53 @@ TH1D* getSummedHistOverSample(SH::SampleHandler sh, string histName){
   }
   
   return outHist;
+}
+
+map<string,TH1D*> getSummedHistMapPerSample(SH::SampleHandler sh, 
+                                         string histName){
+  map<string,TH1D*> outMap;
+  SH::SampleHandler::iterator lastKeyWordPosition = sh.begin();
+  string lastKeyWord = getKeyWord((*lastKeyWordPosition)->name());
+  string currentKeyWord = "";
+  
+  for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
+       ++ iter){
+    currentKeyWord = getKeyWord((*iter)->name());
+    if (currentKeyWord!=lastKeyWord){
+      outMap[lastKeyWord] = getSummedHistOverIterators(lastKeyWordPosition,
+                                                       iter, histName);
+      lastKeyWord = currentKeyWord;
+            lastKeyWordPosition = iter;
+    }
+    if (iter==--sh.end())
+      outMap[lastKeyWord] = getSummedHistOverIterators(lastKeyWordPosition,
+                                                       sh.end(), histName);
+  }
+  return outMap;
+}
+
+/// extract keyword from sample name
+string getKeyWord(string sampleName){
+  string tmpSampleName = "";
+  stringstream strStream(sampleName);
+  getline (strStream, tmpSampleName, '.'); /// return mc15_13TeV
+  getline (strStream, tmpSampleName, '.'); /// return DSID
+  getline (strStream, tmpSampleName, '.'); /// return MC generator + mass cut
+  
+  stringstream strStream2(tmpSampleName);
+  string tmpStr = "";
+  while(tmpSampleName!=tmpStr){
+    tmpStr = tmpSampleName;
+    getline (strStream2, tmpSampleName, '_');
+  }
+  
+  /// WARNING FIXME hardcoding to get Wmin and Wplus sample together
+  if (tmpStr.find("Wminus")!=string::npos || 
+    tmpStr.find("Wplus")!=string::npos){
+     tmpStr = "Winclusive";
+  }
+  
+  return tmpStr;
 }
 
 void setHistStyle(histStruct inHistStruct, Color_t kColor){
