@@ -26,16 +26,18 @@
 #include "MyAnalysis/MyxAODAnalysis.h"
 #include "HelpFunctions.h"
 
-const char *tmpArr[] = {"h_pt","h_met","h_mt"};
+const char *tmpArr[] = {"h_mt","h_pt","h_mgen","h_met"};
 
 struct histStruct{
-  unsigned int nHist = 3;
+  unsigned int nHist = 4;
   const char **histName = tmpArr;
   map<string,TH1D*> histMap;
 };
 
 map<string,string> sampleMap;
-Color_t colorArr[] = {kBlack, kRed, kGreen, kBlue, kViolet};
+Color_t colorArr[] = {kBlack, kRed, kGreen, kBlue, kViolet, kBlack, kRed, 
+  kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed, 
+  kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed, kBlack, kRed};
 
 void setHistStyle(TH1D* inHist, Color_t kColor);
 void setHistStyle(histStruct inHistStruct, Color_t kColor);
@@ -108,8 +110,8 @@ int main( int argc, char* argv[] ) {
     
   sumUpFirstSampleToOther(myHists);
   
-  TCanvas* tmpCan = new TCanvas("c","c",750,nHistInStruct*500);
-  tmpCan->Divide(1,nHistInStruct);
+  TCanvas* tmpCan = new TCanvas("c","c",1000,1000);
+  tmpCan->Divide(2,2);
   for (int iSample=0; iSample<myHists.size(); iSample++){
     histStruct tmpHistStruct = myHists[iSample];
     for (int iHistType=0; iHistType<tmpHistStruct.nHist; iHistType++){
@@ -117,16 +119,18 @@ int main( int argc, char* argv[] ) {
       TH1D* tmpHist = tmpHistStruct.histMap[histName];
       tmpCan->cd(iHistType+1);
       if (iSample==0){
-        tmpHist->Draw();
-        tmpHist->GetXaxis()->SetRangeUser(30,10000);
         gPad->SetLogx();
         gPad->SetLogy();
+        tmpHist->Draw();
+        tmpHist->GetXaxis()->SetRangeUser(0,10000);
       }
       else
         tmpHist->Draw("same");
+      tmpHist->SaveAs(("pictures/"+string(tmpHist->GetName())+".root")
+      .c_str());
     }
   }
-  tmpCan->SaveAs("bigTest.png");
+  tmpCan->SaveAs("pictures/bigTest.png");
   
   
   return 0;

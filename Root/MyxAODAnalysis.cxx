@@ -60,7 +60,7 @@ EL::StatusCode MyxAODAnalysis :: execute ()
         /// 34 - Wprime
         if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 34) { 
           
-          for (unsigned int iOut=0; iOut < (*truthV_itr)->nOutgoingParticles(); 
+          for (unsigned int iOut=0; iOut < (*truthV_itr)->nOutgoingParticles();
                iOut++) {
             if (TMath::Abs((*truthV_itr)->outgoingParticle(iOut)->pdgId()) 
               == 13) /// 13 - muon
