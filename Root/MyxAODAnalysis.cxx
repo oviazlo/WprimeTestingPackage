@@ -433,7 +433,8 @@ EL::StatusCode MyxAODAnalysis :: execute ()
     m_LPXKfactorTool->execute();
     weightkFactor = eventInfo->auxdecor<double>("KfactorWeight");
     weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
-    weightCrossSection = m_LPXKfactorTool->getMCCrossSection(); ///TODO make proper implementation
+    weightCrossSection = m_LPXKfactorTool->getMCCrossSection(); ///TODO make 
+                                                    ///proper implementation
   }
   
   h_event_crossSectionWeight->Fill(weightCrossSection);

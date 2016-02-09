@@ -18,6 +18,7 @@
 #include <TCanvas.h>
 #include <TColor.h>
 #include <Rtypes.h>
+#include <TLegend.h>
 
 /// std C/C++
 #include <fstream>
@@ -27,7 +28,7 @@
 #include "MyAnalysis/MyxAODAnalysis.h"
 #include "HelpFunctions.h"
 
-const char *tmpArr[] = {"h_mt","h_pt","h_mgen","h_met"};
+const char *tmpArr[] = {"h_mt","h_mgen","h_pt","h_met"};
 
 struct histStruct{
   unsigned int nHist = 4;
@@ -36,7 +37,7 @@ struct histStruct{
 };
 
 map<string,string> sampleMap;
-Color_t colorArr[] = {kBlack, kBlue, kGreen, kViolet, kOrange, kGreen, kRed, 
+Color_t colorArr[] = {kBlack, kBlue, kGreen, kViolet, kOrange, kRed, kYellow, 
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, 
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
@@ -59,6 +60,11 @@ int main( int argc, char* argv[] ) {
   desc.add_options()
     ("help,h", "Print help messages") 
     ("sampleList,l", po::value<string>(), "file with list of samples and tags")
+    ("zoom,z","zoom x-axis")
+    ("yAxis,y",po::value<string>(),"set y-range; syntax: y1-y2")
+    ("z2","zoom x-axis to lower values")
+    ("noW","do not make summing up of first sample to others")
+    ("drawSeparately,s", "draw each sample separately")
     ;
   
   /// get global input arguments:
@@ -124,9 +130,13 @@ int main( int argc, char* argv[] ) {
   
   unsigned int nHistInStruct = myHists[0].nHist;
   
-  sumUpFirstSampleToOther(myHists);
-  
-  TCanvas* tmpCan = new TCanvas("c","c",1000,1000);
+  SetAtlasStyle();
+  if (!vm.count("noW"))
+    sumUpFirstSampleToOther(myHists);
+
+  TCanvas* tmpCan = new TCanvas("c","c",3508*150/300.,2480*150/300.);
+  TLegend* leg = new TLegend(0.7,0.7,1.0,0.95);
+  leg->SetHeader("Samples:");
   tmpCan->Divide(2,2);
   for (int iSample=0; iSample<myHists.size(); iSample++){
     histStruct tmpHistStruct = myHists[iSample];
@@ -137,27 +147,64 @@ int main( int argc, char* argv[] ) {
       if (iSample==0){
         gPad->SetLogx();
         gPad->SetLogy();
-        tmpHist->Draw();
+        tmpHist->GetYaxis()->SetTitle("Entries / pb^{-1}");
         tmpHist->GetXaxis()->SetRangeUser(0,10000);
+        if (vm.count("zoom"))
+          if (histName=="h_mgen")
+            tmpHist->GetXaxis()->SetRangeUser(80,10000);
+          else if (histName=="h_mt")
+            tmpHist->GetXaxis()->SetRangeUser(40,10000);
+          else
+            tmpHist->GetXaxis()->SetRangeUser(100,10000);
+        if (vm.count("z2"))
+          tmpHist->GetXaxis()->SetRangeUser(0,200);
+        if (vm.count("yAxis")){
+          string tmpStr = vm["yAxis"].as<std::string>();
+          stringstream strStream(tmpStr);
+          string y1, y2;
+          getline (strStream, y1, '-');
+          getline (strStream, y2, '-');
+          if (y1.size()==0 || y2.size()==0)
+            cout << "[WARNING]\tBad input for yAxis: " << tmpStr << endl;
+          else
+            tmpHist->GetYaxis()->SetRangeUser(atof(y1.c_str()),
+                                                   atof(y2.c_str()));
+        }
+        tmpHist->Draw("H");
         ///********************************************************************
         /// draw supplementary hist
         ///********************************************************************
+        if (vm.count("drawSeparately")){
         unsigned int supplementaryHistCounter = 5;
-        for (map<string,TH1D*>::iterator it = supplementaryMap[histName].begin();
+        for (
+          map<string,TH1D*>::iterator it = supplementaryMap[histName].begin();
             it!=supplementaryMap[histName].end(); ++it){
           setHistStyle((*it).second,colorArr[supplementaryHistCounter]);
           (*it).second->Draw("H same");
           supplementaryHistCounter++;
         }
+        }
         ///********************************************************************
       }
       else
-        tmpHist->Draw("same");
-      tmpHist->SaveAs(("pictures/"+string(tmpHist->GetName())+".root")
-      .c_str());
+        tmpHist->Draw("H same");
+      if (iHistType==0){
+        leg->AddEntry(tmpHist,tags[iSample].c_str());
+        if (!vm.count("drawSeparately"))
+          leg->Draw();
+      }
+      tmpHist->SaveAs(("pictures/"+tags[iSample]+"_"
+      +string(tmpHist->GetName())+".root").c_str());
+      
     }
   }
-  tmpCan->SaveAs("pictures/bigTest.png");
+  
+  string tmpStr = "";
+  stringstream strStream(sampleList);
+  getline (strStream, tmpStr, '.');
+  
+  tmpCan->SaveAs(("pictures/"+tmpStr+".png").c_str());
+  tmpCan->SaveAs(("pictures/"+tmpStr+".eps").c_str());
     
   return 0;
 }
@@ -219,24 +266,35 @@ map<string,TH1D*> getSummedHistMapPerSample(SH::SampleHandler sh,
 string getKeyWord(string sampleName){
   string tmpSampleName = "";
   stringstream strStream(sampleName);
+
   getline (strStream, tmpSampleName, '.'); /// return mc15_13TeV
   getline (strStream, tmpSampleName, '.'); /// return DSID
-  getline (strStream, tmpSampleName, '.'); /// return MC generator + mass cut
   
-  stringstream strStream2(tmpSampleName);
-  string tmpStr = "";
-  while(tmpSampleName!=tmpStr){
-    tmpStr = tmpSampleName;
-    getline (strStream2, tmpSampleName, '_');
+  if ((sampleName.find("MadGraphPythia8EvtGen_A14NNPDF23LO_WWxx_Wlv"))!=
+    std::string::npos){
+    return tmpSampleName;
+  }
+  else{
+//     ((sampleName.find("PowhegPythia8EvtGen_AZNLOCTEQ6L1_W"))!=
+//     std::string::npos){
+
+    getline (strStream, tmpSampleName, '.'); /// return MC generator + mass cut
+    
+    stringstream strStream2(tmpSampleName);
+    string tmpStr = "";
+    while(tmpSampleName!=tmpStr){
+      tmpStr = tmpSampleName;
+      getline (strStream2, tmpSampleName, '_');
+    }
+    
+    /// WARNING FIXME hardcoding to get Wmin and Wplus sample together
+    if (tmpStr.find("Wminus")!=string::npos || 
+      tmpStr.find("Wplus")!=string::npos){
+      tmpStr = "Winclusive"; 
+    }
+    return tmpStr;
   }
   
-  /// WARNING FIXME hardcoding to get Wmin and Wplus sample together
-  if (tmpStr.find("Wminus")!=string::npos || 
-    tmpStr.find("Wplus")!=string::npos){
-     tmpStr = "Winclusive";
-  }
-  
-  return tmpStr;
 }
 
 void setHistStyle(histStruct inHistStruct, Color_t kColor){
