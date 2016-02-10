@@ -1,7 +1,7 @@
 // WprimeHist.cxx
 
 #include <MyAnalysis/WprimeHist.h>
-#include "MyAnalysis/WprimeSample.h"
+// #include "MyAnalysis/WprimeSample.h"
 #include <iostream>
 #include <cmath>
 #include <TH1F.h>
@@ -180,12 +180,12 @@ TH1* WprimeHist::standard(Name name, Name hpname, Name sel, Name hptitle) {
   } else return 0;
 }
 
-TH1* WprimeHist::sample(Name name, Name samplename, Name sel) {
-  WprimeSample sam(samplename);
-  if ( sam.name() == "" ) return 0;
-  return standard(name, sam.name(), sel, sam.title());
-}
-  
+// TH1* WprimeHist::sample(Name name, Name samplename, Name sel) {
+//   WprimeSample sam(samplename);
+//   if ( sam.name() == "" ) return 0;
+//   return standard(name, sam.name(), sel, sam.title());
+// }
+//   
 WprimeHist::Name WprimeHist::lepton(Name slepton) {
   Name oldval = WprimeHist_lepton;
   if ( slepton.size() ) {

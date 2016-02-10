@@ -3,14 +3,14 @@
 #include "SampleHandler/SampleHandler.h"
 #include "SampleHandler/Sample.h"
 #include "SampleHandler/ToolsDiscovery.h"
-#include "EventLoop/Job.h"
-#include "EventLoop/ProofDriver.h"
-#include "EventLoop/DirectDriver.h"
 #include "SampleHandler/DiskListLocal.h"
 #include <SampleHandler/ScanDir.h>
 #include <SampleHandler/ToolsJoin.h>
-#include <EventLoopAlgs/NTupleSvc.h>
+#include "EventLoop/Job.h"
+#include "EventLoop/ProofDriver.h"
+#include "EventLoop/DirectDriver.h"
 #include <EventLoop/OutputStream.h>
+#include <EventLoopAlgs/NTupleSvc.h>
 
 /// ROOT
 #include <TSystem.h>
