@@ -43,18 +43,14 @@ EL::StatusCode RecoAnalysis :: initialize ()
     return EL::StatusCode::FAILURE;
   }  
   
-  /// fill the branches of our trees
-  bool isData = true;
+  /// TODO Initialize all flag
+  m_isMC = false;
   if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-    isData = false;
+    m_isMC = true;
   }
-  cout << "isData flag = " << isData <<endl;
   
   /// count number of events
   m_eventCounter = 0;
-
-  /// number of clean events
-  m_numCleanEvents = 0;
 
   /// GRL
   m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
@@ -93,11 +89,11 @@ EL::StatusCode RecoAnalysis :: initialize ()
   TString calibSeq ="JetArea_Residual_Origin_EtaJES_GSC" ; 
   
   m_jetCalibrationTool = 
-  new JetCalibrationTool(name, jetAlgo, config, calibSeq, isData);
+  new JetCalibrationTool(name, jetAlgo, config, calibSeq, !m_isMC);
 //   CHECK (m_jetCalibrationTool->setProperty("JetCollection",jetAlgo));
 //   CHECK (m_jetCalibrationTool->setProperty("ConfigFile",config));
 //   CHECK (m_jetCalibrationTool->setProperty("CalibSequence",calibSeq));
-//   CHECK (m_jetCalibrationTool->setProperty("IsData",isData));
+//   CHECK (m_jetCalibrationTool->setProperty("IsData",!m_isMC));
   
   EL_RETURN_CHECK("initialize jetCalibrationTool",
                   m_jetCalibrationTool->initializeTool(name));
@@ -232,17 +228,12 @@ EL::StatusCode RecoAnalysis :: initialize ()
   
   if (m_BitsetCutflow)
     m_BitsetCutflow = new BitsetCutflow(wk());
-  
-  /// TODO do we need this?
-  for (int i=0; i<20; i++) {
-    count[i]=0;
-  }  
-
+ 
   weightkFactor = 1.0;
   weighfilterEfficiency = 1.0;
   weightCrossSection = 1.0;
   
-  if (!isData){
+  if (m_isMC){
     m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
     CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
     CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
@@ -256,7 +247,18 @@ EL::StatusCode RecoAnalysis :: initialize ()
   stringstream strStream(m_sampleName);
   getline (strStream, tmpSampleName, '.'); /// return mc15_13TeV
   getline (strStream, tmpSampleName, '.'); /// return DSID
-  m_datasetID = atoi(tmpSampleName.c_str());
+  m_DSID = atoi(tmpSampleName.c_str());
+  
+  m_inclusiveWorZ = false;
+  if (m_DSID>=361100 && m_DSID<=361108){
+    m_inclusiveWorZ = true;
+    cout << "[WARNING]\tm_cut120GeVForInclusiveW is activated!!!" << endl;
+    if (m_DSID>=361106) /// Z sample
+      m_pdgIdOfMother = 23; /// FIXME but gamma is 22... 
+                            /// do we have gamma in Z inc. samples?
+    else /// W sample
+      m_pdgIdOfMother = 24;
+  }
   
   return EL::StatusCode::SUCCESS;
 }
@@ -296,7 +298,6 @@ EL::StatusCode RecoAnalysis :: setupJob (EL::Job& job)
   m_doWprimeTruthMatching = false;
   m_runElectronChannel = false;
   
-  m_truthoption = 1;
   cout << "after init"<<endl;
   
   outputName = "outFile";

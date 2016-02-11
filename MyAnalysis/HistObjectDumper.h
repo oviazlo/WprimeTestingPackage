@@ -21,8 +21,8 @@ public:
 	HistObjectDumper(EL::Worker *wk);
 	~HistObjectDumper();
 
-	void plotMuon(const xAOD::Muon* mu, string stage_tag);
-        void printMuon(const xAOD::Muon* mu);
+	void plotMuon(const xAOD::Muon* mu, string stage_tag, double weight = 1.0);
+    void printMuon(const xAOD::Muon* mu);
 	
 private:
 	

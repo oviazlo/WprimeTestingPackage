@@ -144,22 +144,59 @@ class RecoAnalysis : public EL::Algorithm
 {
   /// put your configuration variables here as public variables.
   /// that way they can be set directly from CINT and python.
+  
+  ///********************************** WARNING ***************************
+  /// variables that don't get filled at submission time should be
+  /// protected from being send from the submission node to the worker
+  /// node (done by the //!)
+  ///********************************** WARNING ***************************
 public:
+  
+  /// Analysis Tools
+  met::METMaker * m_metMaker; //!
+  AsgElectronLikelihoodTool* m_LHToolTight2015; //!
+  AsgElectronLikelihoodTool* m_LHToolMedium2015; //!
+  GoodRunsListSelectionTool *m_grl; //!
+  JetCleaningTool *m_jetCleaning; //!  
+  JetCalibrationTool *m_jetCalibrationTool; //!
+  JERTool *m_JERTool; //!
+  JetVertexTaggerTool* m_jvtTool; //!
+  CP::EgammaCalibrationAndSmearingTool *m_eleCalibrationTool; //! 
+  Trig::TrigDecisionTool *m_trigDecisionTool; //!
+  TrigConf::xAODConfigTool *m_trigConfigTool; //!
+  CP::MuonSelectionTool* m_muonSelection; //!
+  CP::MuonSelectionTool* m_looseMuonSelection; //!
+  CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
+  CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
+  CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
+  LPXKfactorTool* m_LPXKfactorTool; //!
+  
+  /// Custom classes
+  HistObjectDumper *m_HistObjectDumper; //!
+  BitsetCutflow* m_BitsetCutflow; //!
+  
+  /// 
+  xAOD::TEvent *m_event;  //!
+  xAOD::TStore *m_store;  //!
+  const xAOD::EventInfo* m_eventInfo = 0; //!
+  
+  /// Bool Flags
+  bool m_isMC; //!
+  bool m_inclusiveWorZ; //!
+  /// Bool Flags, initialized at setupJob - on submit stage and are the same for workers
   bool m_useHistObjectDumper;
   bool m_useBitsetCutflow;
   bool m_useCalibrationAndSmearingTool;
   bool m_runElectronChannel;
   bool m_doWprimeTruthMatching;
   bool m_doNotApplyTriggerCuts;
-  int m_truthoption;
-  int truthOption;
-   
-  int count[20]; //!
-  bool isMC; //!
-   
+  
+  /// Integer Variables
   int EventNumber; //!
-  int RunNumber; //!
-  int LumiBlock; //!
+  int m_eventCounter; //!
+  unsigned int m_DSID; //!
+  unsigned int m_pdgIdOfMother; //!
+
   float MuonPt; //!
   float MuonEta; //!
   float MuonPhi; //!
@@ -168,28 +205,17 @@ public:
   float MissingEy; //!
   float OldMissingEt; //!
   float TransverseMass; //!
-  
   float weighfilterEfficiency; //!
   float weightkFactor; //!
   float weightCrossSection; //!
-  
-  /// variables that don't get filled at submission time should be
-  /// protected from being send from the submission node to the worker
-  /// node (done by the //!)
-public:
 
-  xAOD::TEvent *m_event;  //!
-  xAOD::TStore *m_store;  //!
+  /// defining the output file name and tree that we will put in the output 
+  /// ntuple, also the one branch that will be in that tree 
+  string outputName; //!
+  string m_sampleName; //!
 
-  AsgElectronLikelihoodTool* m_LHToolTight2015; //!
-  AsgElectronLikelihoodTool* m_LHToolMedium2015; //!
-  
-  int m_eventCounter; //!
-  int m_numCleanEvents; //!
-  int m_counter1;
-  int m_counter2;
-
-  ///
+  ///********************************************
+  /// [Histograms]
   /// h_<object>_<variable>_<specialCutSet>
   ///
   /// possible objects:
@@ -199,7 +225,7 @@ public:
   /// - vetoMuon
   /// - MET
   /// - leptonMET
-  /// - 
+  ///********************************************
   
   /// event hists
   TH1F *h_event_nJets; //!
@@ -230,42 +256,6 @@ public:
   TH1D* h_event_kFactor; //!
   TH1D* h_event_filterEfficiency; //!
   TH1D* h_event_totalWeight; //!
-  
-  /// defining the output file name and tree that we will put in the output 
-  /// ntuple, also the one branch that will be in that tree 
-  std::string outputName; //!
-//   TTree *tree; //!
-
-  #ifndef __CINT__
-    GoodRunsListSelectionTool *m_grl; //!
-    JetCleaningTool *m_jetCleaning; //!  
-    JetCalibrationTool *m_jetCalibrationTool; //!
-    JERTool *m_JERTool; //!
-    JetVertexTaggerTool* m_jvtTool; //!
-    CP::EgammaCalibrationAndSmearingTool *m_eleCalibrationTool; //! 
-
-    met::METMaker * m_metMaker; //!
-    Trig::TrigDecisionTool *m_trigDecisionTool; //!
-    TrigConf::xAODConfigTool *m_trigConfigTool; //!
-    /// Muson Selector Tool
-    CP::MuonSelectionTool* m_muonSelection; //!
-    CP::MuonSelectionTool* m_looseMuonSelection; //!
-    /// MuonCalibrationAndSmearing
-    CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
-
-    CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
-    CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
-    
-    LPXKfactorTool* m_LPXKfactorTool; //!
-    string m_sampleName; //!
-    unsigned int m_datasetID; //!
-    
-    const xAOD::EventInfo* eventInfo = 0; //!
-    
-  #endif /// not __CINT__
-
-  HistObjectDumper *m_HistObjectDumper; //!
-  BitsetCutflow* m_BitsetCutflow; //!
 
   /// this is a standard constructor
   RecoAnalysis ();
@@ -282,15 +272,14 @@ public:
   virtual EL::StatusCode histFinalize ();
 
   /// Custom made functions
-std::pair<unsigned int, unsigned int> SelectMuons(
-                                  xAOD::MuonContainer* muons,
-                                  xAOD::Vertex* primVertex,
-                                  bool fillInCutflow);
+  std::pair<unsigned int, unsigned int> SelectMuons(
+                                    xAOD::MuonContainer* muons,
+                                    xAOD::Vertex* primVertex,
+                                    bool fillInCutflow);
 
-std::pair<unsigned int, unsigned int> SelectElectrons(
-                                  xAOD::ElectronContainer* electrons,
-                                  bool fillInCutflow);
-  
+  std::pair<unsigned int, unsigned int> SelectElectrons(
+                                    xAOD::ElectronContainer* electrons,
+                                    bool fillInCutflow);
 
   /// this is needed to distribute the algorithm to the workers
   ClassDef(RecoAnalysis, 1);

@@ -20,26 +20,13 @@ EL::StatusCode RecoAnalysis :: execute ()
   if( (m_eventCounter % 1000) ==0 ) Info("execute()", "Event number = %i", 
     m_eventCounter );
   m_eventCounter++;
-  
-  count[0]+=1;
-  
-  ///----------------------------
-  /// Event information
-  ///--------------------------- 
 
-//   const xAOD::EventInfo* eventInfo = 0;
-  EL_RETURN_CHECK("retrieve EventInfo",
-                  m_event->retrieve( eventInfo, "EventInfo"));
-  EventNumber = eventInfo->eventNumber();  
-
-  bool isMC = false;
-  if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-    isMC = true;
-  }
+  EL_RETURN_CHECK("execute()", m_event->retrieve( m_eventInfo, "EventInfo") );
+  EventNumber = m_eventInfo->eventNumber();
   
   /// Muon Truth matching. Check do we have muon from W' decay
   /// WARNING do we need it for all MCs?
-  if(isMC && m_doWprimeTruthMatching){
+  if(m_isMC && m_doWprimeTruthMatching){
     bool foundMuonFromWprimeDecay = false;
     
     /// Create truth vertice container
@@ -78,8 +65,8 @@ EL::StatusCode RecoAnalysis :: execute ()
   }
   
   /// pass GRL?
-  if(!isMC){
-    if(!m_grl->passRunLB(*eventInfo)){
+  if(!m_isMC){
+    if(!m_grl->passRunLB(*m_eventInfo)){
       return EL::StatusCode::SUCCESS;
     }
   }
@@ -91,11 +78,11 @@ EL::StatusCode RecoAnalysis :: execute ()
   /// Apply to data.
   ///------------------------------------------------------------
   /// reject event if:
-  if(!isMC){
-    if(  (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
-      || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
-//       || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
-      || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
+  if(!m_isMC){
+    if(  (m_eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
+      || (m_eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
+//       || (m_eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
+      || (m_eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
     {
       return EL::StatusCode::SUCCESS; 
     }
@@ -429,9 +416,9 @@ EL::StatusCode RecoAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("mT");
   
   /// get MC weights
-  if (isMC){
+  if (m_isMC){
     m_LPXKfactorTool->execute();
-    weightkFactor = eventInfo->auxdecor<double>("KfactorWeight");
+    weightkFactor = m_eventInfo->auxdecor<double>("KfactorWeight");
     weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
     weightCrossSection = m_LPXKfactorTool->getMCCrossSection(); ///TODO make 
                                                     ///proper implementation
@@ -449,7 +436,7 @@ EL::StatusCode RecoAnalysis :: execute ()
   hMu_mt_off->Fill(mT,totalWeight);
   hMu_MET_Muons_off->Fill(missingEt,totalWeight);
 
- 
+  m_HistObjectDumper->plotMuon(metMuons[0],"final",totalWeight);
   
   return EL::StatusCode::SUCCESS;
 }

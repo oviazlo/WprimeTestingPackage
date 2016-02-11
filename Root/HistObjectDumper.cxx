@@ -26,7 +26,8 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_eta["reference"] = muon_eta_original;
 	m_muonHistMap["eta"] = map_muon_eta;
 	
-	TH1* muon_phi_original = new TH1F("phi","muon_phi", 60, -TMath::Pi(),TMath::Pi());
+	TH1* muon_phi_original = new TH1F("phi","muon_phi", 60, -TMath::Pi(),
+                                      TMath::Pi());
 	map<string,TH1*> map_muon_phi;
 	map_muon_phi["reference"] = muon_phi_original;
 	m_muonHistMap["phi"] = map_muon_phi;
@@ -46,8 +47,10 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::Combined),"Combined");
 	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::SegmentTagged),"SegmentTagged");
 	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::CaloTagged),"CaloTagged");
-	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::SiliconAssociatedForwardMuon),"SiliconAssociatedForwardMuon");
-	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::MuonStandAlone),"MuonStandAlone");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->FindBin(xAOD::Muon_v1::SiliconAssociatedForwardMuon),
+                                                "SiliconAssociatedForwardMuon");
+	muon_type_original->GetXaxis()->SetBinLabel(muon_type_original->
+	FindBin(xAOD::Muon_v1::MuonStandAlone),"MuonStandAlone");
 	map<string,TH1*> map_muon_type;
 	map_muon_type["reference"] = muon_type_original;
 	m_muonHistMap["type"] = map_muon_type;
@@ -57,33 +60,53 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 /// 	xAOD::Muon_v1::MuTag = 3
 	
 	TH1* muon_author_original = new TH1F("author","muon_author", 13, -1.5, 11.5);
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(-1),"non-defined");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::unknown),"unknown");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuidCo),"MuidCo");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::STACO),"STACO");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuTag),"MuTag");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuTagIMO),"MuTagIMO");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuidSA),"MuidSA");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuGirl),"MuGirl");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::MuGirlLowBeta),"MuGirlLowBeta");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::CaloTag),"CaloTag");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::CaloLikelihood),"CaloLikelihood");
-	muon_author_original->GetXaxis()->SetBinLabel(muon_author_original->FindBin(xAOD::Muon_v1::ExtrapolateMuonToIP),"ExtrapolateMuonToIP");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(-1),"non-defined");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::unknown),"unknown");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::MuidCo),"MuidCo");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::STACO),"STACO");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::MuTag),"MuTag");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::MuTagIMO),"MuTagIMO");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::MuidSA),"MuidSA");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::MuGirl),"MuGirl");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::MuGirlLowBeta),
+                                                  "MuGirlLowBeta");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::CaloTag),"CaloTag");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::CaloLikelihood),
+                                                  "CaloLikelihood");
+	muon_author_original->GetXaxis()->SetBinLabel(
+      muon_author_original->FindBin(xAOD::Muon_v1::ExtrapolateMuonToIP),
+                                                  "ExtrapolateMuonToIP");
 	map<string,TH1*> map_muon_author;
 	map_muon_author["reference"] = muon_author_original;
 	m_muonHistMap["author"] = map_muon_author;
 	
-	TH1* muon_precMSLayers_original = new TH1F("precMSLayers","number of MS layers with at least 3 hits", 11, -0.5, 10.5);
+	TH1* muon_precMSLayers_original = new TH1F("precMSLayers","number of MS "
+                                               "layers with at least 3 hits", 
+                                               11, -0.5, 10.5);
 	map<string,TH1*> map_muon_precMSLayers;
 	map_muon_precMSLayers["reference"] = muon_precMSLayers_original;
 	m_muonHistMap["precMSLayers"] = map_muon_precMSLayers;
 	
-	TH1* muon_phiMSLayers_original = new TH1F("phiMSLayers","number of MS layers with a trigger phi hit", 11, -0.5, 10.5);
+	TH1* muon_phiMSLayers_original = new TH1F("phiMSLayers","number of MS layers "
+                                              "with a trigger phi hit", 11, -0.5,
+                                              10.5);
 	map<string,TH1*> map_muon_phiMSLayers;
 	map_muon_phiMSLayers["reference"] = muon_phiMSLayers_original;
 	m_muonHistMap["phiMSLayers"] = map_muon_phiMSLayers;
 	
-	TH1* muon_ptCone30OverPt_original = new TH1F("ptCone30OverPt","ptCone30/pt", 100, 0.0, 1.0);
+	TH1* muon_ptCone30OverPt_original = new TH1F("ptCone30OverPt",
+                                                 "ptCone30/pt", 100, 0.0, 1.0);
 	map<string,TH1*> map_muon_ptCone30OverPt;
 	map_muon_ptCone30OverPt["reference"] = muon_ptCone30OverPt_original;
 	m_muonHistMap["ptCone30OverPt"] = map_muon_ptCone30OverPt;
@@ -92,13 +115,15 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map<string,TH1*> map_muon_ptCone30;
 	map_muon_ptCone30["reference"] = muon_ptCone30_original;
 	m_muonHistMap["ptCone30"] = map_muon_ptCone30;
+ 
 }
 
 HistObjectDumper::~HistObjectDumper(){
 	
 }
 
-int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap, string folderName, string stage_tag){
+int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap, 
+                                        string folderName, string stage_tag){
 
 	int iStage;
 
@@ -116,8 +141,10 @@ int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap, st
 			histName += "_" + stage_tag;
 		histName += "/" + string(iterator->second["reference"]->GetName());
 		
-		/// Clone referance hist with adding to suffix to the name of new hist and push it back to vector
-		iterator->second[stage_tag] = (TH1*)iterator->second["reference"]->Clone(histName.c_str());
+		/// Clone referance hist with adding to suffix to the name of new hist 
+        /// and push it back to vector
+		iterator->second[stage_tag] = 
+		(TH1*)iterator->second["reference"]->Clone(histName.c_str());
 		
 		/// register new hist in EventLoop worker
 		m_wk->addOutput(iterator->second[stage_tag]);
@@ -130,7 +157,7 @@ int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap, st
 	
 }
 
-void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
+void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag, double weight){
 /// **************************************************************
 ///
 /// Filling all histograms...
@@ -140,27 +167,33 @@ void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag){
 	if (m_StageNameDict[stage_tag]==false)
 		InitNewStageHists(m_muonHistMap,"muon",stage_tag);
 	
-	m_muonHistMap["pt"][stage_tag]->Fill(mu->pt()*0.001);
-	m_muonHistMap["eta"][stage_tag]->Fill(mu->eta());
-	m_muonHistMap["phi"][stage_tag]->Fill(mu->phi());
-	m_muonHistMap["quality"][stage_tag]->Fill(mu->quality());
-	m_muonHistMap["type"][stage_tag]->Fill(mu->muonType());
-	m_muonHistMap["author"][stage_tag]->Fill(mu->author());
+	m_muonHistMap["pt"][stage_tag]->Fill(mu->pt()*0.001, weight);
+	m_muonHistMap["eta"][stage_tag]->Fill(mu->eta(), weight);
+	m_muonHistMap["phi"][stage_tag]->Fill(mu->phi(), weight);
+	m_muonHistMap["quality"][stage_tag]->Fill(mu->quality(), weight);
+	m_muonHistMap["type"][stage_tag]->Fill(mu->muonType(), weight);
+	m_muonHistMap["author"][stage_tag]->Fill(mu->author(), weight);
 	
 	uint8_t nMSPrecLayers = -1;
 	uint8_t nLayersWithPhiHit = -1;
 	
-	mu->primaryTrackParticle()->summaryValue(nMSPrecLayers, xAOD::numberOfPrecisionLayers);	/// < layers with at least 3 hits [unit8_t].
-	mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, xAOD::numberOfPhiLayers);		/// < layers with a trigger phi hit [unit8_t].
+    /// # layers with at least 3 hits [unit8_t].
+	mu->primaryTrackParticle()->summaryValue(nMSPrecLayers,
+                                             xAOD::numberOfPrecisionLayers);	
+    
+    /// # layers with a trigger phi hit [unit8_t].
+	mu->primaryTrackParticle()->summaryValue(nLayersWithPhiHit, 
+                                             xAOD::numberOfPhiLayers);
 	
-	m_muonHistMap["precMSLayers"][stage_tag]->Fill(nMSPrecLayers);
-	m_muonHistMap["phiMSLayers"][stage_tag]->Fill(nLayersWithPhiHit);
+	m_muonHistMap["precMSLayers"][stage_tag]->Fill(nMSPrecLayers, weight);
+	m_muonHistMap["phiMSLayers"][stage_tag]->Fill(nLayersWithPhiHit, weight);
 	
-	float muPtCone30 = 0.; /// your variable that will be filled after calling the isolation function
-	mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
+	float muPtCone30 = 0.;
+    /// second arg is an enum defined in xAODPrimitives/IsolationType.h
+	mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  
 	
-	m_muonHistMap["ptCone30"][stage_tag]->Fill(muPtCone30*0.001);
-	m_muonHistMap["ptCone30OverPt"][stage_tag]->Fill(muPtCone30/mu->pt());
+	m_muonHistMap["ptCone30"][stage_tag]->Fill(muPtCone30*0.001, weight);
+	m_muonHistMap["ptCone30OverPt"][stage_tag]->Fill(muPtCone30/mu->pt(), weight);
 }
 
 
@@ -171,8 +204,9 @@ void HistObjectDumper::printMuon(const xAOD::Muon* mu){
 ///     
 /// **************************************************************
   
-  float muPtCone30 = 0.; /// your variable that will be filled after calling the isolation function
-  mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
+  float muPtCone30 = 0.;
+  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
+  mu->isolation(muPtCone30, xAOD::Iso::ptcone30);  
 
   cout << "************************************" << endl;
   cout << "pt:\t" << mu->pt()*0.001 << endl;
