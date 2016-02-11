@@ -27,7 +27,7 @@
 #include <boost/algorithm/string.hpp>
 
 /// private headers
-#include "MyAnalysis/MyxAODAnalysis.h"
+#include "MyAnalysis/RecoAnalysis.h"
 #include "HelpFunctions.h"
 
 map<string,string> sampleMap;

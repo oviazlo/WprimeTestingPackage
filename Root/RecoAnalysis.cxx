@@ -4,15 +4,15 @@
 ///
 ///*****************************************************************************
 
-#include <MyAnalysis/MyxAODAnalysis.h>
+#include <MyAnalysis/RecoAnalysis.h>
 
 /// this is needed to distribute the algorithm to the workers
-ClassImp(MyxAODAnalysis)
+ClassImp(RecoAnalysis)
 
-EL::StatusCode MyxAODAnalysis :: execute ()
+EL::StatusCode RecoAnalysis :: execute ()
 {
   
-  const char* APP_NAME = "MyxAODAnalysis";
+  const char* APP_NAME = "RecoAnalysis";
 
   /// push cutflow bitset to cutflow hist
   m_BitsetCutflow->PushBitSet();

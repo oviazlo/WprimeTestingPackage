@@ -7,12 +7,12 @@
 ///     - histFinalize
 ///
 ///*****************************************************************************
-#include <MyAnalysis/MyxAODAnalysis.h>
+#include <MyAnalysis/RecoAnalysis.h>
 
 /// this is needed to distribute the algorithm to the workers
-ClassImp(MyxAODAnalysis)
+ClassImp(RecoAnalysis)
 
-EL::StatusCode MyxAODAnalysis :: postExecute ()
+EL::StatusCode RecoAnalysis :: postExecute ()
 {
   /// Here you do everything that needs to be done after the main event
   /// processing.  This is typically very rare, particularly in user
@@ -22,7 +22,7 @@ EL::StatusCode MyxAODAnalysis :: postExecute ()
 
 
 
-EL::StatusCode MyxAODAnalysis :: finalize ()
+EL::StatusCode RecoAnalysis :: finalize ()
 {
   /// This method is the mirror image of initialize(), meaning it gets
   /// called after the last event has been processed on the worker node
@@ -34,7 +34,7 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
   /// merged.  This is different from histFinalize() in that it only
   /// gets called on worker nodes that processed input events.
   
-  const char* APP_NAME = "MyxAODAnalysis";  
+  const char* APP_NAME = "RecoAnalysis";  
 
   /// push cutflow for last event
   /// FIXME probably this breaks possibility to use PROOF
@@ -133,7 +133,7 @@ EL::StatusCode MyxAODAnalysis :: finalize ()
 
 
 
-EL::StatusCode MyxAODAnalysis :: histFinalize ()
+EL::StatusCode RecoAnalysis :: histFinalize ()
 {
   /// This method is the mirror image of histInitialize(), meaning it
   /// gets called after the last event has been processed on the worker

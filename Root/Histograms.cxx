@@ -5,9 +5,9 @@
 ///             * create and register in worker all output histograms
 ///
 ///*****************************************************************************
-#include <MyAnalysis/MyxAODAnalysis.h>
+#include <MyAnalysis/RecoAnalysis.h>
 
-EL::StatusCode MyxAODAnalysis :: histInitialize ()
+EL::StatusCode RecoAnalysis :: histInitialize ()
 {
   /// Here you do everything that needs to be done at the very
   /// beginning on each worker node, e.g. create histograms and output

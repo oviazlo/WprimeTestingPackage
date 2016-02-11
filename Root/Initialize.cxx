@@ -1,7 +1,7 @@
 ///*****************************************************************************
 ///
 /// Implementation of all functions which are called BEFORE execute:
-///     - constructor MyxAODAnalysis
+///     - constructor RecoAnalysis
 ///     - initialize:
 ///             * retrieve and configure all tools
 ///     - setupJob:
@@ -10,12 +10,12 @@
 ///     - changeInput
 ///
 ///*****************************************************************************
-#include <MyAnalysis/MyxAODAnalysis.h>
+#include <MyAnalysis/RecoAnalysis.h>
 
 /// this is needed to distribute the algorithm to the workers
-ClassImp(MyxAODAnalysis)
+ClassImp(RecoAnalysis)
 
-EL::StatusCode MyxAODAnalysis :: initialize ()
+EL::StatusCode RecoAnalysis :: initialize ()
 {
   /// Here you do everything that you need to do after the first input
   /// file has been connected and before the first event is processed,
@@ -26,7 +26,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   /// you create here won't be available in the output if you have no
   /// input events.
 
-  const char* APP_NAME = "MyxAODAnalysis";
+  const char* APP_NAME = "RecoAnalysis";
 
   m_event = wk()->xaodEvent();
   m_store = new xAOD::TStore();
@@ -83,7 +83,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   /// Jet Calibration Tool
   cout << "initialise jet calib"<<endl;
   /// String describing the current thread, for logging
-  const std::string name = "MyxAODAnalysis"; 
+  const std::string name = "RecoAnalysis"; 
   /// String describing your jet collection, 
   /// for example AntiKt4EMTopo or AntiKt4EMTopo (see above)
   TString jetAlgo = "AntiKt4EMTopo"; 
@@ -261,7 +261,7 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
   return EL::StatusCode::SUCCESS;
 }
 
-MyxAODAnalysis :: MyxAODAnalysis ()
+RecoAnalysis :: RecoAnalysis ()
 {
   /// Here you put any code for the base initialization of variables,
   /// e.g. initialize all pointers to 0.  Note that you should only put
@@ -276,7 +276,7 @@ MyxAODAnalysis :: MyxAODAnalysis ()
 
 
 
-EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
+EL::StatusCode RecoAnalysis :: setupJob (EL::Job& job)
 {
   /// Here you put code that sets up the job on the submission object
   /// so that it is ready to work with your algorithm, e.g. you can
@@ -288,7 +288,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   
   /// let's initialize the algorithm to use the xAODRootAccess package
   job.useXAOD ();
-  xAOD::Init( "MyxAODAnalysis" ).ignore(); /// call before opening first file
+  xAOD::Init( "RecoAnalysis" ).ignore(); /// call before opening first file
   
   m_useHistObjectDumper = true;
   m_useBitsetCutflow = true;
@@ -307,7 +307,7 @@ EL::StatusCode MyxAODAnalysis :: setupJob (EL::Job& job)
   return EL::StatusCode::SUCCESS;
 }
 
-EL::StatusCode MyxAODAnalysis :: fileExecute ()
+EL::StatusCode RecoAnalysis :: fileExecute ()
 {
   /// Here you do everything that needs to be done exactly once for every
   /// single file, e.g. collect a list of all lumi-blocks processed
@@ -316,7 +316,7 @@ EL::StatusCode MyxAODAnalysis :: fileExecute ()
 
 
 
-EL::StatusCode MyxAODAnalysis :: changeInput (bool firstFile)
+EL::StatusCode RecoAnalysis :: changeInput (bool firstFile)
 {
   /// Here you do everything you need to do when we change input files,
   /// e.g. resetting branch addresses on trees.  If you are using

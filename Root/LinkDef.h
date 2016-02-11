@@ -1,4 +1,4 @@
-#include <MyAnalysis/MyxAODAnalysis.h>
+#include <MyAnalysis/RecoAnalysis.h>
 
 #ifdef __CINT__
 
@@ -10,7 +10,7 @@
 #endif
 
 #ifdef __CINT__
-#pragma link C++ class MyxAODAnalysis+;
+#pragma link C++ class RecoAnalysis+;
 #pragma link C++ class HistObjectDumper+;
 #pragma link C++ class BitsetCutflow+;
 #endif

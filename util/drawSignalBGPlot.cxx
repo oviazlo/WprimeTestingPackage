@@ -25,7 +25,7 @@
 #include <sstream>
 
 /// private
-#include "MyAnalysis/MyxAODAnalysis.h"
+#include "MyAnalysis/RecoAnalysis.h"
 #include "HelpFunctions.h"
 
 const char *tmpArr[] = {"h_mt","h_mgen","h_pt","h_met"};

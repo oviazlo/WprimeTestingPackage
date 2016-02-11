@@ -7,12 +7,12 @@
 /// Both functions return pair(nSignalLeptons,nVetoLeptons)
 ///
 ///*****************************************************************************
-#include <MyAnalysis/MyxAODAnalysis.h>
+#include <MyAnalysis/RecoAnalysis.h>
 
 /// this is needed to distribute the algorithm to the workers
-ClassImp(MyxAODAnalysis)
+ClassImp(RecoAnalysis)
 
-std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
+std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
                                   xAOD::MuonContainer* muons,
                                   xAOD::Vertex* primVertex,
                                   bool fillInCutflow){
@@ -115,7 +115,7 @@ std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectMuons(
 
 
 
-std::pair<unsigned int, unsigned int> MyxAODAnalysis :: SelectElectrons(
+std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
                                   xAOD::ElectronContainer* electrons,
                                   bool fillInCutflow){
   

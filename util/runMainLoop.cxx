@@ -18,7 +18,7 @@
 #include <TSystem.h>
 
 /// private
-#include "MyAnalysis/MyxAODAnalysis.h"
+#include "MyAnalysis/RecoAnalysis.h"
 #include "defaultConfigurations.h"
 
 /// boost
@@ -186,7 +186,7 @@ int main( int argc, char* argv[] ) {
   job.options()->setDouble (EL::Job::optCacheLearnEntries, 50);
     
   /// Add our analysis to the job:
-  MyxAODAnalysis* alg = new MyxAODAnalysis();
+  RecoAnalysis* alg = new RecoAnalysis();
   job.algsAdd( alg );
   
   /// all configuration to the algorithm should be passed after attachment to 

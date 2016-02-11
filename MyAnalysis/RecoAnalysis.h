@@ -1,5 +1,5 @@
-#ifndef MyAnalysis_MyxAODAnalysis_H
-#define MyAnalysis_MyxAODAnalysis_H
+#ifndef MyAnalysis_RecoAnalysis_H
+#define MyAnalysis_RecoAnalysis_H
 
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
@@ -140,7 +140,7 @@ namespace CP{
 //   class xAODConfigTool;
 // }
 
-class MyxAODAnalysis : public EL::Algorithm
+class RecoAnalysis : public EL::Algorithm
 {
   /// put your configuration variables here as public variables.
   /// that way they can be set directly from CINT and python.
@@ -257,6 +257,8 @@ public:
     CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
     
     LPXKfactorTool* m_LPXKfactorTool; //!
+    string m_sampleName; //!
+    unsigned int m_datasetID; //!
     
     const xAOD::EventInfo* eventInfo = 0; //!
     
@@ -266,7 +268,7 @@ public:
   BitsetCutflow* m_BitsetCutflow; //!
 
   /// this is a standard constructor
-  MyxAODAnalysis ();
+  RecoAnalysis ();
 
   /// these are the functions inherited from Algorithm
   virtual EL::StatusCode setupJob (EL::Job& job);
@@ -291,7 +293,7 @@ std::pair<unsigned int, unsigned int> SelectElectrons(
   
 
   /// this is needed to distribute the algorithm to the workers
-  ClassDef(MyxAODAnalysis, 1);
+  ClassDef(RecoAnalysis, 1);
 };
 
 #endif
