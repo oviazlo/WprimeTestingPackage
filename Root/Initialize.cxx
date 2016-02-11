@@ -251,6 +251,13 @@ EL::StatusCode MyxAODAnalysis :: initialize ()
     EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
   }
   
+  m_sampleName = wk()->metaData()->getString ("sample_name");
+  string tmpSampleName = "";
+  stringstream strStream(m_sampleName);
+  getline (strStream, tmpSampleName, '.'); /// return mc15_13TeV
+  getline (strStream, tmpSampleName, '.'); /// return DSID
+  m_datasetID = atoi(tmpSampleName.c_str());
+  
   return EL::StatusCode::SUCCESS;
 }
 

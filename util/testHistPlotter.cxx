@@ -19,6 +19,7 @@
 #include <TColor.h>
 #include <Rtypes.h>
 #include <TLegend.h>
+#include <THStack.h>
 
 /// std C/C++
 #include <fstream>
@@ -93,25 +94,45 @@ int main( int argc, char* argv[] ) {
     SH::SampleHandler sh;
     cout << "[INFO]\tRead samples from dir: " << samples[i] << endl;
     sh.load (samples[i] + "/hist");
-    
-    /// WARNING
     mergedSample->AddSampleHandler(sh,samples[i]);
   }
-  mergedSample->SortInputSH();
-  mergedSample->PrintSamplePool();
-  TH1D* testHist = mergedSample->GetMergedHist("wmunu","h_mgen");
-  TH1D* testHist2 = mergedSample->GetMergedHist("test2","h_mgen");
 
-  SetAtlasStyle();
+  vector<string> plotsToDraw = {"h_mgen","h_mt","h_pt","h_met"};
   
+  SetAtlasStyle();
+//   gStyle->SetHistTopMargin(0.);
   TCanvas* tmpCan = new TCanvas("c","c",3508*150/300.,2480*150/300.);
-  testHist->Draw();
-  testHist2->SetLineColor(kRed);
-  testHist2->Draw("same");
-//   testHist->GetYaxis()->SetRangeUser(0.000001,10);
-  gPad->SetLogy();
-  gPad->SetLogx();
-  tmpCan->SaveAs("pictures/testHistPlotter.png");
+  
+  
+  for (int i=0; i<plotsToDraw.size(); i++){
+      
+    THStack *hs = new THStack("hs","Stacked 1D histograms");
+    TH1D* testHist = mergedSample->GetMergedHist("wmunu",plotsToDraw[i]);
+    TH1D* testHist2 = mergedSample->GetMergedHist("test2",plotsToDraw[i]);
+    
+    setHistStyle(testHist,kOrange);
+    setHistStyle(testHist2,kRed);
+    
+    hs->Add(testHist);
+    hs->Add(testHist2);
+    
+    hs->Draw("HIST");
+    hs->SetMinimum(10E-10);
+    hs->SetMaximum(1000);
+    hs->GetXaxis()->SetTitle(testHist->GetXaxis()->GetTitle());
+    hs->GetYaxis()->SetTitle(testHist->GetYaxis()->GetTitle());
+    
+    gPad->Update();
+    gPad->SetLogy();
+    gPad->SetLogx();
+    
+    string outFileName = "pictures/testHistPlotter.ps";
+    if (i==0&&plotsToDraw.size()>1)
+        outFileName += "(";
+    if (i==(plotsToDraw.size()-1)&&plotsToDraw.size()>1)
+        outFileName += ")";
+    tmpCan->SaveAs(outFileName.c_str());
+  }
     
   return 0;
 }
@@ -119,6 +140,8 @@ int main( int argc, char* argv[] ) {
 void setHistStyle(TH1D* inHist, Color_t kColor){
   if (inHist==NULL)
     return;
-  inHist->SetLineWidth(2);
-  inHist->SetLineColor(kColor);
+  inHist->SetFillColor(kColor);
+  inHist->SetMarkerStyle(21);
+  inHist->SetMarkerColor(kColor);
+
 }
