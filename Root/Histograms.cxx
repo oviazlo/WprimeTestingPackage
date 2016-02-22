@@ -14,6 +14,12 @@ EL::StatusCode RecoAnalysis :: histInitialize ()
   /// trees.  This method gets called before any input files are
   /// connected.
  
+  h_mgen_all = (TH1D*)WprimeHist::standard("mgen","hAll","","");
+  wk()->addOutput(h_mgen_all); 
+  
+  h_mgen = (TH1D*)WprimeHist::standard("mgen","h","","");
+  wk()->addOutput(h_mgen); 
+  
   hMu_pt_off = (TH1D*)WprimeHist::standard("pt","h","","");
   wk()->addOutput(hMu_pt_off); 
   

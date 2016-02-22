@@ -64,6 +64,50 @@ EL::StatusCode RecoAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Truth muon decay");
   }
   
+  if(m_inclusiveWorZ){
+    bool massAbove120Gev = false;
+    /// Create truth vertice container
+    const xAOD::TruthVertexContainer* truthVertices = 0;
+    EL_RETURN_CHECK("retrieve TruthVertices", 
+                    m_event->retrieve( truthVertices, "TruthVertices" ));
+    
+    /// Start iterating over truth container
+    xAOD::TruthVertexContainer::const_iterator truthV_itr; 
+    for (truthV_itr = truthVertices->begin(); 
+         truthV_itr != truthVertices->end(); ++truthV_itr )
+    {
+      if (massAbove120Gev)
+        break;
+      for (unsigned int iIn=0; iIn < (*truthV_itr)->nIncomingParticles(); 
+           iIn++)
+      {
+        /// 34 - Wprime
+        if (TMath::Abs((*truthV_itr)->incomingParticle(iIn)->pdgId()) == 
+          m_pdgIdOfMother) { 
+          
+          double m_trueWmass = 
+          TMath::Sqrt(TMath::Power((*truthV_itr)->incomingParticle(iIn)->e(),2)
+              - TMath::Power((*truthV_itr)->incomingParticle(iIn)->pz(),2)
+              - TMath::Power((*truthV_itr)->incomingParticle(iIn)->py(),2)
+              - TMath::Power((*truthV_itr)->incomingParticle(iIn)->px(),2)
+                   )*0.001; 
+          
+          h_mgen_all->Fill(m_trueWmass);
+          if (m_trueWmass > 120.0){
+            massAbove120Gev = true;
+            h_mgen->Fill(m_trueWmass);
+          }
+        }
+        if (massAbove120Gev)
+          break;
+      }
+    }
+    
+    if (massAbove120Gev) return EL::StatusCode::SUCCESS;
+    m_BitsetCutflow->FillCutflow("massBelow120Gev");
+    
+  }
+  
   /// pass GRL?
   if(!m_isMC){
     if(!m_grl->passRunLB(*m_eventInfo)){
@@ -437,6 +481,7 @@ EL::StatusCode RecoAnalysis :: execute ()
   hMu_MET_Muons_off->Fill(missingEt,totalWeight);
 
   m_HistObjectDumper->plotMuon(metMuons[0],"final",totalWeight);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final",totalWeight);
   
   return EL::StatusCode::SUCCESS;
 }

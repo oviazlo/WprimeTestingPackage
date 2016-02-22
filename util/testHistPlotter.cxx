@@ -31,7 +31,7 @@
 #include "histPlotter/WprimeMergedSample.h"
 
 map<string,string> sampleMap;
-Color_t colorArr[] = {kBlack, kBlue, kGreen, kViolet, kOrange, kRed, kYellow, 
+Color_t colorArr[] = {kOrange, kRed, kGreen, kYellow, kBlue, kViolet,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, 
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
@@ -46,11 +46,7 @@ int main( int argc, char* argv[] ) {
   desc.add_options()
     ("help,h", "Print help messages") 
     ("sampleList,l", po::value<string>(), "file with list of samples and tags")
-    ("zoom,z","zoom x-axis")
-    ("yAxis,y",po::value<string>(),"set y-range; syntax: y1-y2")
-    ("z2","zoom x-axis to lower values")
-    ("noW","do not make summing up of first sample to others")
-    ("drawSeparately,s", "draw each sample separately")
+    ("samplesToDraw,s",po::value<string>()," list of samples to draw, separated by coma")
     ;
   
   /// get global input arguments:
@@ -90,6 +86,28 @@ int main( int argc, char* argv[] ) {
   
   WprimeMergedSample *mergedSample = new WprimeMergedSample();
   
+  vector<string> samplesToDraw;
+  if (vm.count("samplesToDraw")){
+    samplesToDraw = GetWords(vm["samplesToDraw"].as<std::string>(),',');
+    cout << "[INFO]\tRunning over saples: ";
+    vector<string> supportedSamples = mergedSample->GetAllSupportedGlobalSampleTags();
+    std::vector<string>::iterator it;
+    for (int i=0; i<samplesToDraw.size(); i++){
+      cout << samplesToDraw[i] << " ";
+      it = find (supportedSamples.begin(), supportedSamples.end(), samplesToDraw[i]);
+      if (it == supportedSamples.end()){
+        cout << "Sample *" << samplesToDraw[i] << "* is not supported by code!!!" << endl;
+        cout << "Available options:" << endl;
+        for (int k=0; k<supportedSamples.size(); k++)
+          cout << supportedSamples[k] << " ";
+        cout << endl;
+        cout << "Terminate execution!!!" << endl;
+        return 0;
+      }
+    }
+    cout << endl;
+  }
+  
   for (int i=0; i<samples.size(); i++){
     SH::SampleHandler sh;
     cout << "[INFO]\tRead samples from dir: " << samples[i] << endl;
@@ -97,7 +115,8 @@ int main( int argc, char* argv[] ) {
     mergedSample->AddSampleHandler(sh,samples[i]);
   }
 
-  vector<string> plotsToDraw = {"h_mgen","h_mt","h_pt","h_met"};
+  string prefix = "muon/stage_final/hObjDump_";
+  vector<string> plotsToDraw = {"pt","met","mt","eta","phi"};
   
   SetAtlasStyle();
 //   gStyle->SetHistTopMargin(0.);
@@ -107,24 +126,48 @@ int main( int argc, char* argv[] ) {
   for (int i=0; i<plotsToDraw.size(); i++){
       
     THStack *hs = new THStack("hs","Stacked 1D histograms");
-    TH1D* testHist = mergedSample->GetMergedHist("wmunu",plotsToDraw[i]);
-    TH1D* testHist2 = mergedSample->GetMergedHist("test2",plotsToDraw[i]);
     
-    setHistStyle(testHist,kOrange);
-    setHistStyle(testHist2,kRed);
+    if (!vm.count("samplesToDraw"))
+      samplesToDraw = {"diboson","z","top","w"};
     
-    hs->Add(testHist);
-    hs->Add(testHist2);
+    TH1D* testHist;
+    
+    for (int k=0; k<samplesToDraw.size(); k++){
+      testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefix+plotsToDraw[i]);
+      if (testHist!=NULL){
+        setHistStyle(testHist,colorArr[k]);
+        if (samplesToDraw[k]=="wmunu_massbinned")
+          testHist->Scale(10);
+        hs->Add(testHist);
+      }
+      else{
+        cout << "Plot *" << plotsToDraw[i] << "* is empty for sample " << samplesToDraw[k] 
+        << endl; 
+      }
+    }
     
     hs->Draw("HIST");
-    hs->SetMinimum(10E-10);
-    hs->SetMaximum(1000);
+    if (i<3){
+      hs->SetMinimum(10E-7);
+      hs->SetMaximum(10E5);
+    }
+    else{
+      hs->SetMinimum(10E-1);
+      hs->SetMaximum(10E4);
+    }
+    
     hs->GetXaxis()->SetTitle(testHist->GetXaxis()->GetTitle());
     hs->GetYaxis()->SetTitle(testHist->GetYaxis()->GetTitle());
     
     gPad->Update();
-    gPad->SetLogy();
-    gPad->SetLogx();
+    if (i>=3){
+      gPad->SetLogx(0);
+      gPad->SetLogy(0);
+    }
+    else{
+      gPad->SetLogy();
+      gPad->SetLogx();
+    }
     
     string outFileName = "pictures/testHistPlotter.ps";
     if (i==0&&plotsToDraw.size()>1)
@@ -145,3 +188,9 @@ void setHistStyle(TH1D* inHist, Color_t kColor){
   inHist->SetMarkerColor(kColor);
 
 }
+
+// std::vector<std::string> split(const std::string &s, char delim) {
+//     std::vector<std::string> elems;
+//     split(s, delim, elems);
+//     return elems;
+// }

@@ -257,6 +257,9 @@ public:
   TH1D* h_event_filterEfficiency; //!
   TH1D* h_event_totalWeight; //!
 
+  TH1D *h_mgen_all; //!
+  TH1D *h_mgen; //!
+  
   /// this is a standard constructor
   RecoAnalysis ();
 

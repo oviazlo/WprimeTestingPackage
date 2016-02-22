@@ -16,18 +16,17 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 
 	/// Prepare reference histograms
 	/// (they will not be saved to the output)
-	TH1* muon_pt_original = new TH1F("pt","muon_pt", 300, 0, 3000);
+    TH1* muon_pt_original = (TH1D*)WprimeHist::standard("pt","hObjDump","","");
 	map<string,TH1*> map_muon_pt;
 	map_muon_pt["reference"] = muon_pt_original;
 	m_muonHistMap["pt"] = map_muon_pt;
 	
-	TH1* muon_eta_original = new TH1F("eta","muon_eta", 48, -3.0,3.0);
+	TH1* muon_eta_original = (TH1D*)WprimeHist::standard("eta","hObjDump","","");
 	map<string,TH1*> map_muon_eta;
 	map_muon_eta["reference"] = muon_eta_original;
 	m_muonHistMap["eta"] = map_muon_eta;
 	
-	TH1* muon_phi_original = new TH1F("phi","muon_phi", 60, -TMath::Pi(),
-                                      TMath::Pi());
+	TH1* muon_phi_original = (TH1D*)WprimeHist::standard("phi","hObjDump","","");
 	map<string,TH1*> map_muon_phi;
 	map_muon_phi["reference"] = muon_phi_original;
 	m_muonHistMap["phi"] = map_muon_phi;
@@ -116,6 +115,16 @@ HistObjectDumper::HistObjectDumper(EL::Worker *wk){
 	map_muon_ptCone30["reference"] = muon_ptCone30_original;
 	m_muonHistMap["ptCone30"] = map_muon_ptCone30;
  
+    TH1* met_original = (TH1D*)WprimeHist::standard("met","hObjDump","","");
+	map<string,TH1*> map_met;
+	map_met["reference"] = met_original;
+	m_muonHistMap["met"] = map_met;
+    
+    TH1* mt_original = (TH1D*)WprimeHist::standard("mt","hObjDump","","");
+	map<string,TH1*> map_mt;
+	map_mt["reference"] = mt_original;
+	m_muonHistMap["mt"] = map_mt;
+    
 }
 
 HistObjectDumper::~HistObjectDumper(){
@@ -133,7 +142,8 @@ int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap,
 		/// convert int to string
 		iStage = iterator->second.size();
 		std::ostringstream tmpStream;
-		tmpStream << iStage;
+        /// FIXME temporary disabled
+// 		tmpStream << iStage; 
 		
 		/// construct histName
 		string histName = folderName + "/stage" + tmpStream.str();
@@ -155,6 +165,24 @@ int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap,
 		
 	return iStage;
 	
+}
+
+void HistObjectDumper::plotMtAndMet(const xAOD::Muon* mu, xAOD::MissingET* finalTrkMet,
+                                    string stage_tag, double weight){
+  double missingEt  = finalTrkMet->met()/1000.;
+  double missingEtPhi = finalTrkMet->phi();
+  double leptonEt   = mu->pt()/1000.;
+  double leptonPhi  = mu->phi();
+  
+  float deltaPhi = TMath::Abs(leptonPhi-missingEtPhi);
+  if(deltaPhi > TMath::Pi())
+        deltaPhi = TMath::TwoPi() - deltaPhi;
+  
+  double mT = sqrt( 2 * missingEt * leptonEt * (1 - TMath::Cos( deltaPhi ) ) );
+  
+  m_muonHistMap["met"][stage_tag]->Fill(missingEt, weight);
+  m_muonHistMap["mt"][stage_tag]->Fill(mT, weight);
+  
 }
 
 void HistObjectDumper::plotMuon(const xAOD::Muon* mu, string stage_tag, double weight){

@@ -1,16 +1,24 @@
 #ifndef HistObjectDumper_H
 #define HistObjectDumper_H
 
+/// EventLoop/xAOD
 #include "EventLoop/Worker.h"
 #include "xAODMuon/MuonContainer.h"
-
-/// EDM include(s):
 #include "xAODMuon/Muon.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAuxContainer.h"
 
+/// custom
+#include <MyAnalysis/WprimeHist.h>
+
+/// ROOT
+#include <TMath.h>
 #include <TH1.h>
+
+/// std c++
 #include <iostream>
 #include <map>
-#include <TMath.h>
+
 
 using namespace std;
 
@@ -22,6 +30,9 @@ public:
 	~HistObjectDumper();
 
 	void plotMuon(const xAOD::Muon* mu, string stage_tag, double weight = 1.0);
+    void plotMtAndMet(const xAOD::Muon* mu, xAOD::MissingET* finalTrkMet,
+                      string stage_tag, double weight = 1.0);
+      
     void printMuon(const xAOD::Muon* mu);
 	
 private:

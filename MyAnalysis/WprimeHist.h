@@ -1,14 +1,12 @@
-/// WprimeHist.h
+#ifndef WprimeHist_H
+#define WprimeHist_H
 
-/// David Adams
-/// May 2011
-
-/// Class to create a standard histogram for the Wprime analysis.
-
+/// std c++
 #include <string>
 #include <iostream>
 
-class TH1;
+/// ROOT
+#include <TH1.h>
 
 class WprimeHist {
 
@@ -54,4 +52,7 @@ public:
   ///   mu or #mu for "#mu"
   ///   anything else for "l"
   static Name lepton(Name slepton ="");
+
 };
+
+#endif

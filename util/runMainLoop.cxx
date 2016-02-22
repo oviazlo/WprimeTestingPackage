@@ -149,7 +149,8 @@ int main( int argc, char* argv[] ) {
   }
   
   /// Print what we found:
-//   sh.print(); FIXME
+  if (vm.count("debug"))
+    sh.print();
   
   /// Set the name of the input TTree. It's always "CollectionTree"
   /// for xAOD files.
@@ -256,7 +257,7 @@ int main( int argc, char* argv[] ) {
       " export PATH=$PATH:~/bin");
       slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
 //       " --mem=4000"
-    " -p long -t 2:00:00";
+    " -p short -t 2:00:00";
     }
     else if (systemType == CERN){
       slurmSystemDependentOptions = "-L /bin/bash -q 1nh";
@@ -297,11 +298,13 @@ int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]){
       ("overwrite,o", "overwrite output folder") 
       ("directDriver", "run with DirectDriver") 
       ("info", "set message level to INFO") 
+      ("debug", "print debug printouts from code") 
       ("mergeSamples", po::value<string>(),"merge everything in one sample; "
       "specify final sample name")
       ("samplePattern,p", po::value<string>(),"specify Sample Pattern")
       ("sampleTag,t", po::value<string>(),"specify Sample tag to use")
       ("nEvents,n", po::value<unsigned int>(), "number of events to proceed")
+      
       ;
     try 
     { 

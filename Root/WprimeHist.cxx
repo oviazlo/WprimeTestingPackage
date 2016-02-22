@@ -1,15 +1,13 @@
-// WprimeHist.cxx
-
 #include <MyAnalysis/WprimeHist.h>
-// #include "MyAnalysis/WprimeSample.h"
 #include <iostream>
 #include <cmath>
 #include <TH1F.h>
 #include <TH1D.h>
 #include <TDirectory.h>
 
-std::string WprimeHist_lepton = "l";
 
+std::string WprimeHist_lepton = "l";
+ 
 //**********************************************************************
 
 TH1* WprimeHist::create(Name name, Name title, int xbin, double xmin, 
