@@ -77,6 +77,8 @@ EL::StatusCode RecoAnalysis :: initialize ()
 //   m_jetCleaning->initialize();
   
   /// Jet Calibration Tool
+  /// Recommendation taken from:
+  /// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ApplyJetCalibration2015
   cout << "initialise jet calib"<<endl;
   /// String describing the current thread, for logging
   const std::string name = "RecoAnalysis"; 
@@ -84,7 +86,8 @@ EL::StatusCode RecoAnalysis :: initialize ()
   /// for example AntiKt4EMTopo or AntiKt4EMTopo (see above)
   TString jetAlgo = "AntiKt4EMTopo"; 
   /// Path to global config used to initialize the tool (see above)
-  TString config = "JES_MC15Prerecommendation_April2015.config"; 
+//   TString config = "JES_MC15Prerecommendation_April2015.config"; 
+  TString config = "JES_2015dataset_recommendation_Feb2016.config";
   /// String describing the calibration sequence to apply (see above)
   TString calibSeq ="JetArea_Residual_Origin_EtaJES_GSC" ; 
   
@@ -113,7 +116,7 @@ EL::StatusCode RecoAnalysis :: initialize ()
   hjvtagup = ToolHandle<IJetUpdateJvt>("jvtag");
   m_jvtTool->msg().setLevel( MSG::DEBUG ); // or DEBUG or VERBOSE
   CHECK (m_jvtTool->setProperty("JVTFileName","JetMomentTools/"
-  "JVTlikelihood_20140805.root"));
+  "JVTlikelihood_20140805.root")); /// TODO is it the latest file?
   if ( ! m_jvtTool->initialize().isSuccess() ){
     Error("initialize()", "Failed to properly initialize the JVTTool. Exiting." );
     return EL::StatusCode::FAILURE;
@@ -181,11 +184,14 @@ EL::StatusCode RecoAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_trigDecisionTool->initialize() );
   
   /// electrons
+  /// Recommendation are taken from:
+  /// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronPhotonFourMomentumCorrection
   cout << "do e/g calibration" << endl;
   m_eleCalibrationTool = new CP::EgammaCalibrationAndSmearingTool("eletool");
   /// see below for options
-  m_eleCalibrationTool->setProperty("ESModel", "es2015PRE");  
+  m_eleCalibrationTool->setProperty("ESModel", "es2015PRE"); /// seems OK
   /// see below for options
+  /// FIXME what to use here??? Ask Magnar/Markus!!!
   m_eleCalibrationTool->setProperty("decorrelationModel", "1NP_v1");  
   m_eleCalibrationTool->initialize();
   
@@ -199,7 +205,9 @@ EL::StatusCode RecoAnalysis :: initialize ()
     "primaryVertexContainer","PrimaryVertices"));
   EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
     "primaryVertexContainer","PrimaryVertices"));
-  
+
+  /// FIXME do we need to use mc15_20160113 instead?
+  /// Source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Electron_d0_and_z0_cut_definitio  
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20151012/";
   EL_RETURN_CHECK( "m_LHToolTight2015 setProperty ConfigFile", 
                    m_LHToolTight2015->setProperty(

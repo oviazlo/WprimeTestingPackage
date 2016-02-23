@@ -53,18 +53,19 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
       m_BitsetCutflow->FillCutflow( "mu_pt",fillInCutflow );
     
     /// medium OR high-pT
-    bool passHighPtSelection = false;
     if( !(( m_looseMuonSelection->accept( ( *muon_itr ) ) ) ||
         ( m_muonSelection->accept( ( *muon_itr ) ) ))
     ) continue;
+
+    if (passHighPtCut)
+      m_BitsetCutflow->FillCutflow( "MCP (medium OR high-pT) selector",fillInCutflow );
     
+    /// high-pT selector
+    bool passHighPtSelection = false;
     if( m_muonSelection->accept( ( *muon_itr ) ) ){
       passHighPtSelection = true;
     }
     fillCutflow = (passHighPtCut && passHighPtSelection);
-    
-    if (fillCutflow) 
-      m_BitsetCutflow->FillCutflow( "MCP selector",fillInCutflow );
     
     /// do significance 
     /// FIXME make it back
@@ -78,7 +79,7 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
                 definingParametersCovMatrix()(0,0)
                 + m_eventInfo->beamPosSigmaX()*m_eventInfo->beamPosSigmaX() );
     if (d0_sig>3.0) continue;
-    if (fillCutflow)
+    if (passHighPtCut)
       m_BitsetCutflow->FillCutflow("d0",fillInCutflow);
     
     /// zo cut
@@ -86,8 +87,11 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
     ( *muon_itr )->primaryTrackParticle()->vz() - primVertex->z();
     double sintheta = 1.0/TMath::CosH(( *muon_itr )->eta());
     if (abs( z0_vrtPVx*sintheta )>10.0) continue;
-    if (fillCutflow)
+    if (passHighPtCut)
       m_BitsetCutflow->FillCutflow( "z0",fillInCutflow );
+    
+    if (fillCutflow) 
+      m_BitsetCutflow->FillCutflow( "MCP selector",fillInCutflow );
     
     if (!m_muonisolationSelectionTool->accept(( **muon_itr ))) continue;
     if (fillCutflow)

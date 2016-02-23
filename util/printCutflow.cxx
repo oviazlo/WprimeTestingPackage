@@ -39,6 +39,7 @@ int main( int argc, char* argv[] ) {
     ("help,h", "Print help messages") 
     ("folder,f", po::value<string>(), "name of folder to read")
     ("drawHists,d", "draw histograms")
+    ("useOnlyOneFile", "use only one file from folder")
     ;
   
   /// get global input arguments:
@@ -59,34 +60,49 @@ int main( int argc, char* argv[] ) {
   cout << "[INFO]\tRead samples from dir: " << folder << endl;
   sh.load (folder + "/hist");
  
+  if (sh.size()==0){
+    cout << "sh.size() = " << sh.size() << endl;
+    cout << "Terminate!!!"<< endl;
+    return 0;
+  }
+  
   SH::Sample* mySample = *(sh.begin());
+  TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+  cout << "[INFO]\tsh.size() = " << sh.size() << endl;
   
   if (sh.size()>1){
   
-    int counter = 0;
-    cout << "[WARNING]\tThere are more than one sample!" << endl;
-    for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
-      ++ iter){
-      cout << counter << ": " << (*iter)->name() << endl;
-      counter++;
+    if (vm.count("useOnlyOneFile")){
+      int counter = 0;
+      cout << "[WARNING]\tThere are more than one sample!" << endl;
+      for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
+        ++ iter){
+        cout << counter << ": " << (*iter)->name() << endl;
+        counter++;
+      }
+      int sampleToUse = 0;
+      cout << "[WARNING]\tPlease choose which one to use from list above: ";
+      cin >> sampleToUse;
+      if (sampleToUse<0)
+        sampleToUse = 0;
+      if (sampleToUse>=sh.size())
+        sampleToUse = sh.size()-1;
+      
+      mySample = sh.at(sampleToUse);
+      cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+      
+      cout << "[INFO]\tUsing samle " << sampleToUse << ": " 
+      << mySample->name() << endl;
     }
-    int sampleToUse = 0;
-    cout << "[WARNING]\tPlease choose which one to use from list above: ";
-    cin >> sampleToUse;
-    if (sampleToUse<0)
-      sampleToUse = 0;
-    if (sampleToUse>=sh.size())
-      sampleToUse = sh.size()-1;
-    
-    mySample = sh.at(sampleToUse);
-    
-    cout << "[INFO]\tUsing samle " << sampleToUse << ": " << mySample->name() 
-    << endl;
+    else{ /// get cutflow_hist from each file add sum them up
+      for (SH::SampleHandler::iterator iter = sh.begin()+1; iter != sh.end(); 
+        ++ iter){
+        TH1I* tmpHist = (TH1I*)(*iter)->readHist ("cutflow_hist");
+        cutflowHist->Add(tmpHist);
+      }
+    }
   }
-  
-  
-  
-  TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+    
   cout << "[DEBUG]\tcutflowHist = " << cutflowHist << endl;
   
   for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
@@ -96,6 +112,7 @@ int main( int argc, char* argv[] ) {
     cout << binLabel << ":\t" << binContent << endl;
   }
 
+  /// FIXME deprecaged functionality; remove it
   if (vm.count("drawHists")){
     SetAtlasStyle();
     

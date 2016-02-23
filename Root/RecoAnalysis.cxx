@@ -133,29 +133,6 @@ EL::StatusCode RecoAnalysis :: execute ()
   }
   m_BitsetCutflow->FillCutflow("EventCleaning");
   
-  /// Primary vertex
-  const xAOD::VertexContainer* vertices = 0;
-  EL_RETURN_CHECK("retrieve PrimaryVertices", 
-                  m_event->retrieve( vertices, "PrimaryVertices" ));
-  
-  xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
-  xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
-  xAOD::Vertex* primVertex = 0;
-  int nGoodVtx = 0;
-  for( ; vtx_itr != vtx_end; ++vtx_itr ) {
-    if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx){
-      primVertex = (*vtx_itr);
-      nGoodVtx++;
-    }
-  }
-  
-  if (nGoodVtx>1)
-    cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " 
-    << nGoodVtx << endl;
-  if (nGoodVtx==0)
-    return EL::StatusCode::SUCCESS;
-  m_BitsetCutflow->FillCutflow("Primary vertex");
-  
   /// triggers  
   /// list of triggers to use
   std::vector<std::string> triggerChains = {"HLT_mu50*"};
@@ -187,6 +164,28 @@ EL::StatusCode RecoAnalysis :: execute ()
     m_BitsetCutflow->FillCutflow("Trigger");
   }
   
+    /// Primary vertex
+  const xAOD::VertexContainer* vertices = 0;
+  EL_RETURN_CHECK("retrieve PrimaryVertices", 
+                  m_event->retrieve( vertices, "PrimaryVertices" ));
+  
+  xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
+  xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
+  xAOD::Vertex* primVertex = 0;
+  int nGoodVtx = 0;
+  for( ; vtx_itr != vtx_end; ++vtx_itr ) {
+    if ((*vtx_itr)->vertexType()==xAOD::VxType::PriVtx){
+      primVertex = (*vtx_itr);
+      nGoodVtx++;
+    }
+  }
+  
+  if (nGoodVtx>1)
+    cout << "WARNING!!!! Found more then one prim.vertex: nGoodVtx = " 
+    << nGoodVtx << endl;
+  if (nGoodVtx==0)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("Primary vertex");
 
   const xAOD::MuonContainer* muons = 0;
   EL_RETURN_CHECK("retrieve Muons",
@@ -310,6 +309,15 @@ EL::StatusCode RecoAnalysis :: execute ()
     if(result != CP::CorrectionCode::Ok){
           throw std::runtime_error("Error when calibrating jets. Exiting." );
     }
+    /// Correcting the xAOD JVT value
+    /// source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
+    bool hasjvt = jet->isAvailable<float>("Jvt");
+    float oldjvt = -999;
+    if (hasjvt) oldjvt = jet->auxdata<float>("Jvt");
+    //cout << "calib jet pt " << (*jet).pt()/1000. << " calib jet pt " <<endl;
+    float newjvt = m_jvtTool->updateJvt(*jet);
+    jet->auxdecor<float>("Jvt") = newjvt;
+
   }
 //   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
 //   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
@@ -398,7 +406,19 @@ EL::StatusCode RecoAnalysis :: execute ()
   EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
                   m_event->retrieve( metcore, "MET_Core_AntiKt4EMTopo" ));
   
+  m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
+                           metElectrons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
+                           metPhotons.asDataVector(), metMap);
+  m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
+                           metTaus.asDataVector(), metMap);
   m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
+                           metMuons.asDataVector(), metMap);
+  m_metMaker->rebuildJetMET("RefJet", softTerm, met,
+                            metJets.first, metcore, metMap, 
+                            doJVTCut);        
+  
+/*  m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
                            metMuons.asDataVector(), metMap);
   m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
                            metElectrons.asDataVector(), metMap);
@@ -408,7 +428,7 @@ EL::StatusCode RecoAnalysis :: execute ()
                            metTaus.asDataVector(), metMap);
   m_metMaker->rebuildJetMET("RefJet", softTerm, met,
                             metJets.first, metcore, metMap, 
-                            doJVTCut);                                              
+                            doJVTCut); */                                             
 
   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
   
