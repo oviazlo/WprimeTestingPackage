@@ -154,7 +154,7 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     double elPt = (*el_itr)->pt() * 0.001;
 
     double lowPtCutVeto = 20.0; /// GeV
-    double lowPtCutSignal = 65.0; /// GeV
+    double lowPtCutSignal = 55.0; /// GeV
     double highPtCut = 999999.0; /// GeV
     
     /// fill cutflow only if pass highPtCut

@@ -258,13 +258,11 @@ EL::StatusCode RecoAnalysis :: initialize ()
   std::vector<std::string> lcalcFiles;
   confFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/prwFileWplusenuMC15b_25ns.root");
   lcalcFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/ilumicalc_histograms_None_276262-284484.root");
-  m_pileupReweightingTool->setProperty("ConfigFiles",confFiles);
-  m_pileupReweightingTool->setProperty("LumiCalcFiles",lcalcFiles); 
-  /// FIXME cross check with Markus should one setup DefaultChannel or not
-  
-//   m_pileupReweightingTool->setProperty("DefaultChannel", 361106).ignore(); /// Monika line
-  m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore(); /// from ROOT file
-  m_pileupReweightingTool->initialize();
+  CHECK(m_pileupReweightingTool->setProperty("ConfigFiles",confFiles));
+  CHECK(m_pileupReweightingTool->setProperty("LumiCalcFiles",lcalcFiles)); 
+  CHECK(m_pileupReweightingTool->setProperty("DataScaleFactor", 1.0/1.16)); 
+  CHECK(m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore());
+  CHECK(m_pileupReweightingTool->initialize());
   cout << "pileup reweighting initialised" << endl;
   
   m_sampleName = wk()->metaData()->getString ("sample_name");

@@ -454,16 +454,8 @@ EL::StatusCode RecoAnalysis :: execute ()
   double m_met_sumet  = finalTrkMet->sumet()/1000.;
   double missingEtPhi = finalTrkMet->phi();
   
-  double metCut;
-  double mtCut;
-  if (m_runElectronChannel){
-    metCut = 65.0;
-    mtCut = 130.0; 
-  }
-  else{
-    metCut = 55.0;
-    mtCut = 110.0;
-  }
+  double metCut = 55.0;
+  double mtCut = 110.0;
   
   if (missingEt<metCut)
     return EL::StatusCode::SUCCESS;

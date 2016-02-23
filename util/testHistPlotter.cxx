@@ -137,7 +137,7 @@ int main( int argc, char* argv[] ) {
       if (testHist!=NULL){
         setHistStyle(testHist,colorArr[k]);
         if (samplesToDraw[k]=="wmunu_massbinned")
-          testHist->Scale(10);
+          testHist->Scale(10); /// FIXME hardcoded scaling
         hs->Add(testHist);
       }
       else{
