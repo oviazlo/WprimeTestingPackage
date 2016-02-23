@@ -24,6 +24,9 @@ EL::StatusCode RecoAnalysis :: execute ()
   EL_RETURN_CHECK("execute()", m_event->retrieve( m_eventInfo, "EventInfo") );
   EventNumber = m_eventInfo->eventNumber();
   
+  /// use PileUp Reweighting Tool
+  m_pileupReweightingTool->apply( *m_eventInfo );
+  
   /// Muon Truth matching. Check do we have muon from W' decay
   /// WARNING do we need it for all MCs?
   if(m_isMC && m_doWprimeTruthMatching){
@@ -268,10 +271,13 @@ EL::StatusCode RecoAnalysis :: execute ()
         for( ; elec_itr != elec_end; ++elec_itr ) {
           if ((*elec_itr)->auxdata< bool >( "veto" ) || 
               (*elec_itr)->auxdata< bool >( "signal" )){
+            (*elec_itr)->auxdata< bool >( "overlap" ) = false;
             TLorentzVector part_elec = (*elec_itr)->p4();
             double dR = part_muon.DeltaR(part_elec);
-            if (dR<0.1) 
+            if (dR<0.1){
               nOverlapElec++;
+              (*elec_itr)->auxdata< bool >( "overlap" ) = true;
+            }
           }
         }
         break;
@@ -380,12 +386,19 @@ EL::StatusCode RecoAnalysis :: execute ()
   /// metElectrons
   ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
   for (const auto& elec : *classifiedElectrons.first) {
-    if (elec->auxdata< bool >( "signal" )) metElectrons.push_back(elec);
+    if (elec->auxdata< bool >( "signal" )){
+      if (elec->auxdata< bool >( "overlap" )==false)
+        metElectrons.push_back(elec);
+      else
+        cout << "[DEBUG]\tOverlap electron found!!!" << endl;
+    }
   }
 
   /// metMuons
   ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
   for (const auto& muon : *classifiedMuons.first) {
+    /// FIXME if run electron channel we also need to exclude muons which overlaps with electrons
+    /// from metMuons (which are usid in MET rebuilding)
     if (muon->auxdata< bool >( "signal" )) metMuons.push_back(muon);
   }
   

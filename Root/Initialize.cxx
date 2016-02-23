@@ -57,10 +57,7 @@ EL::StatusCode RecoAnalysis :: initialize ()
   std::vector<std::string> vecStringGRL; 
   vecStringGRL.push_back(
     "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus"
-    "-v71-pro19-06_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml");
-//   vecStringGRL.push_back(
-//     "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_HEAD_DQDefects-"
-//     "00-01-02_PHYS_StandardGRL_All_Good_25ns_tolerable_IBLSTANDBY-DISABLE.xml");
+    "-v73-pro19-08_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml");
 
   CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
   /// if true (default) will ignore result of GRL and will just pass all events
@@ -242,6 +239,7 @@ EL::StatusCode RecoAnalysis :: initialize ()
   weighfilterEfficiency = 1.0;
   weightCrossSection = 1.0;
   
+  m_LPXKfactorTool = NULL;
   if (m_isMC){
     m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
     CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
@@ -250,6 +248,24 @@ EL::StatusCode RecoAnalysis :: initialize ()
     
     EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
   }
+  
+  /// Source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ExtendedPileupReweighting
+  /// Example: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/HiggsZZllllPreparationRunII2014#Data_Period_Fraction_and_PileUpR
+  /// FIXME do I have to extract weight as below?
+  /// weight *= eventInfo->auxdata< double >("PileupWeight");
+  m_pileupReweightingTool = new CP::PileupReweightingTool("PileupReweightingTool");
+  std::vector<std::string> confFiles;
+  std::vector<std::string> lcalcFiles;
+  confFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/prwFileWplusenuMC15b_25ns.root");
+  lcalcFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/ilumicalc_histograms_None_276262-284484.root");
+  m_pileupReweightingTool->setProperty("ConfigFiles",confFiles);
+  m_pileupReweightingTool->setProperty("LumiCalcFiles",lcalcFiles); 
+  /// FIXME cross check with Markus should one setup DefaultChannel or not
+  
+//   m_pileupReweightingTool->setProperty("DefaultChannel", 361106).ignore(); /// Monika line
+  m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore(); /// from ROOT file
+  m_pileupReweightingTool->initialize();
+  cout << "pileup reweighting initialised" << endl;
   
   m_sampleName = wk()->metaData()->getString ("sample_name");
   string tmpSampleName = "";
@@ -265,6 +281,8 @@ EL::StatusCode RecoAnalysis :: initialize ()
     if (m_DSID>=361106) /// Z sample
       m_pdgIdOfMother = 23; /// FIXME but gamma is 22... 
                             /// do we have gamma in Z inc. samples?
+                            /// UPDATE: looks like it's OK to use only pdgId=23
+                            /// for all Z samples...
     else /// W sample
       m_pdgIdOfMother = 24;
   }

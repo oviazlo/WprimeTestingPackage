@@ -113,6 +113,8 @@
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
+#include "PileupReweighting/PileupReweightingTool.h"
+   
 /// GRL
 class GoodRunsListSelectionTool;
 class xAODJet;
@@ -125,10 +127,11 @@ class JERTool;
 class METUtility;
 
 /// muon calibration and smearing tool
-namespace CP{
+namespace CP{ /// these tools live in the namespace CP
   class MuonSelectionTool;
-  class MuonCalibrationAndSmearingTool; /// this tool lives in the namespace CP
+  class MuonCalibrationAndSmearingTool; 
   class IsolationSelectionTool;
+//   class PileupReweightingTool;
   //~ class MuonEfficiencyCorrections;
 }
 
@@ -169,6 +172,8 @@ public:
   CP::MuonCalibrationAndSmearingTool *m_muonCalibrationAndSmearingTool; //!
   CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
   CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
+  CP::PileupReweightingTool *m_pileupReweightingTool; //!
+  
   LPXKfactorTool* m_LPXKfactorTool; //!
   
   /// Custom classes
