@@ -5,8 +5,12 @@
 #include "EventLoop/Worker.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
+#include "xAODMuon/Muon.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
+#include "xAODEventInfo/EventInfo.h"
 
 /// custom
 #include <MyAnalysis/WprimeHist.h>
@@ -34,6 +38,7 @@ public:
                       string stage_tag, double weight = 1.0);
       
     void printMuon(const xAOD::Muon* mu);
+    void printElectron(const xAOD::Electron* el, const xAOD::EventInfo* m_eventInfo);
 	
 private:
 	

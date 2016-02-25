@@ -52,6 +52,15 @@ map<size_t,string> systemMap = boost::assign::map_list_of (CERN,"CERN")
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
 size_t systemType;
 
+/// TODO implement default patterns...
+/// and call them with separate flags
+
+/// diboson: 3610*
+/// top: 4100*
+/// mass-binned DY: 301*
+/// inclusive W: 3611*L1_W*
+/// inclusive Z: 3611*L1_Z*
+
 int main( int argc, char* argv[] ) {
  
   /// get global input arguments:

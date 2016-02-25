@@ -23,7 +23,10 @@ public:
 	/// WARNING call this function on the BEGIN of EVENT!!!
 	/// WARNING call this function in the finalize() function!!!
 	void PushBitSet();
-	
+	bitset<99> getBitset(){
+      return m_bitset;
+    }
+    
 private:
 	
 	unsigned int m_cutflowStepCounter; //!

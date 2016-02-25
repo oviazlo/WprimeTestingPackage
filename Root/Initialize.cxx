@@ -83,17 +83,16 @@ EL::StatusCode RecoAnalysis :: initialize ()
   /// for example AntiKt4EMTopo or AntiKt4EMTopo (see above)
   TString jetAlgo = "AntiKt4EMTopo"; 
   /// Path to global config used to initialize the tool (see above)
-//   TString config = "JES_MC15Prerecommendation_April2015.config"; 
-  TString config = "JES_2015dataset_recommendation_Feb2016.config";
+  /// WARNING in our analysis we use PRE-RECOMMENDATIONS (according to Magnar)
+  TString config = "JES_MC15Prerecommendation_April2015.config"; 
+//   TString config = "JES_2015dataset_recommendation_Feb2016.config";
   /// String describing the calibration sequence to apply (see above)
   TString calibSeq ="JetArea_Residual_Origin_EtaJES_GSC" ; 
+  if (!m_isMC)
+    calibSeq = "JetArea_Residual_Origin_EtaJES_GSC_Insitu";
   
   m_jetCalibrationTool = 
   new JetCalibrationTool(name, jetAlgo, config, calibSeq, !m_isMC);
-//   CHECK (m_jetCalibrationTool->setProperty("JetCollection",jetAlgo));
-//   CHECK (m_jetCalibrationTool->setProperty("ConfigFile",config));
-//   CHECK (m_jetCalibrationTool->setProperty("CalibSequence",calibSeq));
-//   CHECK (m_jetCalibrationTool->setProperty("IsData",!m_isMC));
   
   EL_RETURN_CHECK("initialize jetCalibrationTool",
                   m_jetCalibrationTool->initializeTool(name));
@@ -137,14 +136,14 @@ EL::StatusCode RecoAnalysis :: initialize ()
   m_muonSelection = new CP::MuonSelectionTool("MuonSelection");
   // m_muonSelection->msg().setLevel( MSG::INFO );
   m_muonSelection->setProperty( "MaxEta", 2.5 );
-  m_muonSelection->setProperty( "MuQuality", 4); /// according to source: Tight -> MuQuality=0. But then cutflow doesn't match. While MuQuality=4 leads to matching of cutflows... FIXME TODO Cross check with Magnard
+  m_muonSelection->setProperty( "MuQuality", 4); /// high-pT configuration
   m_muonSelection->msg().setLevel( MSG::ERROR );
   CHECK (m_muonSelection->initialize().isSuccess());
 
   m_looseMuonSelection = new CP::MuonSelectionTool("MuonLooseSelection");
   // m_looseMuonSelection->msg().setLevel( MSG::INFO );
   m_looseMuonSelection->setProperty( "MaxEta", 2.5 );
-  m_looseMuonSelection->setProperty( "MuQuality", 1); /// WARNING before was 2
+  m_looseMuonSelection->setProperty( "MuQuality", 1);
   m_looseMuonSelection->msg().setLevel( MSG::ERROR );
   CHECK (m_looseMuonSelection->initialize().isSuccess());
   
@@ -204,8 +203,8 @@ EL::StatusCode RecoAnalysis :: initialize ()
   EL_RETURN_CHECK( "initialize", m_LHToolMedium2015->setProperty(
     "primaryVertexContainer","PrimaryVertices"));
 
-  /// FIXME do we need to use mc15_20160113 instead?
   /// Source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Electron_d0_and_z0_cut_definitio  
+  /// WARNING our analysis use mc15_20151012
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20151012/";
   EL_RETURN_CHECK( "m_LHToolTight2015 setProperty ConfigFile", 
                    m_LHToolTight2015->setProperty(
@@ -261,7 +260,7 @@ EL::StatusCode RecoAnalysis :: initialize ()
   CHECK(m_pileupReweightingTool->setProperty("ConfigFiles",confFiles));
   CHECK(m_pileupReweightingTool->setProperty("LumiCalcFiles",lcalcFiles)); 
   CHECK(m_pileupReweightingTool->setProperty("DataScaleFactor", 1.0/1.16)); 
-  CHECK(m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore());
+  m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore();
   CHECK(m_pileupReweightingTool->initialize());
   cout << "pileup reweighting initialised" << endl;
   

@@ -128,7 +128,7 @@ EL::StatusCode RecoAnalysis :: execute ()
   if(!m_isMC){
     if(  (m_eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error )
       || (m_eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error )
-//       || (m_eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
+      || (m_eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error )
       || (m_eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) )  )
     {
       return EL::StatusCode::SUCCESS; 
@@ -238,7 +238,8 @@ EL::StatusCode RecoAnalysis :: execute ()
   
   std::pair<xAOD::ElectronContainer*,xAOD::ShallowAuxContainer*> 
   classifiedElectrons = xAOD::shallowCopyContainer(*electrons);
-  xAOD::setOriginalObjectLink(*electrons, *classifiedElectrons.first); 
+  xAOD::setOriginalObjectLink(*electrons, *classifiedElectrons.first);
+
   for(const auto& electron : *classifiedElectrons.first) { 
     CP::CorrectionCode result = 
     m_eleCalibrationTool->applyCorrection(*electron); 
@@ -283,17 +284,19 @@ EL::StatusCode RecoAnalysis :: execute ()
         break;
       }
     }
-        
+    
     /// TODO verify this cut somehow...
     if ((elPair.second+elPair.first)!=nOverlapElec)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
+
+//     cout << "[CUTFLOW_DEBUG]\t" << m_eventInfo->runNumber() << "\t" << EventNumber <<  endl;
   }
   else{
     if (elPair.first!=1 || elPair.second!=0)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
-    
+//     cout << "[CUTFLOW_DEBUG]\t" << m_eventInfo->runNumber() << "\t" << EventNumber <<  endl;
     muPair = SelectMuons(classifiedMuons.first, primVertex, 
                          !m_runElectronChannel);
     
@@ -389,8 +392,6 @@ EL::StatusCode RecoAnalysis :: execute ()
     if (elec->auxdata< bool >( "signal" )){
       if (elec->auxdata< bool >( "overlap" )==false)
         metElectrons.push_back(elec);
-      else
-        cout << "[DEBUG]\tOverlap electron found!!!" << endl;
     }
   }
 

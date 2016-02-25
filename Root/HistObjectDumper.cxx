@@ -244,3 +244,33 @@ void HistObjectDumper::printMuon(const xAOD::Muon* mu){
   cout << "ptCone/pt:\t" << muPtCone30/mu->pt() << endl;
    
 }
+
+void HistObjectDumper::printElectron(const xAOD::Electron* el, 
+                                     const xAOD::EventInfo* m_eventInfo){
+/// **************************************************************
+///
+/// Print info about selected muon
+///     
+/// **************************************************************
+  
+  float ptCone30 = 0.;
+  /// second arg is an enum defined in xAODPrimitives/IsolationType.h
+  el->isolation(ptCone30, xAOD::Iso::ptcone30);  
+
+  const xAOD::TrackParticle *tp = el->trackParticle();
+  double d0_sig = xAOD::TrackingHelpers::d0significance
+    ( tp, m_eventInfo->beamPosSigmaX(), m_eventInfo->beamPosSigmaY(), 
+      m_eventInfo->beamPosSigmaXY() );
+  
+  bool objQual = el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON);
+    
+  cout << "************************************" << endl;
+  cout << "pt:\t" << el->pt()*0.001 << endl;
+  cout << "eta:\t" << el->caloCluster()->etaBE(2) << endl;
+  cout << "phi:\t" << el->phi() << endl;
+  cout << "d0_sig:\t" << d0_sig << endl;
+  cout << "objQual:\t" << objQual <<  endl;
+  cout << "ptCone/pt:\t" << ptCone30/el->pt() << endl;
+  
+   
+}

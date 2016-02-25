@@ -68,17 +68,11 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
     fillCutflow = (passHighPtCut && passHighPtSelection);
     
     /// do significance 
-    /// FIXME make it back
-//     const xAOD::TrackParticle *tp = ( *muon_itr )->primaryTrackParticle();
-//     double d0_sig = xAOD::TrackingHelpers::d0significance
-//       ( tp, m_eventInfo->beamPosSigmaX(), m_eventInfo->beamPosSigmaY(), 
-//         m_eventInfo->beamPosSigmaXY() );
-    double d0_sig = TMath::Abs((*muon_itr)->primaryTrackParticle()->d0()) /
-              TMath::Sqrt(
-                (*muon_itr)->primaryTrackParticle()->
-                definingParametersCovMatrix()(0,0)
-                + m_eventInfo->beamPosSigmaX()*m_eventInfo->beamPosSigmaX() );
-    if (d0_sig>3.0) continue;
+    const xAOD::TrackParticle *tp = ( *muon_itr )->primaryTrackParticle();
+    double d0_sig = xAOD::TrackingHelpers::d0significance
+      ( tp, m_eventInfo->beamPosSigmaX(), m_eventInfo->beamPosSigmaY(), 
+        m_eventInfo->beamPosSigmaXY() );
+    if (TMath::Abs(d0_sig)>3.0) continue; 
     if (passHighPtCut)
       m_BitsetCutflow->FillCutflow("d0",fillInCutflow);
     
@@ -140,16 +134,19 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     
     if (fillCutflow) 
       m_BitsetCutflow->FillCutflow("oneElectron",fillInCutflow);
+    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass oneElectron" << endl;
     
     double elEta = (*el_itr)->caloCluster()->etaBE(2);
     if ( abs(elEta) > 2.47 || (abs(elEta) > 1.37 && abs(elEta) < 1.52)) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("Eta",fillInCutflow);
+    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass Eta" << endl;
     
     bool objQual = (*el_itr)->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON);
     if (!objQual) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("OQ",fillInCutflow);
+    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass OQ" << endl;
     
     double elPt = (*el_itr)->pt() * 0.001;
 
@@ -167,21 +164,17 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     
     if (fillCutflow) 
       m_BitsetCutflow->FillCutflow( "el_pt",fillInCutflow );
+    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass el_pt" << endl;
     
     /// do significance 
-    /// FIXME make it back
-//     const xAOD::TrackParticle *tp = (*el_itr)->trackParticle();
-//     double d0_sig = xAOD::TrackingHelpers::d0significance
-//       ( tp, m_eventInfo->beamPosSigmaX(), m_eventInfo->beamPosSigmaY(), 
-//         m_eventInfo->beamPosSigmaXY() );
-    double d0_sig = TMath::Abs((*el_itr)->trackParticle()->d0()) /
-          TMath::Sqrt(
-            (*el_itr)->trackParticle()->
-            definingParametersCovMatrix()(0,0)
-            + m_eventInfo->beamPosSigmaX()*m_eventInfo->beamPosSigmaX() );
-    if (d0_sig>5.0) continue;
+    const xAOD::TrackParticle *tp = (*el_itr)->trackParticle();
+    double d0_sig = xAOD::TrackingHelpers::d0significance
+      ( tp, m_eventInfo->beamPosSigmaX(), m_eventInfo->beamPosSigmaY(), 
+        m_eventInfo->beamPosSigmaXY() );
+    if (TMath::Abs(d0_sig)>5.0) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("d0",fillInCutflow);
+    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass d0" << endl;
     
     bool passHighPtSelection = false;
     if ( !m_LHToolMedium2015->accept((*el_itr)) ) continue;
@@ -192,10 +185,12 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("ID",fillInCutflow);
+    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass ID" << endl;
     
     if (!m_eleisolationSelectionTool->accept(**el_itr)) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
+    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass Isolation" << endl;
     
     /// check veto lepton if it satisfy signal requirements
     if (passHighPtCut && passHighPtSelection){
@@ -208,13 +203,11 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     }
   }
   
-  /// all signal leptons are counted as veto...
-  /// subtract them to get exclusive veto leptons
   std::pair<unsigned int, unsigned int> outPair (nSignalLeptons,
                                             nVetoLeptons);
   
   return outPair; 
-  
+ 
 }
 
 
