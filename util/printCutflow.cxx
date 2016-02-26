@@ -48,17 +48,24 @@ int main( int argc, char* argv[] ) {
   if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 
   /// Take the submit directory from the input if provided:
-  std::string folder = "submitDir";
-  if (vm.count("folder"))
-    folder = vm["folder"].as<std::string>();
-  else
-    cout << "[INFO]\tread cutflow from default directory: " << folder << endl;
+  std::string folderPrefix = "submitDirs";
+  std::vector<std::string> folders;
+  if (vm.count("folder")){
+    folders = GetWords(vm["folder"].as<std::string>(),',');
+  }
+  else{
+    cout << "[ERROR]\tplease specify input folder with '-f' option" << endl;
+    return 0;    
+  }
 
   /// Construct the samples to run on:
   SH::SampleHandler sh;
 
-  cout << "[INFO]\tRead samples from dir: " << folder << endl;
-  sh.load (folder + "/hist");
+  for (int i=0; i<folders.size(); i++){
+    string folder = folderPrefix + "/" + folders[i];
+    cout << "[INFO]\tRead samples from dir: " << folder << endl;
+    sh.load (folder + "/hist");
+  }
  
   if (sh.size()==0){
     cout << "sh.size() = " << sh.size() << endl;
