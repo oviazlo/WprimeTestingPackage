@@ -31,6 +31,7 @@
 #include "HelpFunctions.h"
 
 map<string,string> sampleMap;
+bool MatchPattern(string sampleName, vector<string> patternVec);
 
 int main( int argc, char* argv[] ) {
 
@@ -39,6 +40,7 @@ int main( int argc, char* argv[] ) {
     ("help,h", "Print help messages") 
     ("folder,f", po::value<string>(), "name of folder to read")
     ("drawHists,d", "draw histograms")
+    ("samplePattern,p", po::value<string>(),"specify Sample Pattern")
     ("useOnlyOneFile", "use only one file from folder")
     ;
   
@@ -49,6 +51,13 @@ int main( int argc, char* argv[] ) {
 
   /// Take the submit directory from the input if provided:
   std::string folderPrefix = "submitDirs";
+  
+  vector <string> strSamplePattertVec;
+  if ( vm.count("samplePattern") ){
+    string strSamplePattert = vm["samplePattern"].as<std::string>();
+    strSamplePattertVec = GetWords(strSamplePattert,'*');
+  }
+  
   std::vector<std::string> folders;
   if (vm.count("folder")){
     folders = GetWords(vm["folder"].as<std::string>(),',');
@@ -104,6 +113,9 @@ int main( int argc, char* argv[] ) {
     else{ /// get cutflow_hist from each file add sum them up
       for (SH::SampleHandler::iterator iter = sh.begin()+1; iter != sh.end(); 
         ++ iter){
+        if (!MatchPattern((*iter)->name(),strSamplePattertVec)) 
+          continue;
+        cout << (*iter)->name() << endl;
         TH1I* tmpHist = (TH1I*)(*iter)->readHist ("cutflow_hist");
         cutflowHist->Add(tmpHist);
       }
@@ -147,3 +159,11 @@ int main( int argc, char* argv[] ) {
   return 0;
 }
 
+bool MatchPattern(string sampleName, vector<string> patternVec){
+  for (int i=0; i<patternVec.size(); i++){
+    std::size_t found = sampleName.find(patternVec[i]);
+    if (found==std::string::npos)
+      return false;
+  }
+  return true;
+}
