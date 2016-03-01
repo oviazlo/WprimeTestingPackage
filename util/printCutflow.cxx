@@ -21,6 +21,7 @@
 
 /// std C/C++ headers
 #include <stdlib.h>
+#include <fstream>
 
 /// boost
 #include "boost/program_options.hpp"
@@ -42,6 +43,7 @@ int main( int argc, char* argv[] ) {
     ("drawHists,d", "draw histograms")
     ("samplePattern,p", po::value<string>(),"specify Sample Pattern")
     ("useOnlyOneFile", "use only one file from folder")
+    ("writeCutflowToFile,w", "save cutflow to file")
     ;
   
   /// get global input arguments:
@@ -83,53 +85,72 @@ int main( int argc, char* argv[] ) {
   }
   
   SH::Sample* mySample = *(sh.begin());
-  TH1I* cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+  TH1I* cutflowHist = NULL;
   cout << "[INFO]\tsh.size() = " << sh.size() << endl;
-  
-  if (sh.size()>1){
-  
-    if (vm.count("useOnlyOneFile")){
-      int counter = 0;
-      cout << "[WARNING]\tThere are more than one sample!" << endl;
-      for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
-        ++ iter){
-        cout << counter << ": " << (*iter)->name() << endl;
-        counter++;
-      }
-      int sampleToUse = 0;
-      cout << "[WARNING]\tPlease choose which one to use from list above: ";
-      cin >> sampleToUse;
-      if (sampleToUse<0)
-        sampleToUse = 0;
-      if (sampleToUse>=sh.size())
-        sampleToUse = sh.size()-1;
-      
-      mySample = sh.at(sampleToUse);
-      cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
-      
-      cout << "[INFO]\tUsing samle " << sampleToUse << ": " 
-      << mySample->name() << endl;
+
+  if (vm.count("useOnlyOneFile")){
+    int counter = 0;
+    cout << "[WARNING]\tThere are more than one sample!" << endl;
+    for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
+      ++ iter){
+      cout << counter << ": " << (*iter)->name() << endl;
+      counter++;
     }
-    else{ /// get cutflow_hist from each file add sum them up
-      for (SH::SampleHandler::iterator iter = sh.begin()+1; iter != sh.end(); 
-        ++ iter){
-        if (!MatchPattern((*iter)->name(),strSamplePattertVec)) 
-          continue;
-        cout << (*iter)->name() << endl;
-        TH1I* tmpHist = (TH1I*)(*iter)->readHist ("cutflow_hist");
+    int sampleToUse = 0;
+    cout << "[WARNING]\tPlease choose which one to use from list above: ";
+    cin >> sampleToUse;
+    if (sampleToUse<0)
+      sampleToUse = 0;
+    if (sampleToUse>=sh.size())
+      sampleToUse = sh.size()-1;
+    
+    mySample = sh.at(sampleToUse);
+    cutflowHist = (TH1I*)mySample->readHist ("cutflow_hist");
+    
+    cout << "[INFO]\tUsing samle " << sampleToUse << ": " 
+    << mySample->name() << endl;
+  }
+  else{ /// get cutflow_hist from each file add sum them up
+    cout << "[INFO]\tRead following samples:" << endl;
+    for (SH::SampleHandler::iterator iter = sh.begin(); iter != sh.end(); 
+      ++ iter){
+      if (!MatchPattern((*iter)->name(),strSamplePattertVec)) 
+        continue;
+      cout << (*iter)->name() << endl;
+      TH1I* tmpHist = (TH1I*)(*iter)->readHist ("cutflow_hist");
+      if (cutflowHist==NULL)
+        cutflowHist = tmpHist;
+      else
         cutflowHist->Add(tmpHist);
-      }
     }
+    cout << endl;
   }
     
-  cout << "[DEBUG]\tcutflowHist = " << cutflowHist << endl;
+  if (cutflowHist==NULL){
+    cout << "[ERROR]\tno matched pattern found! Terminate!!!" << endl;
+    return 0;
+  }
+    
   
+  std::ofstream logFile;
+  if (vm.count("writeCutflowToFile")){
+    string fileName = "cutflow_" + vm["samplePattern"].as<std::string>() + "_" + vm["folder"].as<std::string>() + ".txt";
+    std::ofstream ofs(fileName.c_str(), std::ofstream::out);
+    ofs.close();
+    logFile.open (fileName.c_str(), std::ofstream::out | std::ofstream::app);
+  }
+    
   for (int i=1; i<=cutflowHist->GetNbinsX(); i++){
     int binContent = cutflowHist->GetBinContent(i);
     if (binContent<=0) break;
     string binLabel = cutflowHist->GetXaxis()->GetBinLabel(i);
     cout << binLabel << ":\t" << binContent << endl;
+    if (vm.count("writeCutflowToFile"))
+      logFile << binLabel << ":\t" << binContent << endl;
   }
+  
+  if (vm.count("writeCutflowToFile"))
+    logFile.close();
 
   /// FIXME deprecaged functionality; remove it
   if (vm.count("drawHists")){
