@@ -43,14 +43,15 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
     
     /// fill cutflow only if pass highPtCut
     bool passHighPtCut = false;
-    if ( muPt < lowPtCutVeto || muPt>=highPtCut ) continue;
-    if ( ( muPt > lowPtCutSignal ) && ( muPt<highPtCut ) ){
+    if ( muPt < lowPtCutVeto ) continue;
+    if ( muPt > lowPtCutSignal )
       passHighPtCut = true;
-    }
     fillCutflow = passHighPtCut;
     
-    if (fillCutflow) 
+    if (fillCutflow){
       m_BitsetCutflow->FillCutflow( "mu_pt",fillInCutflow );
+//       cout << "[CUTFLOW_DEBUG_PT]\t" << m_eventInfo->runNumber() << "\t" << m_eventInfo->eventNumber() <<  endl;
+    }
     
     /// medium OR high-pT
     if( !(( m_looseMuonSelection->accept( ( *muon_itr ) ) ) ||
@@ -84,8 +85,10 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
     if (passHighPtCut)
       m_BitsetCutflow->FillCutflow( "z0",fillInCutflow );
     
-    if (fillCutflow) 
+    if (fillCutflow){ 
       m_BitsetCutflow->FillCutflow( "MCP selector",fillInCutflow );
+//       cout << "[CUTFLOW_DEBUG_MCP_SELECTOR]\t" << m_eventInfo->runNumber() << "\t" << m_eventInfo->eventNumber() <<  endl;
+    }
     
     if (!m_muonisolationSelectionTool->accept(( **muon_itr ))) continue;
     if (fillCutflow)
@@ -134,19 +137,19 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     
     if (fillCutflow) 
       m_BitsetCutflow->FillCutflow("oneElectron",fillInCutflow);
-    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass oneElectron" << endl;
+//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass oneElectron" << endl;
     
     double elEta = (*el_itr)->caloCluster()->etaBE(2);
     if ( abs(elEta) > 2.47 || (abs(elEta) > 1.37 && abs(elEta) < 1.52)) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("Eta",fillInCutflow);
-    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass Eta" << endl;
+//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass Eta" << endl;
     
     bool objQual = (*el_itr)->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON);
     if (!objQual) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("OQ",fillInCutflow);
-    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass OQ" << endl;
+//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass OQ" << endl;
     
     double elPt = (*el_itr)->pt() * 0.001;
 
@@ -164,7 +167,7 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     
     if (fillCutflow) 
       m_BitsetCutflow->FillCutflow( "el_pt",fillInCutflow );
-    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass el_pt" << endl;
+//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass el_pt" << endl;
     
     /// do significance 
     const xAOD::TrackParticle *tp = (*el_itr)->trackParticle();
@@ -174,7 +177,7 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     if (TMath::Abs(d0_sig)>5.0) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("d0",fillInCutflow);
-    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass d0" << endl;
+//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass d0" << endl;
     
     bool passHighPtSelection = false;
     if ( !m_LHToolMedium2015->accept((*el_itr)) ) continue;
@@ -185,12 +188,12 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("ID",fillInCutflow);
-    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass ID" << endl;
+//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass ID" << endl;
     
     if (!m_eleisolationSelectionTool->accept(**el_itr)) continue;
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
-    cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass Isolation" << endl;
+//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass Isolation" << endl;
     
     /// check veto lepton if it satisfy signal requirements
     if (passHighPtCut && passHighPtSelection){

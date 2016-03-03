@@ -508,6 +508,9 @@ EL::StatusCode RecoAnalysis :: execute ()
 
   m_HistObjectDumper->plotMuon(metMuons[0],"final",totalWeight);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final",totalWeight);
+
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noWeight",1);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noWeight",1);
   
   return EL::StatusCode::SUCCESS;
 }
