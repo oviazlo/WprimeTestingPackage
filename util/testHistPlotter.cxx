@@ -115,6 +115,7 @@ int main( int argc, char* argv[] ) {
     mergedSample->AddSampleHandler(sh,samples[i]);
   }
 
+  //string prefix = "muon/stage_final_noWeight/hObjDump_";
   string prefix = "muon/stage_final/hObjDump_";
   vector<string> plotsToDraw = {"pt","met","mt","eta","phi"};
   

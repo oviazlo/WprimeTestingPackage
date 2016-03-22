@@ -111,6 +111,9 @@ TH1* WprimeHist::standard(Name name, Name hpname, Name sel, Name hptitle) {
   } else if ( name == "evtwt_filterEff" ) {
     htitle += " filterEff event weight; filterEff Event weight" + ylab;
     return create(hname, htitle, 200, -10, 10);
+  } else if ( name == "evtwt_SFWeight" ) {
+    htitle += " total SF event weight; total SF Event weight" + ylab;
+    return create(hname, htitle, 200, -10, 10);
   } else if ( name == "evtwt_kFactor" ) {
     htitle += " kFactor event weight; kFactor Event weight" + ylab;
     return create(hname, htitle, 200, -10, 10);

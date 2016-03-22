@@ -24,6 +24,14 @@ EL::StatusCode RecoAnalysis :: execute ()
   EL_RETURN_CHECK("execute()", m_event->retrieve( m_eventInfo, "EventInfo") );
   EventNumber = m_eventInfo->eventNumber();
   
+  /// FIXME cutflow
+  static const int arr[] = {646, 1951, 158, 1279, 720, 1884, 1019, 241, 1238, 43};
+  vector<int> runNumbersToPlay (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+  vector<int>::iterator it;
+  it = std::find(runNumbersToPlay.begin(), runNumbersToPlay.end(), EventNumber);
+  if (it==runNumbersToPlay.end())
+    return EL::StatusCode::SUCCESS; 
+  
   /// use PileUp Reweighting Tool
   m_pileupReweightingTool->apply( *m_eventInfo );
   
@@ -94,7 +102,7 @@ EL::StatusCode RecoAnalysis :: execute ()
               - TMath::Power((*truthV_itr)->incomingParticle(iIn)->py(),2)
               - TMath::Power((*truthV_itr)->incomingParticle(iIn)->px(),2)
                    )*0.001; 
-          
+
           h_mgen_all->Fill(m_trueWmass);
           if (m_trueWmass > 120.0){
             massAbove120Gev = true;
@@ -486,19 +494,67 @@ EL::StatusCode RecoAnalysis :: execute ()
   m_BitsetCutflow->FillCutflow("mT");
   
   /// get MC weights
+  double SFWeight = 1.0;
+  double trgSF = -999.0;
+  float recoEffSF = -999.0;
+  float isoSF = -999.0;
+  double puWeight = -999.0;
+  
   if (m_isMC){
+	puWeight = m_pileupReweightingTool->getCombinedWeight( *m_eventInfo );
+
+    m_LPXKfactorTool->applySystematicVariation(CP::SystematicSet()); //nominal
     m_LPXKfactorTool->execute();
     weightkFactor = m_eventInfo->auxdecor<double>("KfactorWeight");
     weighfilterEfficiency = m_LPXKfactorTool->getMCFilterEfficiency();
     weightCrossSection = m_LPXKfactorTool->getMCCrossSection(); ///TODO make 
                                                     ///proper implementation
+
+	  unsigned int randomRunNumber = m_pileupReweightingTool->getRandomRunNumber( *m_eventInfo, false );
+	  m_trig_sf->setRunNumber(randomRunNumber);
+
+	  xAOD::MuonContainer *SelectedMuon = new xAOD::MuonContainer;
+	  xAOD::MuonAuxContainer *SelectedMuonAux = new xAOD::MuonAuxContainer;
+	  SelectedMuon->setStore(SelectedMuonAux);
+	  xAOD::Muon* newMuon = new xAOD::Muon;
+	  newMuon->makePrivateStore(*(metMuons[0]));
+	  SelectedMuon->push_back(newMuon);
+
+	  m_trig_sf->applySystematicVariation(CP::SystematicSet()); //nominal
+	  if (m_trig_sf->getTriggerScaleFactor(*SelectedMuon, trgSF, "HLT_mu50") != CP::CorrectionCode::Ok) {
+		Error("execute()", "m_trig_sf returns not Ok CorrectionCode");
+		return EL::StatusCode::FAILURE;
+	  }
+		
+	  m_effi_corr->applySystematicVariation(CP::SystematicSet()); //nominal
+	  if (m_effi_corr->getEfficiencyScaleFactor(*(metMuons[0]),  recoEffSF ) != CP::CorrectionCode::Ok) {
+		if (m_effi_corr->getEfficiencyScaleFactor(*(metMuons[0]), recoEffSF) == CP::CorrectionCode::OutOfValidityRange)
+		  recoEffSF = 1.0;
+		else {
+		  Error("execute()", "m_effi_corr returns not Ok CorrectionCode");
+		  return EL::StatusCode::FAILURE;
+		}
+	  }
+		
+	  m_effi_corr_iso->applySystematicVariation(CP::SystematicSet()); //nominal
+	  if (m_effi_corr_iso->getEfficiencyScaleFactor(*(metMuons[0]),  isoSF ) != CP::CorrectionCode::Ok) {
+		Error("execute()", "m_effi_corr_iso returns not Ok CorrectionCode");
+		return EL::StatusCode::FAILURE;
+	  }
+
+	  delete SelectedMuon;
+	  delete SelectedMuonAux; 
+	  
+	  SFWeight = trgSF * recoEffSF * isoSF * puWeight;
+  
   }
   
   h_event_crossSectionWeight->Fill(weightCrossSection);
   h_event_kFactor->Fill(weightkFactor);
   h_event_filterEfficiency->Fill(weighfilterEfficiency);
+  h_event_SFWeight->Fill(SFWeight);
   
-  double totalWeight = weighfilterEfficiency*weightkFactor*weightCrossSection;
+  double totalWeight = weighfilterEfficiency*weightkFactor*weightCrossSection*SFWeight;
   
   h_event_totalWeight->Fill(totalWeight);
   
@@ -511,6 +567,22 @@ EL::StatusCode RecoAnalysis :: execute ()
 
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noWeight",1);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noWeight",1);
+  
+  /// FIXME cutflow
+  cout << "[CUTFLOW]\t" << endl;
+  cout << "[CUTFLOW]\t Scale Factor cross checks" << endl;
+  cout << "[CUTFLOW]\t EventNumber = " << EventNumber << endl;
+  cout << "[CUTFLOW]\t mT = " << mT << endl;
+  cout << "[CUTFLOW]\t leptonEt = " << leptonEt << endl;
+  cout << "[CUTFLOW]\t missingEt = " << missingEt << endl;
+  cout << "[CUTFLOW]\t metMuons[0]->eta() = " << metMuons[0]->eta() << endl;
+  cout << "[CUTFLOW]\t trgSF = " << trgSF << endl;
+  cout << "[CUTFLOW]\t recoEffSF = " << recoEffSF << endl;
+  cout << "[CUTFLOW]\t isoSF = " << isoSF << endl;
+  cout << "[CUTFLOW]\t puWeight = " << puWeight << endl;
+  cout << "[CUTFLOW]\t weightkFactor = " << weightkFactor << endl;
+  cout << "[CUTFLOW]\t BornMass = " << m_eventInfo->auxdata< double >( "BornMass" ) << endl;
+  cout << "[CUTFLOW]\t" << endl;
   
   return EL::StatusCode::SUCCESS;
 }

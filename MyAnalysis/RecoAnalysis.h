@@ -26,6 +26,7 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/MuonAuxContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/EgammaContainer.h"
@@ -35,15 +36,20 @@
 #include <TSystem.h> /// used to define JERTool calibration path 
 #include "xAODTracking/VertexContainer.h"
 #include "xAODParticleEvent/IParticleLink.h"
-
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
 /// Muons
 #include "MuonSelectorTools/MuonSelectionTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+#include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
+#include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
 
+ 
 /// to check the return correction code status of tools
 #include "PATInterfaces/CorrectionCode.h" 
+#include "PATInterfaces/SystematicRegistry.h"
+#include "PATInterfaces/SystematicVariation.h" 
+#include "PATInterfaces/SystematicsUtil.h"
 
 /// MET
 #include "METUtilities/METMaker.h" /// METUtils
@@ -53,6 +59,8 @@
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "METInterface/IMETMaker.h"
 #include "METUtilities/CutsMETMaker.h"
+
+
 
 /// LPXKfactorTool tool
 #include "LPXKfactorTool/LPXKfactorTool.h"
@@ -173,6 +181,11 @@ public:
   CP::IsolationSelectionTool *m_muonisolationSelectionTool; //!
   CP::IsolationSelectionTool *m_eleisolationSelectionTool; //!
   CP::PileupReweightingTool *m_pileupReweightingTool; //!
+  CP::MuonTriggerScaleFactors *m_trig_sf; //!
+  CP::MuonEfficiencyScaleFactors *m_effi_corr; //!
+  CP::MuonEfficiencyScaleFactors *m_effi_corr_iso; //!
+  // list of systematics
+  std::vector<CP::SystematicSet> m_sysList; //!
   
   LPXKfactorTool* m_LPXKfactorTool; //!
   
@@ -187,6 +200,7 @@ public:
   
   /// Bool Flags
   bool m_isMC; //!
+  bool m_isMC15b; //!
   bool m_inclusiveWorZ; //!
   /// Bool Flags, initialized at setupJob - on submit stage and are the same for workers
   bool m_useHistObjectDumper;
@@ -260,6 +274,7 @@ public:
   TH1D* h_event_crossSectionWeight; //!
   TH1D* h_event_kFactor; //!
   TH1D* h_event_filterEfficiency; //!
+  TH1D* h_event_SFWeight; //!
   TH1D* h_event_totalWeight; //!
 
   TH1D *h_mgen_all; //!

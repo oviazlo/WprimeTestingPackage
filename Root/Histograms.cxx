@@ -40,6 +40,10 @@ EL::StatusCode RecoAnalysis :: histInitialize ()
                                                          "","");
   wk()->addOutput(h_event_filterEfficiency);
   
+  h_event_SFWeight = (TH1D*)WprimeHist::standard("evtwt_SFWeight","h",
+                                                         "","");
+  wk()->addOutput(h_event_SFWeight); 
+  
   h_event_totalWeight = (TH1D*)WprimeHist::standard("evtwt","h","","");
   wk()->addOutput(h_event_totalWeight);
   

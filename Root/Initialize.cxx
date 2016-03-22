@@ -49,6 +49,12 @@ EL::StatusCode RecoAnalysis :: initialize ()
     m_isMC = true;
   }
   
+  /// check if it is MC15b or MC15a sample
+  m_isMC15b = true;
+  string sampleName = wk()->metaData()->getString ("sample_name");
+  if ((sampleName.find("_r7"))==std::string::npos)
+	m_isMC15b = false;
+  
   /// count number of events
   m_eventCounter = 0;
 
@@ -147,6 +153,15 @@ EL::StatusCode RecoAnalysis :: initialize ()
   m_looseMuonSelection->msg().setLevel( MSG::ERROR );
   CHECK (m_looseMuonSelection->initialize().isSuccess());
   
+  m_effi_corr = new CP::MuonEfficiencyScaleFactors("MuonEffSFTool");
+  m_effi_corr->setProperty("WorkingPoint","HighPt");
+  //m_effi_corr->setProperty("CalibrationRelease","Data15_allPeriods_260116");
+  CHECK (m_effi_corr->initialize().isSuccess());
+  
+  m_effi_corr_iso = new CP::MuonEfficiencyScaleFactors("MuonIsoSFTool");
+  m_effi_corr_iso->setProperty("WorkingPoint","LooseTrackOnlyIso");
+  //m_effi_corr_iso->setProperty("CalibrationRelease","Data15_allPeriods_260116");
+  CHECK (m_effi_corr_iso->initialize().isSuccess());
   
   /// initialize the muon calibration and smearing tool
   m_muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(
@@ -158,14 +173,10 @@ EL::StatusCode RecoAnalysis :: initialize ()
     return EL::StatusCode::FAILURE;
   }
   
-  //~ m_effi_corr = new CP::MuonEfficiencyScaleFactors m_effi_corr("SomeName");
-  //~ m_effi_corr->setProperty("WorkingPoint","CBandST");
-  //~ m_effi_corr->setProperty("DataPeriod","2012");
-  //~ CHECK (m_effi_corr->initialize().isSuccess());
-  
-  //m_METUtil = new METUtility;
-  //m_METUtil->setVerbosity(true);
-  //m_util->setSoftJetCut(20);
+  /// Muon trigger efficiency scale factors tool
+  m_trig_sf = new CP::MuonTriggerScaleFactors("TrigSF");
+  m_trig_sf->setProperty("MuonQuality", "HighPt");
+  EL_RETURN_CHECK( "initialize MuonTriggerScaleFactors", m_trig_sf->initialize() );
   
   /// Initialize and configure trigger tools
   /// gives us access to the meta-data
@@ -242,8 +253,8 @@ EL::StatusCode RecoAnalysis :: initialize ()
   if (m_isMC){
     m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
     CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
-    CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
-    CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
+    //CHECK(m_LPXKfactorTool->setProperty("applyEWCorr", true)); 
+    //CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
     
     EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
   }
@@ -255,12 +266,18 @@ EL::StatusCode RecoAnalysis :: initialize ()
   m_pileupReweightingTool = new CP::PileupReweightingTool("PileupReweightingTool");
   std::vector<std::string> confFiles;
   std::vector<std::string> lcalcFiles;
-  confFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/prwFileWplusenuMC15b_25ns.root");
+  if (m_isMC15b)
+	confFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/prwFileWplusenuMC15b_25ns.root");
+  else
+    confFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/prwFileWplusenuMC15_25ns.root");
   lcalcFiles.push_back("$ROOTCOREBIN/data/MyAnalysis/ilumicalc_histograms_None_276262-284484.root");
   CHECK(m_pileupReweightingTool->setProperty("ConfigFiles",confFiles));
   CHECK(m_pileupReweightingTool->setProperty("LumiCalcFiles",lcalcFiles)); 
   CHECK(m_pileupReweightingTool->setProperty("DataScaleFactor", 1.0/1.16)); 
-  m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore();
+  if (m_isMC15b)
+    m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore();
+  else
+    m_pileupReweightingTool->setProperty("DefaultChannel", 361106).ignore();
   CHECK(m_pileupReweightingTool->initialize());
   cout << "pileup reweighting initialised" << endl;
   
@@ -283,6 +300,11 @@ EL::StatusCode RecoAnalysis :: initialize ()
     else /// W sample
       m_pdgIdOfMother = 24;
   }
+  
+  // get the systematics registry and add the recommended systematics into our list of systematics to run over (+/-1 sigma):
+  const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
+  const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics(); // get list of recommended systematics
+  m_sysList = CP::make_systematics_vector(recommendedSystematics); 
   
   return EL::StatusCode::SUCCESS;
 }

@@ -28,10 +28,12 @@
 #include "MyAnalysis/RecoAnalysis.h"
 #include "HelpFunctions.h"
 
-const char *tmpArr[] = {"h_mt","h_mgen","h_pt","h_met"};
+// const char *tmpArr[] = {"h_mt","h_mgen","h_pt","h_met"};
+const char *tmpArr[] = {"h_mt","h_pt","h_met"};
 
 struct histStruct{
-  unsigned int nHist = 4;
+//   unsigned int nHist = 4;
+  unsigned int nHist = 3;
   const char **histName = tmpArr;
   map<string,TH1D*> histMap;
 };
@@ -65,6 +67,7 @@ int main( int argc, char* argv[] ) {
     ("z2","zoom x-axis to lower values")
     ("noW","do not make summing up of first sample to others")
     ("drawSeparately,s", "draw each sample separately")
+    ("normalize,n", "normalize all histogram to unity 1")
     ;
   
   /// get global input arguments:
@@ -134,15 +137,18 @@ int main( int argc, char* argv[] ) {
   if (!vm.count("noW"))
     sumUpFirstSampleToOther(myHists);
 
-  TCanvas* tmpCan = new TCanvas("c","c",3508*150/300.,2480*150/300.);
-  TLegend* leg = new TLegend(0.7,0.7,1.0,0.95);
+  TCanvas* tmpCan = new TCanvas("c","c",3508*225/300.,2480*75/300.);
+  //TLegend* leg = new TLegend(0.18,0.75,.58,0.99);
+  TLegend* leg = new TLegend(0.5,0.75,.95,0.99);
   leg->SetHeader("Samples:");
-  tmpCan->Divide(2,2);
+  tmpCan->Divide(3,1);
   for (int iSample=0; iSample<myHists.size(); iSample++){
     histStruct tmpHistStruct = myHists[iSample];
     for (int iHistType=0; iHistType<tmpHistStruct.nHist; iHistType++){
       string histName = tmpHistStruct.histName[iHistType];
       TH1D* tmpHist = tmpHistStruct.histMap[histName];
+      if (vm.count("normalize"))
+        tmpHist->Scale(1.0/tmpHist->Integral());
       tmpCan->cd(iHistType+1);
       if (iSample==0){
         gPad->SetLogx();
@@ -175,14 +181,14 @@ int main( int argc, char* argv[] ) {
         /// draw supplementary hist
         ///********************************************************************
         if (vm.count("drawSeparately")){
-        unsigned int supplementaryHistCounter = 5;
-        for (
-          map<string,TH1D*>::iterator it = supplementaryMap[histName].begin();
-            it!=supplementaryMap[histName].end(); ++it){
-          setHistStyle((*it).second,colorArr[supplementaryHistCounter]);
-          (*it).second->Draw("H same");
-          supplementaryHistCounter++;
-        }
+          unsigned int supplementaryHistCounter = 5;
+          for (
+            map<string,TH1D*>::iterator it = supplementaryMap[histName].begin();
+              it!=supplementaryMap[histName].end(); ++it){
+            setHistStyle((*it).second,colorArr[supplementaryHistCounter]);
+            (*it).second->Draw("H same");
+            supplementaryHistCounter++;
+          }
         }
         ///********************************************************************
       }
