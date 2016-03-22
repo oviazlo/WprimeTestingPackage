@@ -108,6 +108,9 @@ TH1* WprimeHist::standard(Name name, Name hpname, Name sel, Name hptitle) {
   } else if ( name == "evtwt_xSec" ) {
     htitle += " xSec event weight; xSec Event weight" + ylab;
     return create(hname, htitle, 200, -10, 10);
+  } else if ( name == "evtwt_sampleLumi" ) {
+    htitle += " lumi of Sample; lumi of sample, [fb-1]" + ylab;
+    return create(hname, htitle, 10000, 0, 1000000000);
   } else if ( name == "evtwt_filterEff" ) {
     htitle += " filterEff event weight; filterEff Event weight" + ylab;
     return create(hname, htitle, 200, -10, 10);

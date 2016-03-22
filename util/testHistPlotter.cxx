@@ -137,8 +137,8 @@ int main( int argc, char* argv[] ) {
       testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefix+plotsToDraw[i]);
       if (testHist!=NULL){
         setHistStyle(testHist,colorArr[k]);
-        if (samplesToDraw[k]=="wmunu_massbinned")
-          testHist->Scale(10); /// FIXME hardcoded scaling
+//         if (samplesToDraw[k]=="wmunu_massbinned")
+//           testHist->Scale(10); /// FIXME hardcoded scaling
         hs->Add(testHist);
       }
       else{
@@ -154,7 +154,7 @@ int main( int argc, char* argv[] ) {
     }
     else{
       hs->SetMinimum(10E-1);
-      hs->SetMaximum(10E4);
+      hs->SetMaximum(10E3);
     }
     
     hs->GetXaxis()->SetTitle(testHist->GetXaxis()->GetTitle());

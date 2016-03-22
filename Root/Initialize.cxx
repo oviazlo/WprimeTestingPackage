@@ -247,9 +247,10 @@ EL::StatusCode RecoAnalysis :: initialize ()
  
   weightkFactor = 1.0;
   weighfilterEfficiency = 1.0;
-  weightCrossSection = 1.0;
+  sampleLumi = -999.0;
   
   m_LPXKfactorTool = NULL;
+  m_DataSetInfo = NULL;
   if (m_isMC){
     m_LPXKfactorTool = new LPXKfactorTool("LPXKfactorTool");
     CHECK(m_LPXKfactorTool->setProperty("isMC15", true)); 
@@ -257,6 +258,8 @@ EL::StatusCode RecoAnalysis :: initialize ()
     //CHECK(m_LPXKfactorTool->setProperty("applyPICorr", true)); 
     
     EL_RETURN_CHECK( "m_LPXKfactorTool initialize",m_LPXKfactorTool->initialize());
+    
+    m_DataSetInfo = new DataSetInfo();
   }
   
   /// Source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ExtendedPileupReweighting

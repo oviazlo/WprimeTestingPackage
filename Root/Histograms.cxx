@@ -29,9 +29,9 @@ EL::StatusCode RecoAnalysis :: histInitialize ()
   hMu_MET_Muons_off = (TH1D*)WprimeHist::standard("met","h","","");
   wk()->addOutput(hMu_MET_Muons_off); 
   
-  h_event_crossSectionWeight = (TH1D*)WprimeHist::standard("evtwt_xSec","h","",
+  h_event_sampleLumi = (TH1D*)WprimeHist::standard("evtwt_sampleLumi","h","",
                                                            "");
-  wk()->addOutput(h_event_crossSectionWeight);
+  wk()->addOutput(h_event_sampleLumi);
   
   h_event_kFactor = (TH1D*)WprimeHist::standard("evtwt_kFactor","h","","");
   wk()->addOutput(h_event_kFactor);

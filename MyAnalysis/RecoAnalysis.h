@@ -1,6 +1,21 @@
 #ifndef MyAnalysis_RecoAnalysis_H
 #define MyAnalysis_RecoAnalysis_H
 
+/// total data lumi in fb-1
+#define TOTAL_LUMI 3.2
+
+/// Helper macro for checking xAOD::TReturnCode return values
+#define EL_RETURN_CHECK( CONTEXT, EXP )                     \
+   do {                                                     \
+      if( ! EXP.isSuccess() ) {                             \
+         Error( CONTEXT,                                    \
+                XAOD_MESSAGE( "Failed to execute: %s" ),    \
+                #EXP );                                     \
+         return EL::StatusCode::FAILURE;                    \
+      }                                                     \
+   } while( false )
+
+
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/Worker.h>
@@ -61,9 +76,10 @@
 #include "METUtilities/CutsMETMaker.h"
 
 
-
 /// LPXKfactorTool tool
 #include "LPXKfactorTool/LPXKfactorTool.h"
+
+#include <MyAnalysis/DataSetInfo.h>
 
 #include <TFile.h>
 #include <TMath.h>
@@ -71,21 +87,7 @@
 
 /// OutputStream
 #include "EventLoop/OutputStream.h"
-
 #include "xAODRootAccess/tools/Message.h"
-
-/// Helper macro for checking xAOD::TReturnCode return values
-#define EL_RETURN_CHECK( CONTEXT, EXP )                     \
-   do {                                                     \
-      if( ! EXP.isSuccess() ) {                             \
-         Error( CONTEXT,                                    \
-                XAOD_MESSAGE( "Failed to execute: %s" ),    \
-                #EXP );                                     \
-         return EL::StatusCode::FAILURE;                    \
-      }                                                     \
-   } while( false )
-
-
 
 /// EventLoop
 #include <EventLoop/Algorithm.h>
@@ -192,6 +194,7 @@ public:
   /// Custom classes
   HistObjectDumper *m_HistObjectDumper; //!
   BitsetCutflow* m_BitsetCutflow; //!
+  DataSetInfo* m_DataSetInfo; //!
   
   /// 
   xAOD::TEvent *m_event;  //!
@@ -226,7 +229,7 @@ public:
   float TransverseMass; //!
   float weighfilterEfficiency; //!
   float weightkFactor; //!
-  float weightCrossSection; //!
+  float sampleLumi; //!
 
   /// defining the output file name and tree that we will put in the output 
   /// ntuple, also the one branch that will be in that tree 
@@ -271,7 +274,7 @@ public:
   TH1D* hMu_MET_Muons_off; //!
   
   /// EventInfo
-  TH1D* h_event_crossSectionWeight; //!
+  TH1D* h_event_sampleLumi; //!
   TH1D* h_event_kFactor; //!
   TH1D* h_event_filterEfficiency; //!
   TH1D* h_event_SFWeight; //!

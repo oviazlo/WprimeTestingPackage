@@ -13,4 +13,5 @@
 #pragma link C++ class RecoAnalysis+;
 #pragma link C++ class HistObjectDumper+;
 #pragma link C++ class BitsetCutflow+;
+#pragma link C++ class DataSetInfo+;
 #endif
