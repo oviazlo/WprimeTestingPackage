@@ -463,36 +463,6 @@ EL::StatusCode RecoAnalysis :: execute ()
   double m_met_sumet  = finalTrkMet->sumet()/1000.;
   double missingEtPhi = finalTrkMet->phi();
   
-  double metCut = 55.0;
-  double mtCut = 110.0;
-  
-  if (missingEt<metCut)
-    return EL::StatusCode::SUCCESS;
-  m_BitsetCutflow->FillCutflow("MET");
-  
-  double leptonEt;
-  double leptonPhi;
-  
-  if (m_runElectronChannel){
-    leptonEt = metElectrons[0]->pt() * 0.001;
-    leptonPhi = metElectrons[0]->phi();
-  }
-  else{
-    leptonEt = metMuons[0]->pt() * 0.001;
-    leptonPhi = metMuons[0]->phi();
-  }
-  
-  float deltaPhi = TMath::Abs(leptonPhi-missingEtPhi);
-  if(deltaPhi > TMath::Pi())
-        deltaPhi = TMath::TwoPi() - deltaPhi;
-  
-  double mT = sqrt( 2 * missingEt * leptonEt * 
-  (1 - TMath::Cos( deltaPhi ) ) );
-  
-  if (mT<mtCut)
-    return EL::StatusCode::SUCCESS;
-  m_BitsetCutflow->FillCutflow("mT");
-  
   /// get MC weights
   double SFWeight = 1.0;
   double trgSF = -999.0;
@@ -547,16 +517,84 @@ EL::StatusCode RecoAnalysis :: execute ()
     SFWeight = trgSF * recoEffSF * isoSF * puWeight;
   
   }
+  double totalWeight = 1.0;
+  double totalWeight_wo_trgSF = 1.0;
+  double totalWeight_wo_recoEffSF = 1.0;
+  double totalWeight_wo_isoSF = 1.0;
+  if (m_isMC){ /// WARNING is that correct? SF and weights only for MCs?
+    totalWeight = weighfilterEfficiency*weightkFactor*(TOTAL_LUMI/sampleLumi);
+    totalWeight_wo_trgSF =      totalWeight         * recoEffSF * isoSF * puWeight;
+    totalWeight_wo_recoEffSF =  totalWeight * trgSF             * isoSF * puWeight;
+    totalWeight_wo_isoSF =      totalWeight * trgSF * recoEffSF         * puWeight;
+    totalWeight *= SFWeight;
+  }
+  
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts",totalWeight);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts",totalWeight);
+  
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts_noTrgSF",totalWeight_wo_trgSF);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts_noTrgSF",totalWeight_wo_trgSF);
+  
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts_noRecoEffSF",totalWeight_wo_recoEffSF);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts_noRecoEffSF",totalWeight_wo_recoEffSF);
+  
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts_noIsoSF",totalWeight_wo_isoSF);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts_noIsoSF",totalWeight_wo_isoSF);
+  
+  /// see presentation by Saminder Dhaliwal in Lepton+X meetin on March 22.
+  /// https://indico.cern.ch/event/512374/
+  double missingVetoRegion = false;
+  double absMuPhi = abs(metMuons[0]->phi());
+  double absMuEta = abs(metMuons[0]->eta());
+  if (absMuEta>1.05 && absMuEta<1.3){
+    if ((absMuEta>0.21 && absMuEta<0.57) || (absMuEta>1.00 && absMuEta<1.33) || 
+        (absMuEta>1.78 && absMuEta<2.14) || (absMuEta>2.57 && absMuEta<2.93))
+    {
+      missingVetoRegion = true;
+    }
+  }
+  
+  if (missingVetoRegion==false){
+    m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts_updatedHighPtVeto",totalWeight);
+    m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts_updatedHighPtVeto",totalWeight);
+  }
+  
+  double metCut = 55.0;
+  double mtCut = 110.0;
+  
+  if (missingEt<metCut)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("MET");
+  
+  double leptonEt;
+  double leptonPhi;
+  
+  if (m_runElectronChannel){
+    leptonEt = metElectrons[0]->pt() * 0.001;
+    leptonPhi = metElectrons[0]->phi();
+  }
+  else{
+    leptonEt = metMuons[0]->pt() * 0.001;
+    leptonPhi = metMuons[0]->phi();
+  }
+  
+  float deltaPhi = TMath::Abs(leptonPhi-missingEtPhi);
+  if(deltaPhi > TMath::Pi())
+        deltaPhi = TMath::TwoPi() - deltaPhi;
+  
+  double mT = sqrt( 2 * missingEt * leptonEt * 
+  (1 - TMath::Cos( deltaPhi ) ) );
+  
+  if (mT<mtCut)
+    return EL::StatusCode::SUCCESS;
+  m_BitsetCutflow->FillCutflow("mT");
+  
+  
   
   h_event_sampleLumi->Fill(sampleLumi);
   h_event_kFactor->Fill(weightkFactor);
   h_event_filterEfficiency->Fill(weighfilterEfficiency);
   h_event_SFWeight->Fill(SFWeight);
-  
-  double totalWeight = 1.0;
-  if (m_isMC) /// WARNING is that correct? SF and weights only for MCs?
-    totalWeight = weighfilterEfficiency*weightkFactor*SFWeight*(TOTAL_LUMI/sampleLumi);
-  
   h_event_totalWeight->Fill(totalWeight);
   
   hMu_pt_off->Fill(leptonEt,totalWeight);
@@ -568,6 +606,20 @@ EL::StatusCode RecoAnalysis :: execute ()
 
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noWeight",1);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noWeight",1);
+  
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noTrgSF",totalWeight_wo_trgSF);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noTrgSF",totalWeight_wo_trgSF);
+  
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noRecoEffSF",totalWeight_wo_recoEffSF);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noRecoEffSF",totalWeight_wo_recoEffSF);
+  
+  m_HistObjectDumper->plotMuon(metMuons[0],"final_noIsoSF",totalWeight_wo_isoSF);
+  m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noIsoSF",totalWeight_wo_isoSF);
+  
+  if (missingVetoRegion==false){
+    m_HistObjectDumper->plotMuon(metMuons[0],"final_updatedHighPtVeto",totalWeight);
+    m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_updatedHighPtVeto",totalWeight);
+  }
   
   /// WARNING cutflow
 //   cout << "[CUTFLOW]\t" << endl;

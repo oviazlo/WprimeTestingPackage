@@ -31,7 +31,7 @@
 #include "histPlotter/WprimeMergedSample.h"
 
 map<string,string> sampleMap;
-Color_t colorArr[] = {kOrange, kRed, kGreen, kYellow, kBlue, kViolet,
+Color_t colorArr[] = {kOrange, kAzure-9, kRed+1, kWhite, kYellow, kBlue, kViolet,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, 
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
@@ -47,6 +47,7 @@ int main( int argc, char* argv[] ) {
     ("help,h", "Print help messages") 
     ("sampleList,l", po::value<string>(), "file with list of samples and tags")
     ("samplesToDraw,s",po::value<string>()," list of samples to draw, separated by coma")
+    ("histFolder,f",po::value<string>()," specify hist folder to use")
     ;
   
   /// get global input arguments:
@@ -70,7 +71,7 @@ int main( int argc, char* argv[] ) {
     std::string sample = "";
     std::string tag = "";
     sampleListStream >> sample >> tag; 
-    if (sample == "" || tag == "")
+    if (sample == "")
       continue;
     samples.push_back(sample);
     tags.push_back(tag);
@@ -116,7 +117,12 @@ int main( int argc, char* argv[] ) {
   }
 
   //string prefix = "muon/stage_final_noWeight/hObjDump_";
-  string prefix = "muon/stage_final/hObjDump_";
+  string histFolderName = "final";
+  if (vm.count("histFolder"))
+    histFolderName = vm["histFolder"].as<std::string>();
+  
+  string prefix = "muon/stage_" + histFolderName + "/hObjDump_";
+  
   vector<string> plotsToDraw = {"pt","met","mt","eta","phi"};
   
   SetAtlasStyle();
@@ -129,12 +135,19 @@ int main( int argc, char* argv[] ) {
     THStack *hs = new THStack("hs","Stacked 1D histograms");
     
     if (!vm.count("samplesToDraw"))
-      samplesToDraw = {"diboson","z","top","w"};
+      samplesToDraw = {"diboson","z","top","w","data"};
     
-    TH1D* testHist;
+    TH1D *h2 = NULL;
+    TH1D* testHist = NULL;
+    TH1D* dataHist = NULL;
     
     for (int k=0; k<samplesToDraw.size(); k++){
+      if (samplesToDraw[k]=="data"){
+        dataHist = mergedSample->GetMergedDataHist(prefix+plotsToDraw[i]);
+        continue;
+      }
       testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefix+plotsToDraw[i]);
+      
       if (testHist!=NULL){
         setHistStyle(testHist,colorArr[k]);
 //         if (samplesToDraw[k]=="wmunu_massbinned")
@@ -145,16 +158,40 @@ int main( int argc, char* argv[] ) {
         cout << "Plot *" << plotsToDraw[i] << "* is empty for sample " << samplesToDraw[k] 
         << endl; 
       }
+      
+      if (h2==NULL){
+        h2 = (TH1D*)testHist->Clone("h2"); 
+      }
+      else{
+        h2->Add(testHist);
+      }
     }
     
+    TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
+    pad1->SetBottomMargin(0); /// Upper and lower plot are joined
+//     pad1->SetGridx();         /// Vertical grid
+    pad1->Draw();             /// Draw the upper pad: pad1
+    pad1->cd();               /// pad1 becomes the current pad
+    
+    std::size_t found = histFolderName.find("noMET_mT_cuts");
+    
     hs->Draw("HIST");
+    if (dataHist!=NULL)
+      dataHist->Draw("Esame");
     if (i<3){
       hs->SetMinimum(10E-7);
       hs->SetMaximum(10E5);
+      if (found==std::string::npos){
+        hs->GetXaxis()->SetRangeUser(50,2000);
+        dataHist->GetXaxis()->SetRangeUser(50,2000);
+      }
     }
     else{
       hs->SetMinimum(10E-1);
-      hs->SetMaximum(10E3);
+      hs->SetMaximum(8*10E2);
+      
+      if (found!=std::string::npos)
+        hs->SetMaximum(5*10E3);
     }
     
     hs->GetXaxis()->SetTitle(testHist->GetXaxis()->GetTitle());
@@ -169,12 +206,66 @@ int main( int argc, char* argv[] ) {
       gPad->SetLogy();
       gPad->SetLogx();
     }
+   
+    /// lower plot will be in pad
+    tmpCan->cd();          /// Go back to the main canvas before defining pad2
+    TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.3);
+    pad2->SetTopMargin(0);
+    pad2->SetBottomMargin(0.2);
+//     pad2->SetGridx(); /// vertical grid
+    pad2->SetGridy(); /// vertical grid
+    pad2->Draw();
+    pad2->cd();       /// pad2 becomes the current pad
+
+    gPad->Update();
+    if (i>=3){
+      gPad->SetLogx(0);
+    }
+    else{
+      gPad->SetLogx();
+    }
+   
+    /// Define the ratio plot
+    TH1D *h3 = (TH1D*)dataHist->Clone("h3");
+    h3->SetLineColor(kBlack);
+    h3->SetMinimum(0.8);  /// Define Y ..
+    h3->SetMaximum(1.35); /// .. range
+    h3->Sumw2();
+    h3->SetStats(0);      /// No statistics on lower plot
+    h3->Divide(h2);
+    h3->SetMarkerStyle(21);
+    h3->Draw("ep");       /// Draw the ratio plot
+
+    /// Ratio plot (h3) settings
+    h3->SetTitle(""); /// Remove the ratio title
+
+    /// Y axis ratio plot settings
+    h3->GetYaxis()->SetTitle("Data/Bkg");
+    h3->GetYaxis()->SetNdivisions(505);
+    h3->GetYaxis()->SetTitleSize(30);
+    h3->GetYaxis()->SetTitleFont(43);
+    h3->GetYaxis()->SetTitleOffset(1.55);
+    h3->GetYaxis()->SetLabelFont(43); /// Absolute font size in pixel (precision 3)
+    h3->GetYaxis()->SetLabelSize(25);
+    h3->GetYaxis()->SetRangeUser(0.61,1.49);
+
+    /// X axis ratio plot settings
+    h3->GetXaxis()->SetTitleSize(30);
+    h3->GetXaxis()->SetTitleFont(43);
+    h3->GetXaxis()->SetTitleOffset(4.);
+    h3->GetXaxis()->SetLabelFont(43); /// Absolute font size in pixel (precision 3)
+    h3->GetXaxis()->SetLabelSize(25);
     
-    string outFileName = "pictures/testHistPlotter.ps";
+    tmpCan->cd();          /// Go back to the main canvas
+    string outFileName = "pictures/" + histFolderName + ".ps";
     if (i==0&&plotsToDraw.size()>1)
         outFileName += "(";
     if (i==(plotsToDraw.size()-1)&&plotsToDraw.size()>1)
         outFileName += ")";
+    tmpCan->SaveAs(outFileName.c_str());
+    outFileName = "pictures/" + histFolderName + "_" + plotsToDraw[i] + ".ps"; 
+    tmpCan->SaveAs(outFileName.c_str());
+    outFileName = "pictures/" + histFolderName + "_" + plotsToDraw[i] + ".png"; 
     tmpCan->SaveAs(outFileName.c_str());
   }
     

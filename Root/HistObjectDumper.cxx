@@ -169,9 +169,9 @@ int HistObjectDumper::InitNewStageHists(map<string,map<string,TH1*> >& inMap,
 
 void HistObjectDumper::plotMtAndMet(const xAOD::Muon* mu, xAOD::MissingET* finalTrkMet,
                                     string stage_tag, double weight){
-  /// FIXME should these two lines be included as well???
-//   if (m_StageNameDict[stage_tag]==false)
-//     InitNewStageHists(m_muonHistMap,"muon",stage_tag);
+
+  if (m_StageNameDict[stage_tag]==false)
+    InitNewStageHists(m_muonHistMap,"muon",stage_tag);
   
   double missingEt  = finalTrkMet->met()/1000.;
   double missingEtPhi = finalTrkMet->phi();
