@@ -165,6 +165,11 @@ int main( int argc, char* argv[] ) {
       else{
         h2->Add(testHist);
       }
+      
+      cout << endl;
+      cout << "[DEBUG]\t" << plotsToDraw[i] << " " <<  samplesToDraw[k] << endl;
+      testHist->Print("all");
+      
     }
     
     TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
