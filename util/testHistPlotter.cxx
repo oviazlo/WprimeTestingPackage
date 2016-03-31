@@ -85,6 +85,14 @@ int main( int argc, char* argv[] ) {
             return -1;
   }
   
+  /// WARNING testing
+  /// create file with the same name as used list
+  vector<string> tmpStrVec = GetWords(sampleList,'/');
+  string tmpStr = tmpStrVec[tmpStrVec.size()-1];
+  tmpStrVec = GetWords(tmpStr,'.');
+  (tmpStrVec.size()>1) ? tmpStr = tmpStrVec[tmpStrVec.size()-2] : tmpStrVec[0];
+  TFile f((tmpStr+".root").c_str(),"RECREATE");
+  
   WprimeMergedSample *mergedSample = new WprimeMergedSample();
   
   vector<string> samplesToDraw;
@@ -147,11 +155,10 @@ int main( int argc, char* argv[] ) {
         continue;
       }
       testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefix+plotsToDraw[i]);
+      testHist->SetName(("mc_"+samplesToDraw[k]+"_" + histFolderName).c_str());
       
       if (testHist!=NULL){
         setHistStyle(testHist,colorArr[k]);
-//         if (samplesToDraw[k]=="wmunu_massbinned")
-//           testHist->Scale(10); /// FIXME hardcoded scaling
         hs->Add(testHist);
       }
       else{
@@ -166,11 +173,17 @@ int main( int argc, char* argv[] ) {
         h2->Add(testHist);
       }
       
-      cout << endl;
-      cout << "[DEBUG]\t" << plotsToDraw[i] << " " <<  samplesToDraw[k] << endl;
-      testHist->Print("all");
+      f.cd();
+      TDirectory *rdir = f.mkdir(plotsToDraw[i].c_str());
+      rdir->cd();
+      testHist->Write();
+//       cout << endl;
+//       cout << "[DEBUG]\t" << plotsToDraw[i] << " " <<  samplesToDraw[k] << endl;
+//       testHist->Print("all");
       
     }
+    
+    f.Write();
     
     TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
     pad1->SetBottomMargin(0); /// Upper and lower plot are joined
