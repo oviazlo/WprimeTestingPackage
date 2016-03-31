@@ -152,6 +152,12 @@ int main( int argc, char* argv[] ) {
     for (int k=0; k<samplesToDraw.size(); k++){
       if (samplesToDraw[k]=="data"){
         dataHist = mergedSample->GetMergedDataHist(prefix+plotsToDraw[i]);
+        dataHist->SetName(("mc_"+samplesToDraw[k]+"_" + histFolderName).c_str());
+        if(!f.cd(plotsToDraw[i].c_str())){
+          TDirectory *rdir = f.mkdir(plotsToDraw[i].c_str());
+          rdir->cd();
+        }
+        dataHist->Write();
         continue;
       }
       testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefix+plotsToDraw[i]);
