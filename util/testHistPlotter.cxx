@@ -173,9 +173,10 @@ int main( int argc, char* argv[] ) {
         h2->Add(testHist);
       }
       
-      f.cd();
-      TDirectory *rdir = f.mkdir(plotsToDraw[i].c_str());
-      rdir->cd();
+      if(!f.cd(plotsToDraw[i].c_str())){
+        TDirectory *rdir = f.mkdir(plotsToDraw[i].c_str());
+        rdir->cd();
+      }
       testHist->Write();
 //       cout << endl;
 //       cout << "[DEBUG]\t" << plotsToDraw[i] << " " <<  samplesToDraw[k] << endl;
