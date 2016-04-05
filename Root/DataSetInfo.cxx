@@ -26,6 +26,7 @@ m_nEventsMap[361094] = 490000;	/// Sherpa_CT10_WqqZll_SHv21_improved
 m_nEventsMap[361093] = 1952000;	/// Sherpa_CT10_WlvZqq_SHv21_improved
 m_nEventsMap[361092] = 1983000;	/// Sherpa_CT10_WpqqWmlv_SHv21_improved
 m_nEventsMap[361091] = 1977000;	/// Sherpa_CT10_WplvWmqq_SHv21_improved
+m_nEventsMap[361088] = 366025;	/// Sherpa_CT10_lvvv
 m_nEventsMap[361086] = 99400;	/// Sherpa_CT10_ZqqZll
 m_nEventsMap[361084] = 249400;	/// Sherpa_CT10_WqqZll
 m_nEventsMap[361068] = 5929600;	/// Sherpa_CT10_llvv
@@ -172,6 +173,7 @@ m_crossSectionMap[361094] = .0034234;	/// Sherpa_CT10_WqqZll_SHv21_improved
 m_crossSectionMap[361093] = .011494;	/// Sherpa_CT10_WlvZqq_SHv21_improved
 m_crossSectionMap[361092] = .024857;	/// Sherpa_CT10_WpqqWmlv_SHv21_improved
 m_crossSectionMap[361091] = .024885;	/// Sherpa_CT10_WplvWmqq_SHv21_improved
+m_crossSectionMap[361088] = .0034001;	/// Sherpa_CT10_lvvv
 m_crossSectionMap[361086] = .01659;	/// Sherpa_CT10_ZqqZll
 m_crossSectionMap[361084] = .0037583;	/// Sherpa_CT10_WqqZll
 m_crossSectionMap[361068] = .014;	/// Sherpa_CT10_llvv
@@ -296,6 +298,7 @@ m_crossSectionMap[301003] = .0001955;	/// PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_
 m_crossSectionMap[301002] = .001082;	/// PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_250M400
 m_crossSectionMap[301001] = .0029212;	/// PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_180M250
 m_crossSectionMap[301000] = .017478;	/// PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_120M180
+  
   
 }
 

@@ -277,10 +277,7 @@ EL::StatusCode RecoAnalysis :: initialize ()
   CHECK(m_pileupReweightingTool->setProperty("ConfigFiles",confFiles));
   CHECK(m_pileupReweightingTool->setProperty("LumiCalcFiles",lcalcFiles)); 
   CHECK(m_pileupReweightingTool->setProperty("DataScaleFactor", 1.0/1.16)); 
-  if (m_isMC15b)
-    m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore();
-  else
-    m_pileupReweightingTool->setProperty("DefaultChannel", 361106).ignore();
+  m_pileupReweightingTool->setProperty("DefaultChannel", 361100).ignore();
   CHECK(m_pileupReweightingTool->initialize());
   cout << "pileup reweighting initialised" << endl;
   

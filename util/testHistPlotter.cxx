@@ -31,6 +31,7 @@
 #include "histPlotter/WprimeMergedSample.h"
 
 map<string,string> sampleMap;
+po::variables_map vm; 
 Color_t colorArr[] = {kOrange, kAzure-9, kRed+1, kWhite, kYellow, kBlue, kViolet,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, 
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
@@ -39,6 +40,10 @@ Color_t colorArr[] = {kOrange, kAzure-9, kRed+1, kWhite, kYellow, kBlue, kViolet
 };
 
 void setHistStyle(TH1D* inHist, Color_t kColor);
+/// parse name of file from name of input list
+TFile* createOutFile(string listName);
+///
+vector<string> getSamplesToDraw(WprimeMergedSample *mergedSample);
 
 int main( int argc, char* argv[] ) {
 
@@ -51,7 +56,7 @@ int main( int argc, char* argv[] ) {
     ;
   
   /// get global input arguments:
-  po::variables_map vm; 
+  
   const size_t returnedMessage = parseOptionsWithBoost(vm, desc,argc,argv);
   if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 
@@ -85,37 +90,13 @@ int main( int argc, char* argv[] ) {
             return -1;
   }
   
-  /// WARNING testing
-  /// create file with the same name as used list
-  vector<string> tmpStrVec = GetWords(sampleList,'/');
-  string tmpStr = tmpStrVec[tmpStrVec.size()-1];
-  tmpStrVec = GetWords(tmpStr,'.');
-  (tmpStrVec.size()>1) ? tmpStr = tmpStrVec[tmpStrVec.size()-2] : tmpStrVec[0];
-  TFile f((tmpStr+".root").c_str(),"RECREATE");
+  TFile* outFile = createOutFile(sampleList);
   
   WprimeMergedSample *mergedSample = new WprimeMergedSample();
   
-  vector<string> samplesToDraw;
-  if (vm.count("samplesToDraw")){
-    samplesToDraw = GetWords(vm["samplesToDraw"].as<std::string>(),',');
-    cout << "[INFO]\tRunning over saples: ";
-    vector<string> supportedSamples = mergedSample->GetAllSupportedGlobalSampleTags();
-    std::vector<string>::iterator it;
-    for (int i=0; i<samplesToDraw.size(); i++){
-      cout << samplesToDraw[i] << " ";
-      it = find (supportedSamples.begin(), supportedSamples.end(), samplesToDraw[i]);
-      if (it == supportedSamples.end()){
-        cout << "Sample *" << samplesToDraw[i] << "* is not supported by code!!!" << endl;
-        cout << "Available options:" << endl;
-        for (int k=0; k<supportedSamples.size(); k++)
-          cout << supportedSamples[k] << " ";
-        cout << endl;
-        cout << "Terminate execution!!!" << endl;
-        return 0;
-      }
-    }
-    cout << endl;
-  }
+  vector<string> samplesToDraw = getSamplesToDraw(mergedSample);
+  if (samplesToDraw.size()==0)
+    return 0;
   
   for (int i=0; i<samples.size(); i++){
     SH::SampleHandler sh;
@@ -130,8 +111,22 @@ int main( int argc, char* argv[] ) {
     histFolderName = vm["histFolder"].as<std::string>();
   
   string prefix = "muon/stage_" + histFolderName + "/hObjDump_";
+  vector<string> plotsToDrawWithPrefix = {"pt","met","mt","eta","phi"};
+  vector<string> plotsToDrawWoPrefix = {"cutflow_hist"};
   
-  vector<string> plotsToDraw = {"pt","met","mt","eta","phi"};
+  map<string,string> prefixMap;
+  
+  vector<string> plotsToDraw;
+  plotsToDraw.reserve(plotsToDrawWithPrefix.size()+plotsToDrawWoPrefix.size());
+  plotsToDraw.insert(plotsToDraw.end(),plotsToDrawWithPrefix.begin(),plotsToDrawWithPrefix.end());
+  plotsToDraw.insert(plotsToDraw.end(),plotsToDrawWoPrefix.begin(),plotsToDrawWoPrefix.end());
+  
+  for (int i=0; i<plotsToDrawWithPrefix.size(); i++){
+    prefixMap[plotsToDrawWithPrefix[i]] = prefix;
+  }
+  for (int i=0; i<plotsToDrawWoPrefix.size(); i++){
+    prefixMap[plotsToDrawWoPrefix[i]] = "";
+  }
   
   SetAtlasStyle();
 //   gStyle->SetHistTopMargin(0.);
@@ -142,26 +137,29 @@ int main( int argc, char* argv[] ) {
       
     THStack *hs = new THStack("hs","Stacked 1D histograms");
     
-    if (!vm.count("samplesToDraw"))
-      samplesToDraw = {"diboson","z","top","w","data"};
-    
     TH1D *h2 = NULL;
     TH1D* testHist = NULL;
     TH1D* dataHist = NULL;
     
     for (int k=0; k<samplesToDraw.size(); k++){
       if (samplesToDraw[k]=="data"){
-        dataHist = mergedSample->GetMergedDataHist(prefix+plotsToDraw[i]);
+        dataHist = mergedSample->GetMergedDataHist(prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
         dataHist->SetName(("mc_"+samplesToDraw[k]+"_" + histFolderName).c_str());
-        if(!f.cd(plotsToDraw[i].c_str())){
-          TDirectory *rdir = f.mkdir(plotsToDraw[i].c_str());
+        if(!outFile->cd(plotsToDraw[i].c_str())){
+          TDirectory *rdir = outFile->mkdir(plotsToDraw[i].c_str());
           rdir->cd();
         }
         dataHist->Write();
         continue;
       }
-      testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefix+plotsToDraw[i]);
+      testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
       testHist->SetName(("mc_"+samplesToDraw[k]+"_" + histFolderName).c_str());
+      
+      /// WARNING debug
+//       cout << "Print out binflow for hist: " << testHist->GetName() << endl;
+//       for (unsigned int iBin=1; iBin<=testHist->GetNbinsX(); iBin++){
+//         cout << testHist->GetBinContent(iBin) << endl;
+//       }
       
       if (testHist!=NULL){
         setHistStyle(testHist,colorArr[k]);
@@ -179,8 +177,8 @@ int main( int argc, char* argv[] ) {
         h2->Add(testHist);
       }
       
-      if(!f.cd(plotsToDraw[i].c_str())){
-        TDirectory *rdir = f.mkdir(plotsToDraw[i].c_str());
+      if(!outFile->cd(plotsToDraw[i].c_str())){
+        TDirectory *rdir = outFile->mkdir(plotsToDraw[i].c_str());
         rdir->cd();
       }
       testHist->Write();
@@ -190,7 +188,7 @@ int main( int argc, char* argv[] ) {
       
     }
     
-    f.Write();
+    outFile->Write();
     
     TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
     pad1->SetBottomMargin(0); /// Upper and lower plot are joined
@@ -304,6 +302,40 @@ void setHistStyle(TH1D* inHist, Color_t kColor){
   inHist->SetMarkerStyle(21);
   inHist->SetMarkerColor(kColor);
 
+}
+
+TFile* createOutFile(string listName){
+  vector<string> tmpStrVec = GetWords(listName,'/');
+  string tmpStr = tmpStrVec[tmpStrVec.size()-1];
+  tmpStrVec = GetWords(tmpStr,'.');
+  (tmpStrVec.size()>1) ? tmpStr = tmpStrVec[tmpStrVec.size()-2] : tmpStrVec[0];
+  return new TFile((tmpStr+".root").c_str(),"RECREATE");
+}
+
+vector<string> getSamplesToDraw(WprimeMergedSample *mergedSample){
+  vector<string> samplesToDraw;
+  if (vm.count("samplesToDraw")){
+    samplesToDraw = GetWords(vm["samplesToDraw"].as<std::string>(),',');
+    cout << "[INFO]\tRunning over saples: ";
+    vector<string> supportedSamples = mergedSample->GetAllSupportedGlobalSampleTags();
+    std::vector<string>::iterator it;
+    for (int i=0; i<samplesToDraw.size(); i++){
+      cout << samplesToDraw[i] << " ";
+      it = find (supportedSamples.begin(), supportedSamples.end(), samplesToDraw[i]);
+      if (it == supportedSamples.end()){
+        cout << "Sample *" << samplesToDraw[i] << "* is not supported by code!!!" << endl;
+        cout << "Available options:" << endl;
+        for (int k=0; k<supportedSamples.size(); k++)
+          cout << supportedSamples[k] << " ";
+        cout << endl;
+        cout << "Terminate execution!!!" << endl;
+      }
+    }
+    cout << endl;
+  }
+  else
+    samplesToDraw = {"diboson","z","top","w","data"};
+  return samplesToDraw;
 }
 
 // std::vector<std::string> split(const std::string &s, char delim) {

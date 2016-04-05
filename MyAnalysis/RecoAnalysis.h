@@ -2,7 +2,7 @@
 #define MyAnalysis_RecoAnalysis_H
 
 /// total data lumi in fb-1
-#define TOTAL_LUMI 3.2
+#define TOTAL_LUMI 3.20905
 
 /// Helper macro for checking xAOD::TReturnCode return values
 #define EL_RETURN_CHECK( CONTEXT, EXP )                     \
