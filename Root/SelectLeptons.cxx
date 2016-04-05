@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 ///*****************************************************************************
 ///
 /// Custom user-defined functions, which are not standart in EventLoop:

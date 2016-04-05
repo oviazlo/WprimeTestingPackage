@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 #ifndef MyAnalysis_RecoAnalysis_H
 #define MyAnalysis_RecoAnalysis_H
 

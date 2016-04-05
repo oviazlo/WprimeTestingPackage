@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 ///*****************************************************************************
 ///
 /// Implementation of execute() function.

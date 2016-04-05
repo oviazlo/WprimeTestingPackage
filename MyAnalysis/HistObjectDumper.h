@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 #ifndef HistObjectDumper_H
 #define HistObjectDumper_H
 

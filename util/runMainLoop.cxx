@@ -1,3 +1,46 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
+///*****************************************************************************
+///
+/// Main script. Runs over samples, makes analysis selection and produce 
+/// histograms. Can be run in parallel (EventLoop) or standalone.
+///
+///*****************************************************************************
+
+/// WARNING HOWTO run the script for MC/data
+///
+/// runMainLoop -p data15_13TeV.0027* -t p2495 -f finalData_0027 -o
+/// runMainLoop -p mc15_13TeV.301*EXOT9* -t p2495_r7 -f finalMC_massBinnedDY -o
+/// 
+/// -p <pattern> 
+/// run over samples which satisfy this pattern.
+/// inclusive MC pattern:
+/// diboson: 3610*
+/// top: 4100*
+/// mass-binned DY: 301*
+/// inclusive W: 3611*L1_W*
+/// inclusive Z: 3611*L1_Z*
+///
+/// -t <dir>
+/// specify directory where to look for data.
+/// prefix is hardcoded in defaultConfigurations.h file
+/// /nfs/shared/pp/oviazlo/xAOD/<dir>
+/// 
+/// -f <outDir>
+/// specify output directory where EventLoop will write histograms
+///
+/// -o
+/// allow overwritting of output directory.
+///
+/// --directDriver
+/// run script in standalone mode (w/o paralleling). useful for debugging.
+///
+/// description for other flags is in parseOptionsWithBoost() function.
+
+/// TODO
+/// 1) default patterns... and call them with separate flags
+/// 2) cross check electron channel
+
 /// EventLoop/xAOD headers
 #include "xAODRootAccess/Init.h"
 #include "EventLoop/Job.h"
@@ -51,15 +94,6 @@ map<size_t,string> systemMap = boost::assign::map_list_of (CERN,"CERN")
 
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
 size_t systemType;
-
-/// TODO implement default patterns...
-/// and call them with separate flags
-
-/// diboson: 3610*
-/// top: 4100*
-/// mass-binned DY: 301*
-/// inclusive W: 3611*L1_W*
-/// inclusive Z: 3611*L1_Z*
 
 int main( int argc, char* argv[] ) {
  
@@ -141,9 +175,6 @@ int main( int argc, char* argv[] ) {
   .samplePattern (strSamplePattert)
   .scan (sh, inputFilePath);
 
-/// Print what we found:
-//   sh.print(); FIXME
-  
   if ( vm.count("mergeSamples") ){
     string sampleMergePattern;
     if (strSamplePattert.find("data")!=std::string::npos)
@@ -186,12 +217,8 @@ int main( int argc, char* argv[] ) {
   if ( vm.count("nFilesPerJob") )
     job.options()->setDouble (EL::Job::optFilesPerWorker, 
                               vm["nFilesPerJob"].as<unsigned int>());
-  /// define an output and an ntuple associated to that output 
-  //    EL::OutputStream output  ("myOutput");
-  //    job.outputAdd (output);
-  //    EL::NTupleSvc *ntuple = new EL::NTupleSvc ("myOutput");
-  //    job.algsAdd (ntuple);
 
+  /// TODO to find optimal values to use
   job.options()->setDouble (EL::Job::optCacheSize, 10*1024*1024);
   job.options()->setDouble (EL::Job::optCacheLearnEntries, 50);
     

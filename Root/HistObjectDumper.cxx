@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 #include <MyAnalysis/HistObjectDumper.h>
 #include <xAODTracking/TrackingPrimitives.h>
 #include <xAODPrimitives/IsolationType.h>

@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 #ifndef BitsetCutflow_H
 #define BitsetCutflow_H
 

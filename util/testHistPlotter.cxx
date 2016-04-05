@@ -1,3 +1,43 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
+///*****************************************************************************
+///
+/// Plotting script. Plot MCs as THStack. Data - TH1 histogram.
+/// Still in developing and testing state
+///
+///*****************************************************************************
+
+/// WARNING HOWTO run the script
+///
+/// testHistPlotter -l finalAll_v4.txt -s w,data
+/// testHistPlotter -l finalAll_v4.txt
+///
+/// -l <fileName>
+/// list of all directories where histrograms produced by runMainLoop script are
+/// can contain two columns: directory and tag. But second column is optional.
+/// example:
+///  submitDirs/finalData_0027 finalData_0027
+///  submitDirs/finalData_0028_m150 finalData_0028_m150
+///  submitDirs/finalData_0028_m151 finalData_0028_m151
+///  submitDirs/finalMC_diboson finalMC_diboson
+///  submitDirs/finalMC_inclusiveZ finalMC_inclusiveZ
+///  submitDirs/finalMC_inclusiveW finalMC_inclusiveW
+///  submitDirs/finalMC_massBinnedDY finalMC_massBinnedDY
+///  submitDirs/finalMC_top finalMC_top
+///  submitDirs/finalMC_missingDiboson finalMC_missingDiboson
+///
+/// -s <sample1,sample2,sample3,...>
+/// list of inclusive samples to draw separated by comma
+/// allowed sample names to use are specified here in 
+/// WprimeMergedSample::WprimeMergedSample() function.
+/// if this flag is not used script will use plot default samples: 
+/// "diboson","z","top","w","data"
+
+/// TODO
+/// 1) add possibility to make plots w/o data
+/// 2) draw errors on plots and on ratio plots
+/// 3) use tags from input list
+
 /// EventLoop/xAOD
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"
@@ -56,7 +96,6 @@ int main( int argc, char* argv[] ) {
     ;
   
   /// get global input arguments:
-  
   const size_t returnedMessage = parseOptionsWithBoost(vm, desc,argc,argv);
   if (returnedMessage!=SUCCESS) std::exit(returnedMessage);
 

@@ -1,3 +1,11 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
+///*****************************************************************************
+///
+/// Print default cofiguration used for running runMainLoop script.
+///
+///*****************************************************************************
+
 /// std C/C++ headers
 #include <stdlib.h>
 #include <iostream>

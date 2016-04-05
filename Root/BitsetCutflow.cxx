@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 #include <MyAnalysis/BitsetCutflow.h>
 
 /// this is needed to distribute the algorithm to the workers

@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 #ifndef HelpFunctions_H
 #define HelpFunctions_H
 

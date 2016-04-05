@@ -1,3 +1,11 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
+///*****************************************************************************
+///
+/// Print cutflow. Used for cutflow comparison.
+///
+///*****************************************************************************
+
 /// EventLoop/xAOD headers
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"
@@ -40,7 +48,6 @@ int main( int argc, char* argv[] ) {
   desc.add_options()
     ("help,h", "Print help messages") 
     ("folder,f", po::value<string>(), "name of folder to read")
-    ("drawHists,d", "draw histograms")
     ("samplePattern,p", po::value<string>(),"specify Sample Pattern")
     ("useOnlyOneFile", "use only one file from folder")
     ("writeCutflowToFile,w", "save cutflow to file")
@@ -151,31 +158,6 @@ int main( int argc, char* argv[] ) {
   
   if (vm.count("writeCutflowToFile"))
     logFile.close();
-
-  /// FIXME deprecaged functionality; remove it
-  if (vm.count("drawHists")){
-    SetAtlasStyle();
-    
-    /// read pt, MET, Mt histograms, make them pretty and save them
-    TH1D* h_pt = (TH1D*)mySample->readHist ("h_pt");
-    TH1D* h_MET = (TH1D*)mySample->readHist ("h_met");
-    TH1D* h_Mt = (TH1D*)mySample->readHist ("h_mt");
-    
-    TCanvas *can = new TCanvas("can","can",800,800);
-    gPad->SetLogy();
-    
-    h_pt->Draw();
-    h_pt->GetXaxis()->SetRangeUser(0,1000.0);
-    can->SaveAs("pictures/pT.png");
-    
-    h_MET->GetXaxis()->SetRangeUser(0,1000.0);
-    h_MET->Draw();
-    can->SaveAs("pictures/MET.png");
-    
-    h_Mt->GetXaxis()->SetRangeUser(0,1000.0);
-    h_Mt->Draw();
-    can->SaveAs("pictures/mT.png");
-  }
   
   return 0;
 }

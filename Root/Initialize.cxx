@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 ///*****************************************************************************
 ///
 /// Implementation of all functions which are called BEFORE execute:

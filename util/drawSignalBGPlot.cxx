@@ -1,3 +1,13 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
+///*****************************************************************************
+///
+/// Draw and compare shapes of MC background
+/// Script was used mainly for mono-W DM study
+/// and for testing...
+///
+///*****************************************************************************
+
 /// EventLoop/xAOD
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"

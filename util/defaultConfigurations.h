@@ -1,3 +1,5 @@
+/* Copyright 2016 Oleksandr Viazlo */
+
 #ifndef defaultConfigurations_H
 #define defaultConfigurations_H
 
