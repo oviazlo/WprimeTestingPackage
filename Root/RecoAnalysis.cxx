@@ -302,7 +302,7 @@ EL::StatusCode RecoAnalysis :: execute ()
 
 //     cout << "[CUTFLOW_DEBUG]\t" << m_eventInfo->runNumber() << "\t" << EventNumber <<  endl;
   }
-  else{
+  else{ /// m_runElectronChannel == true
     if (elPair.first!=1 || elPair.second!=0)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
@@ -543,7 +543,7 @@ EL::StatusCode RecoAnalysis :: execute ()
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts_noIsoSF",totalWeight_wo_isoSF);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts_noIsoSF",totalWeight_wo_isoSF);
   
-  /// see presentation by Saminder Dhaliwal in Lepton+X meetin on March 22.
+  /// see presentation by Saminder Dhaliwal in Lepton+X meeting on March 22.
   /// https://indico.cern.ch/event/512374/
   double missingVetoRegion = false;
   double absMuPhi = abs(metMuons[0]->phi());

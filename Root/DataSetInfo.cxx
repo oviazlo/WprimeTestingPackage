@@ -28,7 +28,12 @@ m_nEventsMap[361094] = 490000;	/// Sherpa_CT10_WqqZll_SHv21_improved
 m_nEventsMap[361093] = 1952000;	/// Sherpa_CT10_WlvZqq_SHv21_improved
 m_nEventsMap[361092] = 1983000;	/// Sherpa_CT10_WpqqWmlv_SHv21_improved
 m_nEventsMap[361091] = 1977000;	/// Sherpa_CT10_WplvWmqq_SHv21_improved
-m_nEventsMap[361088] = 366025;	/// Sherpa_CT10_lvvv
+
+/// FIXME in AMI nEvents equal to 366025 while in support note - 2000000
+/// let's use value from support note for testing purpise
+// m_nEventsMap[361088] = 366025;	/// Sherpa_CT10_lvvv
+m_nEventsMap[361088] = 2000000;	/// Sherpa_CT10_lvvv
+
 m_nEventsMap[361086] = 99400;	/// Sherpa_CT10_ZqqZll
 m_nEventsMap[361084] = 249400;	/// Sherpa_CT10_WqqZll
 m_nEventsMap[361068] = 5929600;	/// Sherpa_CT10_llvv

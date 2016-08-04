@@ -49,12 +49,14 @@ struct histStruct{
 };
 
 map<string,string> sampleMap;
-Color_t colorArr[] = {kBlack, kBlue, kGreen, kViolet, kOrange, kRed, kYellow, 
+Color_t colorArr[] = {kBlack, kBlue, kGreen, kViolet, kOrange, kRed, kCyan+2, 
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, 
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
   kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed, kGreen, kRed,
 };
+
+map<Color_t,unsigned int> colorLineTypeMap;
 
 void setHistStyle(TH1D* inHist, Color_t kColor);
 void setHistStyle(histStruct inHistStruct, Color_t kColor);
@@ -65,9 +67,13 @@ void sumUpFirstSampleToOther(vector<histStruct> inVecHistStruct);
 map<string,TH1D*> getSummedHistMapPerSample(SH::SampleHandler sh, 
                                          string histName);
 string getKeyWord(string sampleName);
+void initGlobalStructures();
+
 
 int main( int argc, char* argv[] ) {
 
+  initGlobalStructures();
+  
   po::options_description desc("Options"); 
   desc.add_options()
     ("help,h", "Print help messages") 
@@ -77,6 +83,7 @@ int main( int argc, char* argv[] ) {
     ("z2","zoom x-axis to lower values")
     ("noW","do not make summing up of first sample to others")
     ("drawSeparately,s", "draw each sample separately")
+    ("moveLegend",po::value<string>(),"legend position: tr, tl")
     ("normalize,n", "normalize all histogram to unity 1")
     ;
   
@@ -103,6 +110,7 @@ int main( int argc, char* argv[] ) {
     sampleListStream >> sample >> tag; 
     if (sample == "" || tag == "")
       continue;
+    replace( tag.begin(), tag.end(), '$', ' ');
     samples.push_back(sample);
     tags.push_back(tag);
     cout << "[INFO]\tread sample-tag pair: {" << sample << "," << tag << "}" 
@@ -147,11 +155,42 @@ int main( int argc, char* argv[] ) {
   if (!vm.count("noW"))
     sumUpFirstSampleToOther(myHists);
 
-  TCanvas* tmpCan = new TCanvas("c","c",3508*225/300.,2480*75/300.);
+  string tmpStr = "";
+  stringstream strStream(sampleList);
+  getline (strStream, tmpStr, '.');
+  
+  TCanvas* tmpCan1 = new TCanvas("c1","c1",3508*225/3./300.,2480*75/300.);
+  TCanvas* tmpCan2 = new TCanvas("c2","c2",3508*225/3./300.,2480*75/300.);
+  TCanvas* tmpCan3 = new TCanvas("c3","c3",3508*225/3./300.,2480*75/300.);
+  tmpCan1->Divide(1,1);
+  tmpCan2->Divide(1,1);
+  tmpCan3->Divide(1,1);
+  
+  TCanvas* canArr[3];
+  canArr[0] = tmpCan1;
+  canArr[1] = tmpCan2;
+  canArr[2] = tmpCan3;
+  
   //TLegend* leg = new TLegend(0.18,0.75,.58,0.99);
-  TLegend* leg = new TLegend(0.5,0.75,.95,0.99);
-  leg->SetHeader("Samples:");
-  tmpCan->Divide(3,1);
+  TLegend* leg;
+  if (vm.count("moveLegend")){
+    string tmpStr = vm["moveLegend"].as<std::string>();
+    if (tmpStr=="tl")
+      leg = new TLegend(0.18,0.65,.71,0.9);
+    else if (tmpStr=="tr")
+      leg = new TLegend(0.39,0.65,.92,0.9);
+    else{
+      cout << "[ERROR]\tnot supported option for <moveLegend> argument: "  << tmpStr 
+      << ". Please choose between: tr, tl" << endl;
+      leg = new TLegend(0.18,0.65,.71,0.9);
+    }
+  }
+  else
+    leg = new TLegend(0.18,0.65,.71,0.9);
+  
+  leg->SetBorderSize(0);
+//   leg->SetHeader("Samples:");
+  
   for (int iSample=0; iSample<myHists.size(); iSample++){
     histStruct tmpHistStruct = myHists[iSample];
     for (int iHistType=0; iHistType<tmpHistStruct.nHist; iHistType++){
@@ -159,12 +198,14 @@ int main( int argc, char* argv[] ) {
       TH1D* tmpHist = tmpHistStruct.histMap[histName];
       if (vm.count("normalize"))
         tmpHist->Scale(1.0/tmpHist->Integral());
-      tmpCan->cd(iHistType+1);
+//       tmpCan->cd(iHistType+1);
+      canArr[iHistType]->cd(1);
       if (iSample==0){
         gPad->SetLogx();
         gPad->SetLogy();
         tmpHist->GetYaxis()->SetTitle("Entries / pb^{-1}");
         tmpHist->GetXaxis()->SetRangeUser(0,10000);
+        tmpHist->GetXaxis()->SetTitleOffset(1.2);
         if (vm.count("zoom"))
           if (histName=="h_mgen")
             tmpHist->GetXaxis()->SetRangeUser(80,10000);
@@ -209,19 +250,32 @@ int main( int argc, char* argv[] ) {
         if (!vm.count("drawSeparately"))
           leg->Draw();
       }
-      tmpHist->SaveAs(("pictures/"+tags[iSample]+"_"
-      +string(tmpHist->GetName())+".root").c_str());
+      // FIXME fraw legend on each hist!
+      leg->Draw();
+//       tmpHist->SaveAs(("pictures/"+tags[iSample]+"_"
+//       +string(tmpHist->GetName())+".root").c_str());
       
     }
   }
   
-  string tmpStr = "";
-  stringstream strStream(sampleList);
-  getline (strStream, tmpStr, '.');
+  TCanvas* tmpCan = new TCanvas("c","c",3508*225/300.,2480*75/300.);
+  tmpCan->Divide(3,1);
+  tmpCan->cd(1);
+  canArr[0]->DrawClonePad();
+  tmpCan->cd(2);
+  canArr[1]->DrawClonePad();
+  tmpCan->cd(3);
+  canArr[2]->DrawClonePad();
   
   tmpCan->SaveAs(("pictures/"+tmpStr+".png").c_str());
   tmpCan->SaveAs(("pictures/"+tmpStr+".eps").c_str());
-    
+  
+  canArr[0]->SaveAs(("pictures/"+tmpStr+"_pad1.png").c_str());
+  canArr[1]->SaveAs(("pictures/"+tmpStr+"_pad2.png").c_str());
+  canArr[2]->SaveAs(("pictures/"+tmpStr+"_pad3.png").c_str());
+  
+//   tmpCan->cd(2)->SaveAs(("pictures/"+tmpStr+"_pad2.png").c_str());
+//   tmpCan->cd(3)->SaveAs(("pictures/"+tmpStr+"_pad3.png").c_str());  
   return 0;
 }
 
@@ -325,6 +379,9 @@ void setHistStyle(TH1D* inHist, Color_t kColor){
     return;
   inHist->SetLineWidth(2);
   inHist->SetLineColor(kColor);
+//   inHist->SetLineStyle(colorLineTypeMap[kColor]);
+//   cout << "[TEST]:\tcolor = " << kColor << ", style = " 
+//   << colorLineTypeMap[kColor] << endl;
 }
 
 void sumUpFirstSampleToOther(vector<histStruct> inVecHistStruct){
@@ -340,3 +397,13 @@ void sumUpFirstSampleToOther(vector<histStruct> inVecHistStruct){
   }
 }
 
+
+void initGlobalStructures(){
+   colorLineTypeMap[kBlack] = 4;
+   colorLineTypeMap[kBlue] = 8;
+   colorLineTypeMap[kGreen] = 9;
+   colorLineTypeMap[kViolet] = 7;
+   colorLineTypeMap[kOrange] = 1;
+   colorLineTypeMap[kRed] = 2;
+   colorLineTypeMap[kYellow] = 10;
+}

@@ -158,8 +158,9 @@ EL::StatusCode RecoAnalysis :: initialize ()
   m_effi_corr = new CP::MuonEfficiencyScaleFactors("MuonEffSFTool");
   m_effi_corr->setProperty("WorkingPoint","HighPt");
   //m_effi_corr->setProperty("CalibrationRelease","Data15_allPeriods_260116");
-  m_effi_corr->msg().setLevel( MSG::VERBOSE ); // FIXME comment this
+//   m_effi_corr->msg().setLevel( MSG::VERBOSE ); // FIXME comment this
   CHECK (m_effi_corr->initialize().isSuccess());
+  cout << "[MyDEBUG]\t" << m_effi_corr->getProperty<string>("CalibrationRelease") << endl;
   
   m_effi_corr_iso = new CP::MuonEfficiencyScaleFactors("MuonIsoSFTool");
   m_effi_corr_iso->setProperty("WorkingPoint","LooseTrackOnlyIso");
@@ -179,7 +180,7 @@ EL::StatusCode RecoAnalysis :: initialize ()
   /// Muon trigger efficiency scale factors tool
   m_trig_sf = new CP::MuonTriggerScaleFactors("TrigSF");
   m_trig_sf->setProperty("MuonQuality", "HighPt");
-  m_trig_sf->msg().setLevel( MSG::VERBOSE ); // FIXME comment this
+//   m_trig_sf->msg().setLevel( MSG::VERBOSE ); // FIXME comment this
   EL_RETURN_CHECK( "initialize MuonTriggerScaleFactors", m_trig_sf->initialize() );
   
   /// Initialize and configure trigger tools
