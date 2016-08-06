@@ -4,3 +4,7 @@
 
 [To run Cutflow]
 rm rmMe.txt; runMainLoop -p mc15_13TeV.301102* -t p2495_r7 -f cutflow_301102 -o --directDriver >> rmMe.txt; cat rmMe.txt | grep CUTFLOW
+
+[To run over samples]
+runMainLoop -p mc15_13TeV.361088* -t p2495 -f finalMC_missingDiboson_4 -o
+runMainLoop -p data15_13TeV.0027* -t p2495 -f finalData_0027_3 -o

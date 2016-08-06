@@ -127,6 +127,8 @@
 
 #include "PileupReweighting/PileupReweightingTool.h"
    
+#include <sstream>
+   
 /// GRL
 class GoodRunsListSelectionTool;
 class xAODJet;
@@ -190,13 +192,25 @@ public:
   CP::MuonEfficiencyScaleFactors *m_effi_corr_iso; //!
   // list of systematics
   std::vector<CP::SystematicSet> m_sysList; //!
-  
   LPXKfactorTool* m_LPXKfactorTool; //!
   
   /// Custom classes
   HistObjectDumper *m_HistObjectDumper; //!
   BitsetCutflow* m_BitsetCutflow; //!
   DataSetInfo* m_DataSetInfo; //!
+
+  /// Predefined containers
+//   ConstDataVector<xAOD::TauJetContainer> metTaus; 
+//   ConstDataVector<xAOD::PhotonContainer> metPhotons; 
+//   std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets;
+  
+  bool isMetTausFilled = false;
+  bool isMetPhotonsFilled = false;
+  bool isMetJetsFilled = false;
+  
+  /// Global cut values
+  double metCut = 55.0;
+  double mtCut = 110.0;
   
   /// 
   xAOD::TEvent *m_event;  //!
@@ -300,15 +314,17 @@ public:
   virtual EL::StatusCode histFinalize ();
 
   /// Custom made functions
-  std::pair<unsigned int, unsigned int> SelectMuons(
+  std::map<string, unsigned int> SelectMuons(
                                     xAOD::MuonContainer* muons,
                                     xAOD::Vertex* primVertex,
                                     bool fillInCutflow);
 
-  std::pair<unsigned int, unsigned int> SelectElectrons(
+  std::map<string, unsigned int> SelectElectrons(
                                     xAOD::ElectronContainer* electrons,
                                     bool fillInCutflow);
 
+  void plotPtBinnedHists(const xAOD::Muon* mu, xAOD::MissingET* finalTrkMet, string mainRootFileDirName, double weight);
+  
   /// this is needed to distribute the algorithm to the workers
   ClassDef(RecoAnalysis, 1);
 };

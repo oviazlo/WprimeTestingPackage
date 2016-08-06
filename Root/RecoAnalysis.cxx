@@ -200,6 +200,8 @@ EL::StatusCode RecoAnalysis :: execute ()
     return EL::StatusCode::SUCCESS;
   m_BitsetCutflow->FillCutflow("Primary vertex");
 
+  ///***************************************************************************
+  /// Apply corrections for muons and electrons
   const xAOD::MuonContainer* muons = 0;
   EL_RETURN_CHECK("retrieve Muons",
                   m_event->retrieve( muons, "Muons" ));
@@ -207,6 +209,7 @@ EL::StatusCode RecoAnalysis :: execute ()
   std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> classifiedMuons = 
   xAOD::shallowCopyContainer(*muons);
   xAOD::setOriginalObjectLink(*muons, *classifiedMuons.first); 
+  
   for(const auto& muon : *classifiedMuons.first) { /// loop over muoncopy vector
     if (abs(muon->eta())>2.5) continue; /// WARNING FIXME temprorary hack
     CP::CorrectionCode result = 
@@ -217,32 +220,7 @@ EL::StatusCode RecoAnalysis :: execute ()
     }
   }
 
-//   m_store->record(classifiedMuons.first,  "classifiedMuons");
-//   m_store->record(classifiedMuons.second, "classifiedMuonsAux");
-
-  std::pair<unsigned int, unsigned int> muPair;
-  
-  if (!m_runElectronChannel){
-    muPair = SelectMuons(classifiedMuons.first, primVertex, true);
-    
-    xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
-    xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
-    
-    for( ; muon_itr != muon_end; ++muon_itr ) {
-      if ((*muon_itr)->auxdata< bool >( "signal" )){
-        m_HistObjectDumper->plotMuon((*muon_itr),"signal muons");
-      }
-      if ((*muon_itr)->auxdata< bool >( "veto" ))
-        m_HistObjectDumper->plotMuon((*muon_itr),"veto muons");
-    }
-    
-    if (muPair.first!=1 || muPair.second!=0)
-      return EL::StatusCode::SUCCESS;
-    m_BitsetCutflow->FillCutflow("Muon Veto");
-  }
-
   const xAOD::ElectronContainer* electrons(0);
-  
   EL_RETURN_CHECK("retrieve Electrons",
                   m_event->retrieve( electrons, "Electrons" ));
   
@@ -258,23 +236,271 @@ EL::StatusCode RecoAnalysis :: execute ()
       throw std::runtime_error("Error when calibrating electrons. Exiting." );
     }
   }
-
-//   m_store->record(classifiedElectrons.first,  "classifiedElectrons");
-//   m_store->record(classifiedElectrons.second, "classifiedElectronsAux");
+  ///***************************************************************************
   
-  std::pair<unsigned int, unsigned int> elPair;
-  elPair = SelectElectrons( classifiedElectrons.first, m_runElectronChannel );
+  std::map<string, unsigned int> muCounter;
+  muCounter = SelectMuons(classifiedMuons.first, primVertex, !m_runElectronChannel);
+  
+  std::map<string, unsigned int> elCounter;
+  elCounter = SelectElectrons( classifiedElectrons.first, m_runElectronChannel );
 
-  if (!m_runElectronChannel){
+  ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
+  ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
+  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets;
+  
+  if (!m_runElectronChannel){ /// muon channel
     
-    /// check dR for all vetoed electrons with selected muon
     xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
     xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
+    
+    for( ; muon_itr != muon_end; ++muon_itr ) {
+      if ((*muon_itr)->auxdata< bool >( "signal" )){
+        m_HistObjectDumper->plotMuon((*muon_itr),"signal_muons");
+      }
+      if ((*muon_itr)->auxdata< bool >( "veto" ))
+        m_HistObjectDumper->plotMuon((*muon_itr),"veto_muons");
+    }
+    
+    ///*************************************************************************
+    /// fake background inplementation for data only
+    if (!m_isMC){
+     
+      /// calibrate jets, photons and taus. Need to be done here. They will be used also
+      /// for signal leptons which pass isolation!
+      
+      ///***************************************************************************
+      /// calibrate jets for MET
+      const xAOD::JetContainer* jets(0);
+      EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
+                      m_event->retrieve(jets, "AntiKt4EMTopoJets"));
+      
+      metJets = xAOD::shallowCopyContainer(*jets);
+      xAOD::setOriginalObjectLink(*jets, *metJets.first); 
+      for(const auto& jet : *metJets.first) {
+        CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
+        if(result != CP::CorrectionCode::Ok){
+              throw std::runtime_error("Error when calibrating jets. Exiting." );
+        }
+        /// Correcting the xAOD JVT value
+        /// source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
+        bool hasjvt = jet->isAvailable<float>("Jvt");
+        float oldjvt = -999;
+        if (hasjvt) oldjvt = jet->auxdata<float>("Jvt");
+        float newjvt = m_jvtTool->updateJvt(*jet);
+        jet->auxdecor<float>("Jvt") = newjvt;
+      }
+      isMetJetsFilled = true;
+      ///***************************************************************************
+      
+      ///***************************************************************************
+      /// metPhotons
+      const xAOD::PhotonContainer* photons(0);
+      EL_RETURN_CHECK("retrieve Photons",
+                      m_event->retrieve( photons, "Photons" ));
+
+      for(const auto& ph : *photons) {
+        if( !CutsMETMaker::accept(ph) ) continue;
+
+        double photonPt = ph->pt() * 0.001;
+        if ( photonPt < 25.0 ) continue;
+
+        double photonEta = ph->caloCluster()->etaBE(2);
+        if ( abs(photonEta) >= 2.37 ) continue;
+        if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
+        metPhotons.push_back(ph); 
+      }
+      isMetPhotonsFilled = true;
+      ///***************************************************************************
+      
+      ///***************************************************************************
+      /// metTaus
+      const xAOD::TauJetContainer* taus(0);
+      EL_RETURN_CHECK("retrieve TauRecContainer",
+                      m_event->retrieve( taus, "TauJets" ));
+      
+      /// WARNING implementation with only preselection
+      for(const auto& tau : *taus) {
+        if( !CutsMETMaker::accept(tau) ) continue;
+        metTaus.push_back(tau);
+      }
+      isMetTausFilled = true;
+      ///***************************************************************************
+    
+      ///***************************************************************************
+      /// metElectrons_failIso
+      ConstDataVector<xAOD::ElectronContainer> metElectrons_failIso(SG::VIEW_ELEMENTS);
+      for (const auto& elec : *classifiedElectrons.first) {
+        if (elec->auxdata< bool >( "signal_failIso" )){
+          if (elec->auxdata< bool >( "overlap_failIso" )==false)
+            metElectrons_failIso.push_back(elec);
+        }
+      }
+      ///***************************************************************************
+
+      ///***************************************************************************
+      /// metMuons_failIso
+      ConstDataVector<xAOD::MuonContainer> metMuons_failIso(SG::VIEW_ELEMENTS);
+      for (const auto& muon : *classifiedMuons.first) {
+        if (muon->auxdata< bool >( "signal_failIso" )) metMuons_failIso.push_back(muon);
+      }
+      ///***************************************************************************                
+      
+      for (int i=0; i<1; i++){ /// hack make this loop just to enable "break" functionality
+        
+        /// failIso muon veto
+        if (muCounter["nSignalLeptons_failIso"]!=1 || muCounter["nVetoLeptons_failIso"]!=0)
+          break;
+        
+        /// check dR for all vetoed electrons with selected muon
+        xAOD::MuonContainer::iterator muon_itr = classifiedMuons.first->begin();
+        xAOD::MuonContainer::iterator muon_end = classifiedMuons.first->end();
+        
+        xAOD::ElectronContainer::iterator elec_itr = classifiedElectrons.first->begin();
+        xAOD::ElectronContainer::iterator elec_end = classifiedElectrons.first->end();
+
+        int nOverlapElec_failIso = 0;
+        for( ; muon_itr != muon_end; ++muon_itr ) {
+          if ((*muon_itr)->auxdata< bool >( "signal_failIso" )){
+            TLorentzVector part_muon = (*muon_itr)->p4();
+            for( ; elec_itr != elec_end; ++elec_itr ) {
+              if ((*elec_itr)->auxdata< bool >( "veto_failIso" ) || 
+                  (*elec_itr)->auxdata< bool >( "signal_failIso" )){
+                (*elec_itr)->auxdata< bool >( "overlap__failIso" ) = false;
+                TLorentzVector part_elec = (*elec_itr)->p4();
+                double dR = part_muon.DeltaR(part_elec);
+                if (dR<0.1){
+                  nOverlapElec_failIso++;
+                  (*elec_itr)->auxdata< bool >( "overlap_failIso" ) = true;
+                }
+              }
+            }
+            break;
+          }
+        }
+        
+        /// failIso electron veto
+        if ((elCounter["nVetoLeptons_failIso"] + elCounter["nSignalLeptons_failIso"])
+          != nOverlapElec_failIso)
+          break;
+        
+        ///***************************************************************************
+        /// Recalculate and get MET
+        bool doJVTCut = true;
+        std::string softTerm = "PVSoftTrk";
+        std::string finalTerm = "FinalTrk";
+
+        xAOD::MissingETContainer* met_failIso = new xAOD::MissingETContainer;
+        xAOD::MissingETAuxContainer* met_aux_failIso = new xAOD::MissingETAuxContainer;
+        met_failIso->setStore(met_aux_failIso);
+
+        const xAOD::MissingETAssociationMap* metMap_failIso(0);
+        EL_RETURN_CHECK("retrieve METAssoc_AntiKt4EMTopo",
+                        m_event->retrieve( metMap_failIso, "METAssoc_AntiKt4EMTopo" ));
+        
+        const xAOD::MissingETContainer* metcore_failIso(0);
+        EL_RETURN_CHECK("retrieve MET_Core_AntiKt4EMTopo",
+                        m_event->retrieve( metcore_failIso, "MET_Core_AntiKt4EMTopo" ));
+        
+        m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met_failIso, 
+                                metElectrons_failIso.asDataVector(), metMap_failIso);
+        m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met_failIso, 
+                                metPhotons.asDataVector(), metMap_failIso);
+        m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met_failIso, 
+                                metTaus.asDataVector(), metMap_failIso);
+        m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met_failIso, 
+                                metMuons_failIso.asDataVector(), metMap_failIso);
+        m_metMaker->rebuildJetMET("RefJet", softTerm, met_failIso,
+                                  metJets.first, metcore_failIso, metMap_failIso, 
+                                  doJVTCut);        
+
+        m_metMaker->buildMETSum(finalTerm, met_failIso, (*met_failIso)[softTerm]->source());
+        
+        xAOD::MissingET * finalTrkMet_failIso = (*met_failIso)["FinalTrk"];
+        if ( finalTrkMet_failIso == 0) {
+            throw std::runtime_error("Pointer finalTrkMet_failIso is NULL. Exiting." );
+        }
+        
+        double missingEt    = finalTrkMet_failIso->met()/1000.;
+        double m_met_sumet  = finalTrkMet_failIso->sumet()/1000.;
+        double missingEtPhi = finalTrkMet_failIso->phi();
+        
+        /// fill in only for data, so no weights
+        m_HistObjectDumper->plotMuon(metMuons_failIso[0],"final_noMET_mT_cuts_failIso",1.0);
+        m_HistObjectDumper->plotMtAndMet
+        (metMuons_failIso[0],finalTrkMet_failIso,"final_noMET_mT_cuts_failIso",1.0);
+       
+        plotPtBinnedHists(metMuons_failIso[0],finalTrkMet_failIso,
+                          "final_noMET_mT_cuts_failIso",1.0);
+        
+        ///*********************************************************************
+        /// calculate mT
+        double leptonEt;
+        double leptonPhi;
+        
+        leptonEt = metMuons_failIso[0]->pt() * 0.001;
+        leptonPhi = metMuons_failIso[0]->phi();
+        
+        float deltaPhi = TMath::Abs(leptonPhi-missingEtPhi);
+        if(deltaPhi > TMath::Pi())
+              deltaPhi = TMath::TwoPi() - deltaPhi;
+        
+        double mT = sqrt( 2 * missingEt * leptonEt * 
+        (1 - TMath::Cos( deltaPhi ) ) );
+        ///*********************************************************************
+        
+        if (missingEt>metCut && mT>mtCut){
+          m_HistObjectDumper->plotMuon(metMuons_failIso[0],"final_failIso",1.0);
+          m_HistObjectDumper->plotMtAndMet
+          (metMuons_failIso[0],finalTrkMet_failIso,"final_failIso",1.0);
+        
+          plotPtBinnedHists(metMuons_failIso[0],finalTrkMet_failIso,
+                            "final_failIso",1.0);
+        }
+        
+        /// see presentation by Saminder Dhaliwal in Lepton+X meeting on March 22.
+        /// https://indico.cern.ch/event/512374/
+        double missingVetoRegion = false;
+        double absMuPhi = abs(metMuons_failIso[0]->phi());
+        double absMuEta = abs(metMuons_failIso[0]->eta());
+        if (absMuEta>1.05 && absMuEta<1.3){
+          if ((absMuEta>0.21 && absMuEta<0.57) || (absMuEta>1.00 && absMuEta<1.33) || 
+              (absMuEta>1.78 && absMuEta<2.14) || (absMuEta>2.57 && absMuEta<2.93))
+          {
+            missingVetoRegion = true;
+          }
+        }
+        
+        if (missingVetoRegion==false){
+          m_HistObjectDumper->plotMuon(metMuons_failIso[0],"final_noMET_mT_cuts_updatedHighPtVeto_failIso",
+                                       1);
+          m_HistObjectDumper->plotMtAndMet(metMuons_failIso[0],finalTrkMet_failIso,
+                                           "final_noMET_mT_cuts_updatedHighPtVeto_failIso",
+                                           1);
+          
+          plotPtBinnedHists(metMuons_failIso[0],finalTrkMet_failIso,
+                            "final_noMET_mT_cuts_updatedHighPtVeto_failIso",1);
+        }
+        
+      }
+      
+    }
+    ///*************************************************************************
+    
+    ///*************************************************************************
+    /// Muon and electron veto
+    if (muCounter["nSignalLeptons"]!=1 || muCounter["nVetoLeptons"]!=0)
+      return EL::StatusCode::SUCCESS;
+    m_BitsetCutflow->FillCutflow("Muon Veto");
+    
+    /// check dR for all vetoed electrons with selected muon
+    muon_itr = classifiedMuons.first->begin();
+    muon_end = classifiedMuons.first->end();
     
     xAOD::ElectronContainer::iterator elec_itr = classifiedElectrons.first->begin();
     xAOD::ElectronContainer::iterator elec_end = classifiedElectrons.first->end();
     
     int nOverlapElec = 0;
+    int nOverlapElec_failIso = 0;
     
     for( ; muon_itr != muon_end; ++muon_itr ) {
       if ((*muon_itr)->auxdata< bool >( "signal" )){
@@ -296,106 +522,87 @@ EL::StatusCode RecoAnalysis :: execute ()
     }
     
     /// TODO verify this cut somehow...
-    if ((elPair.second+elPair.first)!=nOverlapElec)
+    if ((elCounter["nVetoLeptons"] + elCounter["nSignalLeptons"])!=nOverlapElec)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
 
 //     cout << "[CUTFLOW_DEBUG]\t" << m_eventInfo->runNumber() << "\t" << EventNumber <<  endl;
-  }
+  } /// FIXME no implementation of fake background for electron channel!!!
+    /// FIXME no implementation of overlap check in electron channel!!!
   else{ /// m_runElectronChannel == true
-    if (elPair.first!=1 || elPair.second!=0)
+    if (elCounter["nSignalLeptons"]!=1 || elCounter["nVetoLeptons"]!=0)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Electron Veto");
-//     cout << "[CUTFLOW_DEBUG]\t" << m_eventInfo->runNumber() << "\t" << EventNumber <<  endl;
-    muPair = SelectMuons(classifiedMuons.first, primVertex, 
-                         !m_runElectronChannel);
     
-    if (muPair.first!=0 || muPair.second!=0)
+    if (muCounter["nSignalLeptons"]!=0 || muCounter["nVetoLeptons"]!=0)
       return EL::StatusCode::SUCCESS;
     m_BitsetCutflow->FillCutflow("Muon Veto");
   }
+  ///*************************************************************************
   
+  ///***************************************************************************
   /// calibrate jets for MET
-  const xAOD::JetContainer* jets(0);
-  EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
-                  m_event->retrieve(jets, "AntiKt4EMTopoJets"));
-  
-  std::pair<xAOD::JetContainer*,xAOD::ShallowAuxContainer*> metJets = 
-  xAOD::shallowCopyContainer(*jets);
-  xAOD::setOriginalObjectLink(*jets, *metJets.first); 
-  for(const auto& jet : *metJets.first) {
-    CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
-    if(result != CP::CorrectionCode::Ok){
-          throw std::runtime_error("Error when calibrating jets. Exiting." );
+  if (!isMetJetsFilled){
+    const xAOD::JetContainer* jets(0);
+    EL_RETURN_CHECK("retrieve AntiKt4EMTopoJets",
+                    m_event->retrieve(jets, "AntiKt4EMTopoJets"));
+    
+    metJets = xAOD::shallowCopyContainer(*jets);
+    xAOD::setOriginalObjectLink(*jets, *metJets.first); 
+    for(const auto& jet : *metJets.first) {
+      CP::CorrectionCode result = m_jetCalibrationTool->applyCorrection(*jet);
+      if(result != CP::CorrectionCode::Ok){
+            throw std::runtime_error("Error when calibrating jets. Exiting." );
+      }
+      /// Correcting the xAOD JVT value
+      /// source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
+      bool hasjvt = jet->isAvailable<float>("Jvt");
+      float oldjvt = -999;
+      if (hasjvt) oldjvt = jet->auxdata<float>("Jvt");
+      float newjvt = m_jvtTool->updateJvt(*jet);
+      jet->auxdecor<float>("Jvt") = newjvt;
+
     }
-    /// Correcting the xAOD JVT value
-    /// source: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
-    bool hasjvt = jet->isAvailable<float>("Jvt");
-    float oldjvt = -999;
-    if (hasjvt) oldjvt = jet->auxdata<float>("Jvt");
-    //cout << "calib jet pt " << (*jet).pt()/1000. << " calib jet pt " <<endl;
-    float newjvt = m_jvtTool->updateJvt(*jet);
-    jet->auxdecor<float>("Jvt") = newjvt;
-
   }
-//   m_event->record(metJets.first, "CalibAntiKt4EMTopoJets");
-//   m_event->record(metJets.second,"CalibAntiKt4EMTopoJetsAux.");
+  ///***************************************************************************
   
+  ///***************************************************************************
   /// metPhotons
-  const xAOD::PhotonContainer* photons(0);
-  EL_RETURN_CHECK("retrieve Photons",
-                  m_event->retrieve( photons, "Photons" ));
-  
-  /// preselect photons for MET
-  /// TODO do I need to make hardcopy here?
-  /// or maybe I can just preselect food photons?
-  /// WARNING implementation with hardcopy
-//   xAOD::PhotonContainer* metPhotons = new xAOD::PhotonContainer();
-//   xAOD::AuxContainerBase* metPhotonsAux = new xAOD::AuxContainerBase();
-//   metPhotons->setStore( metPhotonsAux ); ///< Connect the two
-//   
-//   for(const auto& ph : *photons) {
-//     if( !CutsMETMaker::accept(ph) ) continue;
-// 
-//     double photonPt = ph->pt() * 0.001;
-//     if ( photonPt < 25.0 ) continue;
-// 
-//     double photonEta = ph->caloCluster()->etaBE(2);
-//     if ( abs(photonEta) >= 2.37 ) continue;
-//     if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
-//     
-//     /// WARNING it's strange as for me. But it's way it's done in tutorial
-//     xAOD::Photon* photon = new xAOD::Photon();
-//     metPhotons->push_back( photon );
-//     *photon= *ph; /// copies auxdata from one auxstore to the other
-//   }
-  
-  /// WARNING implementation with only preselection
-  ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS); 
-  for(const auto& ph : *photons) {
-    if( !CutsMETMaker::accept(ph) ) continue;
+  if (!isMetPhotonsFilled){
+    const xAOD::PhotonContainer* photons(0);
+    EL_RETURN_CHECK("retrieve Photons",
+                    m_event->retrieve( photons, "Photons" ));
 
-    double photonPt = ph->pt() * 0.001;
-    if ( photonPt < 25.0 ) continue;
+    for(const auto& ph : *photons) {
+      if( !CutsMETMaker::accept(ph) ) continue;
 
-    double photonEta = ph->caloCluster()->etaBE(2);
-    if ( abs(photonEta) >= 2.37 ) continue;
-    if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
-    metPhotons.push_back(ph); 
+      double photonPt = ph->pt() * 0.001;
+      if ( photonPt < 25.0 ) continue;
+
+      double photonEta = ph->caloCluster()->etaBE(2);
+      if ( abs(photonEta) >= 2.37 ) continue;
+      if ( (abs(photonEta > 1.37)) && (abs(photonEta) < 1.52) ) continue;
+      metPhotons.push_back(ph); 
+    }
   }
+  ///***************************************************************************
   
+  ///***************************************************************************
   /// metTaus
-  const xAOD::TauJetContainer* taus(0);
-  EL_RETURN_CHECK("retrieve TauRecContainer",
-                  m_event->retrieve( taus, "TauJets" ));
-  
-  /// WARNING implementation with only preselection
-  ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS); 
-  for(const auto& tau : *taus) {
-    if( !CutsMETMaker::accept(tau) ) continue;
-    metTaus.push_back(tau);
+  if (!isMetTausFilled){
+    const xAOD::TauJetContainer* taus(0);
+    EL_RETURN_CHECK("retrieve TauRecContainer",
+                    m_event->retrieve( taus, "TauJets" ));
+    
+    /// WARNING implementation with only preselection
+    for(const auto& tau : *taus) {
+      if( !CutsMETMaker::accept(tau) ) continue;
+      metTaus.push_back(tau);
+    }
   }
+  ///***************************************************************************
  
+  ///***************************************************************************
   /// metElectrons
   ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
   for (const auto& elec : *classifiedElectrons.first) {
@@ -404,7 +611,9 @@ EL::StatusCode RecoAnalysis :: execute ()
         metElectrons.push_back(elec);
     }
   }
+  ///***************************************************************************
 
+  ///***************************************************************************
   /// metMuons
   ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
   for (const auto& muon : *classifiedMuons.first) {
@@ -412,8 +621,10 @@ EL::StatusCode RecoAnalysis :: execute ()
     /// from metMuons (which are usid in MET rebuilding)
     if (muon->auxdata< bool >( "signal" )) metMuons.push_back(muon);
   }
+  ///***************************************************************************
   
-  /// Recalculate MET
+  ///***************************************************************************
+  /// Recalculate and get MET
   bool doJVTCut = true;
   std::string softTerm = "PVSoftTrk";
   std::string finalTerm = "FinalTrk";
@@ -441,18 +652,6 @@ EL::StatusCode RecoAnalysis :: execute ()
   m_metMaker->rebuildJetMET("RefJet", softTerm, met,
                             metJets.first, metcore, metMap, 
                             doJVTCut);        
-  
-/*  m_metMaker->rebuildMET("Muons", xAOD::Type::Muon, met, 
-                           metMuons.asDataVector(), metMap);
-  m_metMaker->rebuildMET("RefEle", xAOD::Type::Electron, met, 
-                           metElectrons.asDataVector(), metMap);
-  m_metMaker->rebuildMET("RefGamma", xAOD::Type::Photon, met, 
-                           metPhotons.asDataVector(), metMap);
-  m_metMaker->rebuildMET("RefTau", xAOD::Type::Tau, met, 
-                           metTaus.asDataVector(), metMap);
-  m_metMaker->rebuildJetMET("RefJet", softTerm, met,
-                            metJets.first, metcore, metMap, 
-                            doJVTCut); */                                             
 
   m_metMaker->buildMETSum(finalTerm, met, (*met)[softTerm]->source());
   
@@ -464,6 +663,8 @@ EL::StatusCode RecoAnalysis :: execute ()
   double missingEt    = finalTrkMet->met()/1000.;
   double m_met_sumet  = finalTrkMet->sumet()/1000.;
   double missingEtPhi = finalTrkMet->phi();
+  ///***************************************************************************
+  
   
   /// get MC weights
   double SFWeight = 1.0;
@@ -533,6 +734,9 @@ EL::StatusCode RecoAnalysis :: execute ()
   
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts",totalWeight);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts",totalWeight);
+  
+  if (!m_isMC)
+    plotPtBinnedHists(metMuons[0],finalTrkMet,"final_noMET_mT_cuts",totalWeight);
   
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts_noTrgSF",totalWeight_wo_trgSF);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts_noTrgSF",totalWeight_wo_trgSF);
@@ -606,6 +810,9 @@ EL::StatusCode RecoAnalysis :: execute ()
   m_HistObjectDumper->plotMuon(metMuons[0],"final",totalWeight);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final",totalWeight);
 
+  if (!m_isMC)
+    plotPtBinnedHists(metMuons[0],finalTrkMet,"final",totalWeight);
+  
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noWeight",1);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noWeight",1);
   
@@ -643,4 +850,7 @@ EL::StatusCode RecoAnalysis :: execute ()
   
   return EL::StatusCode::SUCCESS;
 }
+
+
+
 

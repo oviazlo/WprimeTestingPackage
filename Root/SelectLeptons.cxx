@@ -14,7 +14,7 @@
 /// this is needed to distribute the algorithm to the workers
 ClassImp(RecoAnalysis)
 
-std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
+std::map<string, unsigned int> RecoAnalysis :: SelectMuons(
                                   xAOD::MuonContainer* muons,
                                   xAOD::Vertex* primVertex,
                                   bool fillInCutflow){
@@ -22,8 +22,10 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
   xAOD::MuonContainer::iterator muon_itr = muons->begin();
   xAOD::MuonContainer::iterator muon_end = muons->end();
   
-  int nVetoLeptons = 0;
-  int nSignalLeptons = 0;
+  unsigned int nVetoLeptons = 0;
+  unsigned int nSignalLeptons = 0;
+  unsigned int nSignalLeptons_failIso = 0;
+  unsigned int nVetoLeptons_failIso = 0;
   
   for( ; muon_itr != muon_end; ++muon_itr ) {
     
@@ -33,6 +35,8 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
     /// Left cut for signal selection apply in the end and fill signal flags
     ( *muon_itr )->auxdata< bool >( "veto" ) = false;
     ( *muon_itr )->auxdata< bool >( "signal" ) = false;
+    ( *muon_itr )->auxdata< bool >( "veto_failIso" ) = false;
+    ( *muon_itr )->auxdata< bool >( "signal_failIso" ) = false;
     
     if ( ( *muon_itr )->muonType()!=xAOD::Muon_v1::Combined ) continue;
     if (fillCutflow) 
@@ -92,41 +96,54 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectMuons(
 //       cout << "[CUTFLOW_DEBUG_MCP_SELECTOR]\t" << m_eventInfo->runNumber() << "\t" << m_eventInfo->eventNumber() <<  endl;
     }
     
-    if (!m_muonisolationSelectionTool->accept(( **muon_itr ))) continue;
-    if (fillCutflow)
-      m_BitsetCutflow->FillCutflow( "Isolation",fillInCutflow );
-    
-    /// check veto lepton if it satisfy signal requirements
-    if (passHighPtCut && passHighPtSelection){
-      ( *muon_itr )->auxdata< bool >( "signal" ) = true;
-      nSignalLeptons++;
+    if (m_muonisolationSelectionTool->accept(( **muon_itr ))){
+      if (fillCutflow)
+        m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
+      
+      /// check veto lepton if it satisfy signal requirements
+      if (passHighPtCut && passHighPtSelection){
+        ( *muon_itr )->auxdata< bool >( "signal" ) = true;
+        nSignalLeptons++;
+      }
+      else{
+        ( *muon_itr )->auxdata< bool >( "veto" ) = true;
+        nVetoLeptons++;
+      }
     }
-    else{
-      ( *muon_itr )->auxdata< bool >( "veto" ) = true;
-      nVetoLeptons++;
+    else{ /// lepton fail isolation
+      /// check veto lepton if it satisfy signal requirements
+      if (passHighPtCut && passHighPtSelection){
+        ( *muon_itr )->auxdata< bool >( "signal_failIso" ) = true;
+        nSignalLeptons_failIso++;
+      }
+      else{
+        ( *muon_itr )->auxdata< bool >( "veto_failIso" ) = true;
+        nVetoLeptons_failIso++;
+      }
     }
   }
   
-  /// all signal leptons are counted as veto...
-  /// subtract them to get exclusive veto leptons
-  std::pair<unsigned int, unsigned int> outPair (nSignalLeptons,
-                                            nVetoLeptons);
+  std::map<string, unsigned int> outMap;
+  outMap["nSignalLeptons"] = nSignalLeptons;
+  outMap["nVetoLeptons"] = nVetoLeptons;
+  outMap["nSignalLeptons_failIso"] = nSignalLeptons_failIso;
+  outMap["nVetoLeptons_failIso"] = nVetoLeptons_failIso;
   
-  return outPair; 
-  
+  return outMap;
+ 
 }
 
-
-
-std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
+std::map<string, unsigned int> RecoAnalysis :: SelectElectrons(
                                   xAOD::ElectronContainer* electrons,
                                   bool fillInCutflow){
   
   xAOD::ElectronContainer::iterator el_itr = electrons->begin();
   xAOD::ElectronContainer::iterator el_end = electrons->end();
   
-  int nVetoLeptons = 0;
-  int nSignalLeptons = 0;
+  unsigned int nVetoLeptons = 0;
+  unsigned int nSignalLeptons = 0;
+  unsigned int nSignalLeptons_failIso = 0;
+  unsigned int nVetoLeptons_failIso = 0;
   
   for( ; el_itr != el_end; ++el_itr ) {
 
@@ -136,6 +153,8 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     /// Left cut for signal selection apply in the end and fill signal flags
     ( *el_itr )->auxdata< bool >( "veto" ) = false;
     ( *el_itr )->auxdata< bool >( "signal" ) = false;
+    ( *el_itr )->auxdata< bool >( "veto_failIso" ) = false;
+    ( *el_itr )->auxdata< bool >( "signal_failIso" ) = false;
     
     if (fillCutflow) 
       m_BitsetCutflow->FillCutflow("oneElectron",fillInCutflow);
@@ -190,29 +209,76 @@ std::pair<unsigned int, unsigned int> RecoAnalysis :: SelectElectrons(
     
     if (fillCutflow)
       m_BitsetCutflow->FillCutflow("ID",fillInCutflow);
-//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass ID" << endl;
     
-    if (!m_eleisolationSelectionTool->accept(**el_itr)) continue;
-    if (fillCutflow)
-      m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
-//     cout << "pt=" << (*el_itr)->pt() * 0.001 << "\tpass Isolation" << endl;
-    
-    /// check veto lepton if it satisfy signal requirements
-    if (passHighPtCut && passHighPtSelection){
-      ( *el_itr )->auxdata< bool >( "signal" ) = true;
-      nSignalLeptons++;
+    if (m_eleisolationSelectionTool->accept(**el_itr)){
+      if (fillCutflow)
+        m_BitsetCutflow->FillCutflow("Isolation",fillInCutflow);
+      
+      /// check veto lepton if it satisfy signal requirements
+      if (passHighPtCut && passHighPtSelection){
+        ( *el_itr )->auxdata< bool >( "signal" ) = true;
+        nSignalLeptons++;
+      }
+      else{
+        ( *el_itr )->auxdata< bool >( "veto" ) = true;
+        nVetoLeptons++;
+      }
     }
-    else{
-      ( *el_itr )->auxdata< bool >( "veto" ) = true;
-      nVetoLeptons++;
+    else{ /// lepton fail isolation
+      /// check veto lepton if it satisfy signal requirements
+      if (passHighPtCut && passHighPtSelection){
+        ( *el_itr )->auxdata< bool >( "signal_failIso" ) = true;
+        nSignalLeptons_failIso++;
+      }
+      else{
+        ( *el_itr )->auxdata< bool >( "veto_failIso" ) = true;
+        nVetoLeptons_failIso++;
+      }
     }
   }
   
-  std::pair<unsigned int, unsigned int> outPair (nSignalLeptons,
-                                            nVetoLeptons);
+  std::map<string, unsigned int> outMap;
+  outMap["nSignalLeptons"] = nSignalLeptons;
+  outMap["nVetoLeptons"] = nVetoLeptons;
+  outMap["nSignalLeptons_failIso"] = nSignalLeptons_failIso;
+  outMap["nVetoLeptons_failIso"] = nVetoLeptons_failIso;
   
-  return outPair; 
+  return outMap;
  
 }
 
-
+void RecoAnalysis :: plotPtBinnedHists(const xAOD::Muon* mu, xAOD::MissingET* finalTrkMet, string mainRootFileDirName, double weight){
+ 
+  const int nPtBins = 11;
+  double ptBinEdge[nPtBins] = {55,60,65,70,75,80,90,100,120,200,2000};
+    
+  ///********************************************************************
+  /// save histos for each pT-bin
+  double muonPt = mu->pt()*0.001;
+  string ptPostfix = "";
+  stringstream ss;
+  
+  for (int iBin=0; iBin<(nPtBins-1); iBin++){
+    if (muonPt>=ptBinEdge[iBin] && muonPt<ptBinEdge[iBin+1]){
+      
+      
+      ss.str(std::string());
+      ss << ptBinEdge[iBin] << "-" << ptBinEdge[iBin+1];
+            
+      ptPostfix = "_ptBin_" + ss.str();
+      m_HistObjectDumper->plotMuon(mu,mainRootFileDirName + ptPostfix,weight);
+      m_HistObjectDumper->plotMtAndMet(mu,finalTrkMet,
+                                       mainRootFileDirName + ptPostfix,weight);
+    }
+  }
+  if (muonPt>=ptBinEdge[nPtBins-1]){
+    ss.str(std::string());
+    ss << (int)ptBinEdge[nPtBins-1];
+    ptPostfix = "_ptBin_" + ss.str();
+    m_HistObjectDumper->plotMuon(mu,mainRootFileDirName + ptPostfix,weight);
+    m_HistObjectDumper->plotMtAndMet(mu,finalTrkMet,
+                                     mainRootFileDirName + ptPostfix,weight);
+  }
+  ///******************************************************************** 
+  
+}

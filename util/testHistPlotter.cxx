@@ -82,7 +82,6 @@ Color_t colorArr[] = {kOrange, kAzure-9, kRed+1, kWhite, kYellow, kBlue, kViolet
 void setHistStyle(TH1D* inHist, Color_t kColor);
 /// parse name of file from name of input list
 TFile* createOutFile(string listName);
-///
 vector<string> getSamplesToDraw(WprimeMergedSample *mergedSample);
 
 int main( int argc, char* argv[] ) {
@@ -179,6 +178,7 @@ int main( int argc, char* argv[] ) {
     TH1D *h2 = NULL;
     TH1D* testHist = NULL;
     TH1D* dataHist = NULL;
+    TH1D* multijetHist = NULL;
     
     for (int k=0; k<samplesToDraw.size(); k++){
       if (samplesToDraw[k]=="data"){
@@ -191,7 +191,12 @@ int main( int argc, char* argv[] ) {
         dataHist->Write();
         continue;
       }
-      testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
+      if (samplesToDraw[k]=="multijet"){
+        testHist = 
+        mergedSample->GetMergedMultijetHist(prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
+      }
+      else
+        testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
       testHist->SetName(("mc_"+samplesToDraw[k]+"_" + histFolderName).c_str());
       
       /// WARNING debug
@@ -376,6 +381,8 @@ vector<string> getSamplesToDraw(WprimeMergedSample *mergedSample){
     samplesToDraw = {"diboson","z","top","w","data"};
   return samplesToDraw;
 }
+
+
 
 // std::vector<std::string> split(const std::string &s, char delim) {
 //     std::vector<std::string> elems;
