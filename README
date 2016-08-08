@@ -6,5 +6,20 @@
 rm rmMe.txt; runMainLoop -p mc15_13TeV.301102* -t p2495_r7 -f cutflow_301102 -o --directDriver >> rmMe.txt; cat rmMe.txt | grep CUTFLOW
 
 [To run over samples]
-runMainLoop -p mc15_13TeV.361088* -t p2495 -f finalMC_missingDiboson_4 -o
-runMainLoop -p data15_13TeV.0027* -t p2495 -f finalData_0027_3 -o
+runMainLoop -p data15_13TeV.0027* -t p2495 -f finalData_0027_5 -o
+runMainLoop -p data15_13TeV.0028*_m150* -t p2495 -f finalData_0028_m150_5 -o
+runMainLoop -p data15_13TeV.0028*_m151* -t p2495 -f finalData_0028_m151_5 -o
+runMainLoop -p mc15_13TeV.301*DAOD_EXOT9* -t p2495_r7 -f finalMC_massBinnedDY_4 -o
+runMainLoop -t p2495_r7 -p mc15_13TeV.4100* -f finalMC_top_4 -o
+runMainLoop -t p2495_r7 -p mc15_13TeV.3610* -f finalMC_diboson_4 -o
+runMainLoop -t p2495_r7 -p mc15_13TeV.3611*L1_W* -f finalMC_inclusiveW_4 -o
+runMainLoop -t p2495_r7 -p mc15_13TeV.3611*L1_Z* -f finalMC_inclusiveZ_4 -o
+runMainLoop -t p2495 -p mc15_13TeV.361088* -f finalMC_missingDiboson_4 -o
+
+[To produce plots]
+testHistPlotter -l finalAll_test.txt -s data,diboson
+testHistPlotter -l finalAll_test.txt -s data,diboson,z,top,w,multijet -f final_noMET_mT_cuts
+
+[mono-W plots]
+drawSignalBGPlot -l test_v4.txt --yAxis 0.0001-10 --noW -n
+drawSignalBGPlot -l dm_final_EFT_vs_SMW.txt --yAxis 0.00000001-1000000 --noW --moveLegend tr
