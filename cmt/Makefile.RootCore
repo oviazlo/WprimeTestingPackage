@@ -13,10 +13,10 @@ PACKAGE          = MyAnalysis
 PACKAGE_PRELOAD  = 
 
 # additional compilation flags to pass (not propagated to dependent packages):
-PACKAGE_CXXFLAGS = -w -g -fno-inline -Og
+PACKAGE_CXXFLAGS = -w -fno-inline -O3
 
 # additional compilation flags to pass (propagated to dependent packages):
-PACKAGE_OBJFLAGS = -w -g -fno-inline -Og
+PACKAGE_OBJFLAGS = -w -fno-inline -O3
 
 # additional linker flags to pass (for compiling the library):
 PACKAGE_LDFLAGS  = 

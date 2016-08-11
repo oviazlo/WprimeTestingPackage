@@ -85,12 +85,13 @@ namespace
  
   const size_t CERN=0;
   const size_t IRIDIUM=1;
-  const size_t ALARIK=2;
+  const size_t AURORA_HEP=2;
+  const size_t AURORA_SNIC=3;
   
 } /// namespace 
 
 map<size_t,string> systemMap = boost::assign::map_list_of (CERN,"CERN") 
-(IRIDIUM,"IRIDIUM") (ALARIK,"ALARIK");
+(IRIDIUM,"IRIDIUM") (AURORA_HEP,"AURORA_HEP") (AURORA_SNIC,"AURORA_SNIC");
 
 int parseOptionsWithBoost(po::variables_map &vm, int argc, char* argv[]);
 size_t systemType;
@@ -130,18 +131,32 @@ int main( int argc, char* argv[] ) {
   hostNameChArr = getenv("HOSTNAME");
   string hostName(hostNameChArr);
   
-  std::string strSamplePattert = configMap["strSamplePattert"];
+  
+  std::string strSamplePattern = configMap["strSamplePattern"];
   if ( vm.count("samplePattern") ){
-    strSamplePattert = vm["samplePattern"].as<std::string>();
+    strSamplePattern = vm["samplePattern"].as<std::string>();
   }
   
   std::size_t found = hostName.find("cern");
   if (found!=std::string::npos)
     systemType = CERN;
   else{
-    std::size_t found = hostName.find("aurora");
-    if (found!=std::string::npos)
-      systemType = ALARIK;
+    /// WARNING before was aurora
+    std::size_t found = hostName.find("au");
+    if (found!=std::string::npos){
+      found = hostName.find("aurora"); /// front-end node --> use SNIC nodes (data storage is visible only from HEP nodes) 
+      if (found!=std::string::npos)
+        systemType = AURORA_SNIC;
+      else{
+        string tmpStrAurora (hostName.begin()+2,hostName.end());
+        std::string::size_type sz;   // alias of size_t
+        int intFromStr = std::stoi (tmpStrAurora,&sz);
+        if ((intFromStr>=193) && (intFromStr<=216)) /// HEP nodes
+          systemType = AURORA_HEP;
+        else
+          systemType = AURORA_SNIC;
+      }
+    }
     else
       systemType = IRIDIUM;
   }
@@ -154,8 +169,11 @@ int main( int argc, char* argv[] ) {
   if (systemType == CERN){
     pathToExtend = configMap["pathToExtend_CERN"];
   }
-  else if (systemType == ALARIK){
-    pathToExtend = configMap["pathToExtend_ALARIK"];
+  else if (systemType == AURORA_HEP){
+    pathToExtend = configMap["pathToExtend_AURORA_HEP"];
+  }
+  else if (systemType == AURORA_SNIC){
+    pathToExtend = configMap["pathToExtend_AURORA_SNIC"];
   }
   else if (systemType == IRIDIUM){
     pathToExtend = configMap["pathToExtend_IRIDIUM"];
@@ -168,16 +186,16 @@ int main( int argc, char* argv[] ) {
   
   inputFilePath = gSystem->ExpandPathName(pathToExtend.c_str());
 
-  cout << "[JobSetup]\tLooking for a sample pattern: " << strSamplePattert 
+  cout << "[JobSetup]\tLooking for a sample pattern: " << strSamplePattern 
   << endl << endl;
   
   SH::ScanDir()
-  .samplePattern (strSamplePattert)
+  .samplePattern (strSamplePattern)
   .scan (sh, inputFilePath);
 
   if ( vm.count("mergeSamples") ){
     string sampleMergePattern;
-    if (strSamplePattert.find("data")!=std::string::npos)
+    if (strSamplePattern.find("data")!=std::string::npos)
       sampleMergePattern = "data15_13TeV.*";
     else
       sampleMergePattern = "mc15_13TeV.*";
@@ -281,18 +299,22 @@ int main( int argc, char* argv[] ) {
     EL::LSFDriver* driver = new EL::LSFDriver;
     std::string slurmSystemDependentOptions;
     
-    if (systemType == ALARIK){
+    if (systemType == AURORA_HEP){
       system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch"
       " ~/bin/bsub; export PATH=$PATH:~/bin");
       slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
-//       " --mem=4000"
-    " -p snic -t 2:00:00 -A snic2015-2-63";
+    " -p hep -t 48:00:00 -A hep2016-1-1 ";
+    }
+    else if (systemType == AURORA_SNIC){
+      system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch"
+      " ~/bin/bsub; export PATH=$PATH:~/bin");
+      slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
+    " -p snic -t 48:00:00 -A snic2015-2-63";
     }
     else if (systemType == IRIDIUM){
       system("mkdir -p ~/bin/; ln -s /usr/bin/sbatch ~/bin/bsub;"
       " export PATH=$PATH:~/bin");
       slurmSystemDependentOptions = "-n 1 --cpus-per-task 1"
-//       " --mem=4000"
     " -p long -t 2:00:00";
     }
     else if (systemType == CERN){
