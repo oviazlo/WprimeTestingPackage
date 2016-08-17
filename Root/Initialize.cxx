@@ -311,6 +311,32 @@ EL::StatusCode RecoAnalysis :: initialize ()
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics(); // get list of recommended systematics
   m_sysList = CP::make_systematics_vector(recommendedSystematics); 
   
+  ///***************************************************************************
+  /// implementation QCD background calculations
+  
+  /// get hostname of the running machine
+  /// check if it is cern or lunarc machines
+  char* rootCoreBinChArr;
+  rootCoreBinChArr = getenv("ROOTCOREBIN");
+  string dataFilePath = string(rootCoreBinChArr) + "/data/MyAnalysis/";
+  
+  TFile *realEffFile = new TFile((dataFilePath + "MMrealEffs.root").c_str(),"READ");
+  TFile *fakeEffFile = new TFile((dataFilePath + "MMfakeEffs.root").c_str(),"READ");
+  
+  realEffHist = (TH1D*)realEffFile->Get("nominal");
+  fakeEffHist = (TH1D*)fakeEffFile->Get("nominal");
+  
+  if (realEffHist==NULL){
+    Error("initialize()", "realEffHist is NULL. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
+  if (fakeEffHist==NULL){
+    Error("initialize()", "fakeEffHist is NULL. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  ///***************************************************************************
+  
   return EL::StatusCode::SUCCESS;
 }
 

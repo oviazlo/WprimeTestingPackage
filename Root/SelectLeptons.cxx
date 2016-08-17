@@ -282,3 +282,20 @@ void RecoAnalysis :: plotPtBinnedHists(const xAOD::Muon* mu, xAOD::MissingET* fi
   ///******************************************************************** 
   
 }
+
+double RecoAnalysis::getRealEff(double lepPt){
+  return realEffHist->GetBinContent(realEffHist->FindBin(lepPt));
+}
+
+double RecoAnalysis::getFakeEff(double lepPt){
+  return fakeEffHist->GetBinContent(fakeEffHist->FindBin(lepPt));
+}
+
+double RecoAnalysis::getQCDWeight(double lepPt, bool passTight){
+  double e_fake = getFakeEff(lepPt);
+  double e_real = getRealEff(lepPt);
+  double dPassTight = passTight ? 1.0 : 0.0;
+  
+  return e_fake * (e_real - dPassTight) / (e_real - e_fake);
+}
+

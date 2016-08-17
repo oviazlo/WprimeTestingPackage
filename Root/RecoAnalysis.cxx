@@ -432,6 +432,16 @@ EL::StatusCode RecoAnalysis :: execute ()
         plotPtBinnedHists(metMuons_failIso[0],finalTrkMet_failIso,
                           "final_noMET_mT_cuts_failIso",1.0);
         
+        ///***************************************************************************
+        /// calculate QCD nkg. hist
+        if (!m_isMC){
+          double QCD_weight = getQCDWeight(metMuons_failIso[0]->pt() * 0.001,false);
+          m_HistObjectDumper->plotMuon(metMuons_failIso[0],"final_noMET_mT_cuts_QCD",QCD_weight);
+          m_HistObjectDumper->plotMtAndMet
+          (metMuons_failIso[0],finalTrkMet_failIso,"final_noMET_mT_cuts_QCD",QCD_weight);
+        }
+        ///***************************************************************************
+        
         ///*********************************************************************
         /// calculate mT
         double leptonEt;
@@ -455,6 +465,17 @@ EL::StatusCode RecoAnalysis :: execute ()
         
           plotPtBinnedHists(metMuons_failIso[0],finalTrkMet_failIso,
                             "final_failIso",1.0);
+          
+          ///***************************************************************************
+          /// calculate QCD nkg. hist
+          if (!m_isMC){
+            double QCD_weight = getQCDWeight(metMuons_failIso[0]->pt() * 0.001,false);
+            m_HistObjectDumper->plotMuon(metMuons_failIso[0],"final_QCD",QCD_weight);
+            m_HistObjectDumper->plotMtAndMet
+            (metMuons_failIso[0],finalTrkMet_failIso,"final_QCD",QCD_weight);
+          }
+          ///***************************************************************************
+
         }
         
         /// see presentation by Saminder Dhaliwal in Lepton+X meeting on March 22.
@@ -735,6 +756,16 @@ EL::StatusCode RecoAnalysis :: execute ()
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts",totalWeight);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noMET_mT_cuts",totalWeight);
   
+  ///***************************************************************************
+  /// calculate QCD nkg. hist
+  if (!m_isMC){
+    double QCD_weight = getQCDWeight(metMuons[0]->pt() * 0.001,true);
+    m_HistObjectDumper->plotMuon(metMuons[0],"final_noMET_mT_cuts_QCD",QCD_weight);
+    m_HistObjectDumper->plotMtAndMet
+    (metMuons[0],finalTrkMet,"final_noMET_mT_cuts_QCD",QCD_weight);
+  }
+  ///***************************************************************************
+  
   if (!m_isMC)
     plotPtBinnedHists(metMuons[0],finalTrkMet,"final_noMET_mT_cuts",totalWeight);
   
@@ -809,9 +840,19 @@ EL::StatusCode RecoAnalysis :: execute ()
 
   m_HistObjectDumper->plotMuon(metMuons[0],"final",totalWeight);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final",totalWeight);
-
+  
   if (!m_isMC)
     plotPtBinnedHists(metMuons[0],finalTrkMet,"final",totalWeight);
+  
+  ///***************************************************************************
+  /// calculate QCD nkg. hist
+  if (!m_isMC){
+    double QCD_weight = getQCDWeight(metMuons[0]->pt() * 0.001,true);
+    m_HistObjectDumper->plotMuon(metMuons[0],"final_QCD",QCD_weight);
+    m_HistObjectDumper->plotMtAndMet
+    (metMuons[0],finalTrkMet,"final_QCD",QCD_weight);
+  }
+  ///***************************************************************************
   
   m_HistObjectDumper->plotMuon(metMuons[0],"final_noWeight",1);
   m_HistObjectDumper->plotMtAndMet(metMuons[0],finalTrkMet,"final_noWeight",1);
@@ -850,7 +891,6 @@ EL::StatusCode RecoAnalysis :: execute ()
   
   return EL::StatusCode::SUCCESS;
 }
-
 
 
 

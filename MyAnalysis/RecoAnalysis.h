@@ -325,6 +325,17 @@ public:
 
   void plotPtBinnedHists(const xAOD::Muon* mu, xAOD::MissingET* finalTrkMet, string mainRootFileDirName, double weight);
   
+  ///***************************************************************************
+  /// implementation QCD background calculations
+  double getRealEff(double lepPt);
+  double getFakeEff(double lepPt);
+  
+  double getQCDWeight(double lepPt, bool passTight);
+  
+  TH1D *realEffHist;
+  TH1D *fakeEffHist;
+  ///***************************************************************************
+  
   /// this is needed to distribute the algorithm to the workers
   ClassDef(RecoAnalysis, 1);
 };
