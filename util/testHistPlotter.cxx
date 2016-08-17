@@ -192,8 +192,12 @@ int main( int argc, char* argv[] ) {
         continue;
       }
       if (samplesToDraw[k]=="multijet"){
+        std::string myHistName = prefixMap[plotsToDraw[i]]+plotsToDraw[i];
+        std::size_t found = myHistName.find("/hObjDump_");
+        myHistName.insert(found,"_QCD");
         testHist = 
-        mergedSample->GetMergedMultijetHist(prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
+//         mergedSample->GetMergedMultijetHist(prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
+        mergedSample->GetMergedDataHist(myHistName);
       }
       else
         testHist = mergedSample->GetMergedHist(samplesToDraw[k],prefixMap[plotsToDraw[i]]+plotsToDraw[i]);
