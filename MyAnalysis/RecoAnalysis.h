@@ -332,8 +332,8 @@ public:
   
   double getQCDWeight(double lepPt, bool passTight);
   
-  TH1D *realEffHist;
-  TH1D *fakeEffHist;
+  TH1D *realEffHist; //!
+  TH1D *fakeEffHist; //!
   ///***************************************************************************
   
   /// this is needed to distribute the algorithm to the workers

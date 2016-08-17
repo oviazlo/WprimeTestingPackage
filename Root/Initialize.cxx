@@ -323,6 +323,16 @@ EL::StatusCode RecoAnalysis :: initialize ()
   TFile *realEffFile = new TFile((dataFilePath + "MMrealEffs.root").c_str(),"READ");
   TFile *fakeEffFile = new TFile((dataFilePath + "MMfakeEffs.root").c_str(),"READ");
   
+  if (realEffFile==NULL){
+    Error("initialize()", "realEffFile is NULL. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
+  if (fakeEffFile==NULL){
+    Error("initialize()", "fakeEffFile is NULL. Exiting." );
+    return EL::StatusCode::FAILURE;
+  }
+  
   realEffHist = (TH1D*)realEffFile->Get("nominal");
   fakeEffHist = (TH1D*)fakeEffFile->Get("nominal");
   
